@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 public class GetApiData {
     private String type;
-    private int Id=0;
+    private String Id="";
 
     private HashMap<String, String> typeMap =new HashMap<>(){{
             put("LINE", "lineInfo");
@@ -35,7 +35,7 @@ public class GetApiData {
     public GetApiData(String type){
         this.type = typeMap.get(type);
     }
-    public GetApiData(String type, int Id){
+    public GetApiData(String type, String Id){
         this.type = typeMap.get(type);
         this.Id = Id;
 
@@ -46,8 +46,8 @@ public class GetApiData {
         StringBuilder urlBuilder = new StringBuilder("http://api.gwangju.go.kr/json/"+type); /*URL*/
         urlBuilder.append("?").append(URLEncoder.encode("serviceKey", StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode("6NJ+9v8lLytvSPezq+1BfBxvNrXCxjoJBuGKqv0HCIC2JCguk1J7zsghyyfWnEZdXUsaVLsQFBMF6GPsYW4Wig==", StandardCharsets.UTF_8)); /**/
 
-        if(Id!=0){
-            urlBuilder.append("&").append(URLEncoder.encode(idType.get(type), StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(String.valueOf(Id), StandardCharsets.UTF_8)); /*노선 ID*/
+        if(Id!=""){
+            urlBuilder.append("&").append(URLEncoder.encode(idType.get(type), StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(Id, StandardCharsets.UTF_8)); /*노선 ID*/
         }
 
         return urlBuilder.toString();
@@ -86,7 +86,7 @@ public class GetApiData {
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        JSONObject jsonObject =  new GetApiData("BUS_LOCATION", 9).getData();
+        JSONObject jsonObject =  new GetApiData("BUS_LOCATION", "9").getData();
         System.out.println("전체 JsonObject: "+jsonObject.toJSONString());
 
         //key 값으로 value 얻기.
