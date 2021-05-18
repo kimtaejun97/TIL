@@ -4,6 +4,7 @@ public class BusLine {
     {
         this.id = id;
     }
+
     public String getBusName() {
         return "getBusName";
     }

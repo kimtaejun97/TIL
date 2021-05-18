@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class BusApplicaion {
     public static void main(String[] args) throws IOException, ParseException {
-        BusLocation busLocation= new BusLocation("9");
+        BusLocationMap busLocation= new BusLocationMap("9");
         System.out.println("버스 이름 : "+ busLocation.getBusName());
         System.out.println("버스 수: "+ busLocation.getBusCount());
         for(int i=0; i<busLocation.getBusCount(); i++){
