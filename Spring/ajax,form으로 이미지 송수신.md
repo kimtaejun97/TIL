@@ -1,6 +1,6 @@
 
 
-###Html form
+### Html form
 ````html
 <form id="input-image" method="post" enctype="multipart/form-data">
     <input type="file" name="image" >
@@ -9,7 +9,7 @@
 ````
 :: 간단하게 파일의 추가와 업로드 버튼을 구현, file imput의 속성을 multiple을 주면 여러개의 파일도 업로드 가능하다.
 
-###Ajax
+### Ajax
 ````javascript
  upload : function () {
         var formData = new FormData($('#input-image')[0]);
@@ -59,6 +59,6 @@ status 200 code를 받지만 반환 형식이 맞지않아 error가 발생하였
 
     }
 ````
-:: @ResponseBody 어노테이션을 사용하지 않으면 ajax에서 응답을 받지 못해 error로 판단한다.
-:: RequestParam에서 아까 input의 name으로 입력하였던 "image"를 설정하고, MultipartFile 형식으로 데이터를 수신한다.
+:: @ResponseBody 어노테이션을 사용하지 않으면 ajax에서 응답을 받지 못해 error로 판단한다.     
+:: RequestParam에서 아까 input의 name으로 입력하였던 "image"를 설정하고, MultipartFile 형식으로 데이터를 수신한다.     
 :: 이름, 크기 등의 정보를 얻고 transferTo 메소드를 이용하여 파일을 저장한다.

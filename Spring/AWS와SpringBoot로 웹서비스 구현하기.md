@@ -6,7 +6,7 @@
 
 - ## 목차
 
-### [Ch.1 프로젝트 생성](https://github.com/kimtaejun97/SpringBoot-AWS/blob/master/%EB%82%B4%EC%9A%A9%20%EC%A0%95%EB%A6%AC/ch1.%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%83%9D%EC%84%B1/1.%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%83%9D%EC%84%B1.md)
+### [Ch.1 프로젝트 생성](https://github.com/kimtaejun97/SpringBoot-AWS/blob/master/%EB%82%B4%EC%9A%A9%20%EC%A0%95%EB%A6%AC/ch1.%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%83%9D%EC%84%B1/)
 
 ### [Ch.2 테스트 코드 작성](https://github.com/kimtaejun97/SpringBoot-AWS/tree/master/%EB%82%B4%EC%9A%A9%20%EC%A0%95%EB%A6%AC/ch2.%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%BD%94%EB%93%9C%20%EC%9E%91%EC%84%B1)
 
