@@ -14,3 +14,4 @@ public class Client {
         Singleton3 singleton3 =Singleton3.INSTANCE;
     }
 }
+ 

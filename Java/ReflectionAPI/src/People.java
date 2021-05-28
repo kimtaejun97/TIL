@@ -38,8 +38,13 @@ public class People {
         System.out.println(objPeopleName);
 
         Field[] objPeoplefields =PeopleClass.getDeclaredFields();
-        for(Field f: objPeoplefields){
-            System.out.println(f.get(objPeople));
+        Field f = objPeoplefields[0];
+
+        System.out.println("private 필드값 변경 전 : "+f.get(objPeople));
+        f.set(objPeople, f.get(objPeople) + " Reflection");
+        System.out.println("private 필드값 변경 후: " + f.get(objPeople));
+
+
         }
     }
-}
+

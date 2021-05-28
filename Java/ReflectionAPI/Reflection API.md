@@ -57,11 +57,18 @@ for(Field f: objPeoplefields){
 ```
 :: 심지어 private로 선언된 필드에도 접근이 가능했다. 정상적으로 objPeople을 생성할때 인자로 전달해 주었던 값이 출력되었다.
 
+```java
+f.set(objPeople, f.get(objPeople) + " Reflection");
+```
+![img.png](img.png)     
+:: private 필드값의 변경또한 가능한 것을 확인할 수 있다.
 
 ## 어떻게?
 ****
 자바코드는 컴파일러를 거쳐 바이트 코드로 변환되어 Static 영역에 저장된다. Reflection API는 이 영역에 접근하여 해당 정보들을 활용할 수 있다.    
 수 많은 라이브러리나 프레임워크에서 Reflection을 사용한다. 스프링 프레임워크에서도 빈 팩토리에서 Reflection을 이용하여 Bean을 관리하고, Hibernate에서 또한 Refelction을 이용하여 엔티티 클래스에 데이터를 주입한다. 때문에 default constructor만 생성할 수 있으면 필드의 값을 주입해줄 수 있다.
+
+예시로 시도해본 메소드들 말고도 많은 메소드가 있으며 접근지정자, 생성자, 패키지 정보, 어노테이션 등 수 많은 정보를 얻을 수 있다고 한다.
 
 
     - Hibernate에서 어떻게 엔티티에 필드값을 주입시켜주는가를 알아보다가 Reflection에 대해 알아보게 되었다.    
