@@ -10,4 +10,4 @@
 ### [Item05. 자원을 직접 명시하지 말고 의존객체 주입을 사용하라.](item05.자원을%20직접%20명시하지%20말고%20의존객체%20주입을%20사용하라.md)
 ### [Item06. 불필요한 객체 생성을 피하라](item06.불필요한%20객체%20생성을%20피하라.md)
 ### [Item07. 다 쓴 객체 참조를 해제하라.](item07.다%20쓴%20객체%20참조를%20해제하라.md)
-### [Item09.try-finally보다는 rty-with-resources를 사용하라](item09.try-finally보다는%20try-with-resources를%20사용하라.md)
+### [Item09. try-finally보다는 rty-with-resources를 사용하라](item09.try-finally보다는%20try-with-resources를%20사용하라.md)
