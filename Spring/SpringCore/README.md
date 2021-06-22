@@ -79,3 +79,39 @@ public class ApplicationConfig {
 
 ### @SpringBootApplication
     - 해당 어노테이션에 Configuration과 ComponentScan이 있기 때문에 ApplicationConfig 를 땨로 만들 필요가 없다.
+
+
+
+# Autowired
+********
+- @Autowired
+    
+    
+    - @Autowired의 기본값은 true(해당 bean을 찾지 못하면 애플리케이션 구동 실패)
+    - @Autowired(require=false)로 설정하여 Optional로 사용 가능.
+
+
+- 사용 위치
+
+
+    - 생성자(4.3부터는 생략 가능.)
+    - 세터
+    - 필드
+
+
+- 경우
+    
+
+    - 해당 타입의 빈이 없는 경우 : not found 에러 발생.
+    - 해당 타입의 빈이 여러 개인 경우 : 어떤걸 주입해줘야 할지 선택하지 못함.
+        -> @Primary 어노테이션을 사용하여 지정.
+        -> List로 모든 bean을 전부 받음.
+
+- 동작 원리
+
+
+    - BeanPostProccessor 인터페이스의 구현체에 의해 동작.
+    - 빈을 생성 한 후 초기화 라이프 사이클 전,후의 부가적인 작업.
+
+
+
