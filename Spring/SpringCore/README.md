@@ -84,14 +84,14 @@ public class ApplicationConfig {
 
 # Autowired
 ********
-- @Autowired
+- ## @Autowired
     
     
     - @Autowired의 기본값은 true(해당 bean을 찾지 못하면 애플리케이션 구동 실패)
     - @Autowired(require=false)로 설정하여 Optional로 사용 가능.
 
 
-- 사용 위치
+- ## 사용 위치
 
 
     - 생성자(4.3부터는 생략 가능.)
@@ -99,7 +99,7 @@ public class ApplicationConfig {
     - 필드
 
 
-- 경우
+- ## 경우
     
 
     - 해당 타입의 빈이 없는 경우 : not found 에러 발생.
@@ -107,7 +107,7 @@ public class ApplicationConfig {
         -> @Primary 어노테이션을 사용하여 지정.
         -> List로 모든 bean을 전부 받음.
 
-- 동작 원리
+- ## 동작 원리
 
 
     - BeanPostProccessor 인터페이스의 구현체에 의해 동작.
@@ -117,14 +117,14 @@ public class ApplicationConfig {
 # @Component와 컴포넌트 스캔
 ****
 
-- 스캔 위치 설정
+- ## 스캔 위치
     
     
     - @SprigBootApplication은 @Configuration, @ComponentScan 어노테이션을 모두 가지고 있음. 
     - @SpringBootApplication이 존재하면 해당 클래스부터 스캔을 시작하고, 해당 클래스의 패키지에 속하는 모든 클래스와 패키지의 범위를 가진다.
     - 필터 : @Configuration(excludeFilters = {@Filter{type, class}, ... }를 이용하여 걸러낼 수 있음.
 
-- 인스턴스 생성으로 애플리케이션 구동. 
+- ## 인스턴스 생성으로 애플리케이션 구동. 
 ```java
 var app = new SpringApplication(AutowiredApplication.class);
 app.addInitializers(new ApplicationContextInitializer<GenericApplicationContext>() {
@@ -138,11 +138,72 @@ app.run(args);
 ```
     - function을 이용한 Bean 등록은 성능상으로는 조금 더 좋지만 불편. ComponentScan을 대체하기는 힘들다.
 
-- @Component
+- ##@Component
 
 
     - @Repository
     - @Service
     - @Controller
     - Configuration
+
+
+# 빈(Bean)의 스코프(Scope)
+****
+
+- ## Scope
+
+
+### 1. 싱글톤(Singleton) : 하나의 객체를 공유. Default
+```java
+@Component
+public class AppRunner implements ApplicationRunner{
+
+    @Autowired
+    Single single;
+
+    @Autowired
+    Proto proto;
+
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        System.out.println(proto);
+        System.out.println(single.getProto());
+    }
+}
+```
+    - 두 Proto 객체가 같은 객체임을 확인할 수 있다.
+
+![img_3.png](img_3.png)
+
+
+### 2. 프로토타입(Prototype) : <mark style='background-color: #fff5b1'> 빈을 받아 올 때</mark> 마다 새로운 인스턴스.
+ - @Scope("prototype")
+
+```java
+@Autowired
+ApplicationContext ctx;
+
+System.out.println(ctx.getBean(Proto.class));
+System.out.println(ctx.getBean(Proto.class));
+System.out.println(ctx.getBean(Proto.class));
+```
+![img_4.png](img_4.png)
+
+
+> 문제 : 싱글톤 빈이 프로토 타입 빈을 참조하면?    
+    -> 프로토 타입 빈이지만 싱글톤 빈의 객체가 항상 동일하기 때문에 프로토 타입의 빈 또한 항상 같은 객체를 반환하게 된다.    
+> 
+> 해결 : 
+> > 1. @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)여   
+> 프록시가 클래스를 감싸게 되고, 해당 프록시 인스턴스가 빈으로 등록되고, 이를 주입하여 참조할 수 있게 한다.
+> 
+> > 2. ObjectProvider<Proto> proto;
+
+
+### 싱글톤 객체 사용시 주의할 점.
+    - 프로퍼티가 공유됨 : Thread safe 하게 코딩해야함.
+    - ApplicationContext 초기 구동시 인스턴스 생성 -> 시간이 조금 더 걸릴 수 있다.
+
+
 
