@@ -114,4 +114,35 @@ public class ApplicationConfig {
     - 빈을 생성 한 후 초기화 라이프 사이클 전,후의 부가적인 작업.
 
 
+# @Component와 컴포넌트 스캔
+****
+
+- 스캔 위치 설정
+    
+    
+    - @SprigBootApplication은 @Configuration, @ComponentScan 어노테이션을 모두 가지고 있음. 
+    - @SpringBootApplication이 존재하면 해당 클래스부터 스캔을 시작하고, 해당 클래스의 패키지에 속하는 모든 클래스와 패키지의 범위를 가진다.
+    - 필터 : @Configuration(excludeFilters = {@Filter{type, class}, ... }를 이용하여 걸러낼 수 있음.
+
+- 인스턴스 생성으로 애플리케이션 구동. 
+```java
+var app = new SpringApplication(AutowiredApplication.class);
+app.addInitializers(new ApplicationContextInitializer<GenericApplicationContext>() {
+    @Override
+    public void initialize(GenericApplicationContext ctx) {
+        // function을 이용한 외부 패키지 클래스 Bean 등록.
+        ctx.registerBean(MyService.class);
+    }
+});
+app.run(args);
+```
+    - function을 이용한 Bean 등록은 성능상으로는 조금 더 좋지만 불편. ComponentScan을 대체하기는 힘들다.
+
+- @Component
+
+
+    - @Repository
+    - @Service
+    - @Controller
+    - Configuration
 
