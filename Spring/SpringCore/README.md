@@ -329,3 +329,114 @@ public MessageSource messageSource(){
 ![img_10.png](img_10.png)
 
 
+# ApplicationEventPublisher
+
+> ApplicationContext extends ApplicationEventPublisher
+> > publishEvent(ApplicationEvent event)
+
+
+### :: 이벤트 만들기
+
+```java
+public class MyEvent  extends ApplicationEvent {
+
+    private int data;
+
+    public MyEvent(Object source) {
+        super(source);
+    }
+
+    public MyEvent(Object source, int data) {
+        super(source);
+        this.data = data;
+    }
+
+    public int getData() {
+        return data;
+    }
+}
+```
+    - ApplicationEvent 상속
+    - Spring 4.2부터는 상속받지 않아도 이벤트로 사용할 수 있다.
+```java
+public class MyEvent{
+
+    private int data;
+    private Object source;
+
+    public MyEvent(Object source, int data) {
+        this.source = source;
+        this.data = data;
+    }
+
+    public Object getSource() {
+        return source;
+    }
+
+    public int getData() {
+        return data;
+    }
+}
+```
+### :: 이벤트 발생 시키기.
+```java
+ @Autowired
+ApplicationEventPublisher publisher;
+
+@Override
+public void run(ApplicationArguments args) throws Exception {
+    publisher.publishEvent(new MyEvent(this, 100));
+}
+```
+    -ApplicationEventPublisher.publishEvent()
+
+### :: 이벤트 처리하기.
+```java
+public class MyEventHandler implements ApplicationListener<MyEvent> {
+    @Override
+    public void onApplicationEvent(MyEvent myEvent) {
+        System.out.println("이벤트를 받음 data: "+ myEvent.getData());
+
+    }
+}
+```
+    - 마찬가지로 Spring 4.2 이후에는 구현하지 않아도 된다.
+
+```java
+@Component
+public class MyEventHandler  {
+    @EventListener
+    public void handle(MyEvent myEvent) {
+        System.out.println("이벤트를 받음 data: "+ myEvent.getData());
+    }
+}
+```
+    - Bean으로의 등록은 필요하다.
+    - 특정 인터페이스의 구현 대신 @EventListener 어노테이션을 사용한다.
+
+> 여러개의 EventListener가 있을 경우 순차적으로 실행된다.
+>     @Order(Ordered.HIGHEST_PRECEDENCE+ n)을 이용하여 우선순위 조정 가능.
+
+> 기본적으로는 Synchronized 이지만 @EnableAsync 와 @Async를 이용하여 각각 다른 쓰레드에서 비동기적으로 처리할 수 있다.    
+![img_12.png](img_12.png)
+
+
+### :: 스프링이 제공하는 기본 이벤트
+
+    - ContextRefreshedEvent : ApplicationContext를 초기화 했거나 리프레시 했을 때 발생.
+    - ContextStartedEvent : ApplicationContext를 start()하여 라이프 사이클 번들이 시작 신호를 받은 시점에 발생
+    - ContextSpoppedEvent : ApplicationContext를 stop()하여 라이프 사이클 번들이 정지 신호를 받은 시점에 발생.
+    - ContextClosedEvent : ApplicationContext를 closed()하여 싱글톤 빈이 소멸되는 시점에 발생.
+    - RequestHandledEvent : HTTP 요청을 처리했을 때 발생.
+
+```java
+@EventListener
+public void handle(ContextRefreshedEvent event){
+    System.out.println("=== Context RefreshedEvent === ");
+}
+@EventListener
+public void handle(ContextClosedEvent event){
+    System.out.println("=== Context ClosedEvent ===");
+}
+```
+![img_13.png](img_13.png)
