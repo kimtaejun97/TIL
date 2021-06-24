@@ -36,7 +36,7 @@ public static void main(String[] args) {
 
 > 단점 : 빈으로 등록하는 것이 번거롭다.
 
-### Component-scan
+### :: Component-scan
 ```xml
     <context:component-scan base-package ="me.growjun.springapplication"/>
 ```
@@ -84,14 +84,14 @@ public class ApplicationConfig {
 
 # Autowired
 ********
-- ## @Autowired
+### :: @Autowired
     
     
     - @Autowired의 기본값은 true(해당 bean을 찾지 못하면 애플리케이션 구동 실패)
     - @Autowired(require=false)로 설정하여 Optional로 사용 가능.
 
 
-- ## 사용 위치
+### :: 사용 위치
 
 
     - 생성자(4.3부터는 생략 가능.)
@@ -99,7 +99,7 @@ public class ApplicationConfig {
     - 필드
 
 
-- ## 경우
+### :: 경우
     
 
     - 해당 타입의 빈이 없는 경우 : not found 에러 발생.
@@ -107,7 +107,7 @@ public class ApplicationConfig {
         -> @Primary 어노테이션을 사용하여 지정.
         -> List로 모든 bean을 전부 받음.
 
-- ## 동작 원리
+### :: 동작 원리
 
 
     - BeanPostProccessor 인터페이스의 구현체에 의해 동작.
@@ -117,14 +117,14 @@ public class ApplicationConfig {
 # @Component와 컴포넌트 스캔
 ****
 
-- ## 스캔 위치
+### :: 스캔 위치
     
     
     - @SprigBootApplication은 @Configuration, @ComponentScan 어노테이션을 모두 가지고 있음. 
     - @SpringBootApplication이 존재하면 해당 클래스부터 스캔을 시작하고, 해당 클래스의 패키지에 속하는 모든 클래스와 패키지의 범위를 가진다.
     - 필터 : @Configuration(excludeFilters = {@Filter{type, class}, ... }를 이용하여 걸러낼 수 있음.
 
-- ## 인스턴스 생성으로 애플리케이션 구동. 
+### :: 인스턴스 생성으로 애플리케이션 구동. 
 ```java
 var app = new SpringApplication(AutowiredApplication.class);
 app.addInitializers(new ApplicationContextInitializer<GenericApplicationContext>() {
@@ -138,7 +138,7 @@ app.run(args);
 ```
     - function을 이용한 Bean 등록은 성능상으로는 조금 더 좋지만 불편. ComponentScan을 대체하기는 힘들다.
 
-- ##@Component
+### :: @Component
 
 
     - @Repository
@@ -198,7 +198,7 @@ System.out.println(ctx.getBean(Proto.class));
 > > 2. ObjectProvider<Proto> proto;
 
 
-### 싱글톤 객체 사용시 주의할 점.
+### :: 싱글톤 객체 사용시 주의할 점.
     - 프로퍼티가 공유됨 : Thread safe 하게 코딩해야함.
     - ApplicationContext 초기 구동시 인스턴스 생성 -> 시간이 조금 더 걸릴 수 있다.
 
@@ -211,7 +211,7 @@ System.out.println(ctx.getBean(Proto.class));
 > ApplicationContext extends EnvironmentCapable
 > > getEnvironment()
 
-### Profile 정의
+### :: Profile 정의
 1. Configuration 사용. (빈 설정파일)
 ```java
 @Configuration
@@ -236,7 +236,7 @@ public class TestBookRepisitory implements BookRepository{
 
 > @Profile("!test")를 이용하여 'test'가 아닐 때만 설정하도록 만들 수도 있다. '&', '|' 도 마찬가지로 사용 가능하다.
 
-### profile 설정
+### :: profile 설정
 1. Active Prifiles      
 ![img_5.png](img_5.png)
    
@@ -254,7 +254,7 @@ System.out.println(Arrays.toString(environment.getActiveProfiles()));
 
 # Environment : 프로퍼티.
 
-### 프로퍼티 지정
+### :: 프로퍼티 지정
 1. -D 옵션
 
 
@@ -289,5 +289,43 @@ String appName;
 > 우선순위 : 계층 구조이기 때문에 우선순위가 존재, VM option이 우선순위가 더 높다.
 
 
+# MessageSource
+***
+### :: 국제화 기능을 제공하는 인터페이스.
+
+> ApplicationContext extends MessageSource
+> > getMessage(String code, Object[] args, Locale)
+
+![img_8.png](img_8.png)
+```properties
+#messages.properties
+greeting=Hello, {0}
+
+#messages_ko_KR.properties
+greeting=안녕, {0}
+```
+
+```java
+ System.out.println(messageSource.getMessage("greeting", new String[]{"taejun"}, Locale.KOREA));
+```
+![img_9.png](img_9.png)
+
+     - 스프링 부트를 사용하면 기본적으로 ResourceBundleMessageSource가 Bean으로 등록되어 있기 때문에 별다른 설정없이 바로 사용할 수 있다.
+
+### :: Reloadable
+```java
+@Bean
+public MessageSource messageSource(){
+    var messageSource = new ReloadableResourceBundleMessageSource();
+    messageSource.setBasename("classpath:/messages");
+    messageSource.setDefaultEncoding("UTF-8");
+    messageSource.setCacheSeconds(3);
+    
+    return messageSource;
+}
+```
+:: 애플리케이션중에 파일을 변경하고 Build를 실행하면 실시간으로 변경 가능.
+
+![img_10.png](img_10.png)
 
 
