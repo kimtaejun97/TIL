@@ -150,9 +150,6 @@ app.run(args);
 # 빈(Bean)의 스코프(Scope)
 ****
 
-- ## Scope
-
-
 ### 1. 싱글톤(Singleton) : 하나의 객체를 공유. Default
 ```java
 @Component
@@ -204,6 +201,93 @@ System.out.println(ctx.getBean(Proto.class));
 ### 싱글톤 객체 사용시 주의할 점.
     - 프로퍼티가 공유됨 : Thread safe 하게 코딩해야함.
     - ApplicationContext 초기 구동시 인스턴스 생성 -> 시간이 조금 더 걸릴 수 있다.
+
+
+
+
+# Environment : 프로파일.
+****
+
+> ApplicationContext extends EnvironmentCapable
+> > getEnvironment()
+
+### Profile 정의
+1. Configuration 사용. (빈 설정파일)
+```java
+@Configuration
+@Profile("test")
+public class TestConfiguration {
+    @Bean
+    public BookRepository bookRepository(){
+        return new TestBookRepisitory();
+    }
+
+}
+```
+    - 'test'라는 프로파일로 애플리케이션을 실행할 때만 사용할 수 있는 Bean이 됨.
+
+2. Bean 으로 만들 클래스를 Component로 만들고 Profile 지정.
+```java
+@Repository
+@Profile("test")
+public class TestBookRepisitory implements BookRepository{
+}
+```
+
+> @Profile("!test")를 이용하여 'test'가 아닐 때만 설정하도록 만들 수도 있다. '&', '|' 도 마찬가지로 사용 가능하다.
+
+### profile 설정
+1. Active Prifiles      
+![img_5.png](img_5.png)
+   
+2. VM options
+![img_6.png](img_6.png)
+   
+
+```java
+Environment environment =  ctx.getEnvironment();
+System.out.println(Arrays.toString(environment.getDefaultProfiles()));
+System.out.println(Arrays.toString(environment.getActiveProfiles()));
+```
+![img_7.png](img_7.png)
+
+
+# Environment : 프로퍼티.
+
+### 프로퍼티 지정
+1. -D 옵션
+
+
+    - ex) VM options : -Dapp.name="app1"
+```java
+ System.out.println(environment.getProperty("app.name"));
+```
+
+2.properties file
+
+```properties
+#app.properties
+app.about=spring
+```
+
+```java
+// Configuration class에 어노테이션 추가.
+@PropertySource("classpath:/app.properties")
+```
+
+
+```java
+ System.out.println(environment.getProperty("app.about"));
+```
+
+3.@Value()
+```java
+@Value("${app.name}")
+String appName;
+```
+
+> 우선순위 : 계층 구조이기 때문에 우선순위가 존재, VM option이 우선순위가 더 높다.
+
 
 
 
