@@ -1,3 +1,18 @@
+# 📜 목차
+****
+
+- #### [ApplicationContext와 다양한 빈 설정 방법](#ApplicationContext와-다양한-빈-설정-방법)
+- #### [Autowired](#Autowired)
+- #### [@Component와 컴포넌트 스캔](#@Component와-컴포넌트-스캔)
+- #### [빈(Bean)의 스코프(Scope)](#빈(Bean)의-스코프(Scope))
+- #### [Environment : 프로파일.](#Environment-:-프로파일.)
+- #### [Environment : 프로퍼티.](#Environment-:-프로퍼티.)
+- #### [MessageSource](#MessageSource) 
+- #### [ApplicationEventPublisher](#ApplicationEventPublisher)
+- #### [ResourceLoader](#ResourceLoader)
+
+
+
 # ApplicationContext와 다양한 빈 설정 방법
 ***********
 
@@ -22,6 +37,7 @@
     - property를 이용하여 BookService에 BookRepository 주입. name은 클래스의 setter에서 가져오, ref는 참조할 bean의 id
 
 ```java
+
 public static void main(String[] args) {
     ApplicationContext context = new ClassPathXmlApplicationContext("application.xml");
     String[] beanDefinitionNames =  context.getBeanDefinitionNames();
@@ -205,7 +221,7 @@ System.out.println(ctx.getBean(Proto.class));
 
 
 
-# Environment : 프로파일.
+# Environment : 프로파일
 ****
 
 > ApplicationContext extends EnvironmentCapable
@@ -440,3 +456,80 @@ public void handle(ContextClosedEvent event){
 }
 ```
 ![img_13.png](img_13.png)
+
+
+# ResourceLoader
+*********
+> 리소스를 읽어오는 기능을 제공하는 인터페이스.
+> 
+> ApplicationContext extends ResourceLoader
+
+
+## :: 리소스 읽어오기.
+### 1. 파일 시스템에서 읽어오기.
+   
+### 2. 클래스 패스에서 읽어오기.
+   
+### 3. URL로 읽어오기.
+   
+### 4. 상대/절대 경로로 읽어오기.
+
+
+- ### ex)
+```java
+ @Autowired
+ResourceLoader resourceLoader;
+
+@Override
+public void run(ApplicationArguments args) throws Exception {
+    Resource resource =  resourceLoader.getResource("classpath:test.txt");
+    System.out.println(resource.exists());
+    System.out.println(resource.getDescription());
+    System.out.println(Files.readString(Path.of(resource.getURI())));
+}
+```
+
+
+# Resource 추상화
+****
+- ### 특징
+> - java.net.URL을 추상화 한 것.
+> - 스프링 내부에서 많이 사용하는 인터페이스.
+
+- ### 추상화 이유
+> - 클래스 패스 기준으로 리소스를 읽어오는 기능의 부재   
+> - ServletContext를 기준으로 상대 경로롤 읽어오는 기능 부재.
+> - 새로운 핸들러를 등록하여 특별한 URL 접미사를 만들어 사용할 수는 있지만 구현이 복잡, 편의성 메소드가 부족.
+
+- ### 주요 메소드
+    - getInputStream()
+    - exist()
+    - isOpen()
+    - getDescription() : 전체 경로를 포함한 파일 이름 또는 실제 URL.
+    
+- ### 구현체
+> - UrlResource: 기본으로 지원하는 프로토콜 http, https, ftp, file, jar
+> - ClassPathResource : ClassPathXmlApplicationContext -  classpath 기준
+> - FileSystemResource : FileSystemXmlApplicationContext - 파일 시스템 경로
+> - ServletContextResource : 웹 어플리케이션 루트에서 상대 경로로 리소스를 찾는다.
+> ...
+
+
+```java
+@Autowired
+    ApplicationContext resourceLoader;
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        Resource resource =  resourceLoader.getResource("classpath:test.txt");
+        System.out.println(resource.getClass());
+
+        System.out.println(resourceLoader.getClass());
+    }
+```
+![img_14.png](img_14.png)
+
+
+    - ApplicaitonContext는 WebserverApplicationContex이지만 resource에 'classpath:'라는 prefix를 사용했기 때문에 Resource는 ClassPathResource가 된다.
+    - 'classpath:'를 지우면 ServletContextResource가 되고, 애플리케이션의 루트에서 context path를 찾게 된다.
+    하지만 스프링 부트가 띄워주는 내장 톰켓 context path가 지정되어 있지 않기 때문에 resource를 찾을 수 없다.
