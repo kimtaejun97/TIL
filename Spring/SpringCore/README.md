@@ -1,15 +1,17 @@
 # 📜 목차
 ****
 
-- #### [ApplicationContext와 다양한 빈 설정 방법](#ApplicationContext와-다양한-빈-설정-방법)
-- #### [Autowired](#Autowired)
-- #### [@Component와 컴포넌트 스캔](#@Component와-컴포넌트-스캔)
-- #### [빈(Bean)의 스코프(Scope)](#빈(Bean)의-스코프(Scope))
-- #### [Environment : 프로파일.](#Environment-:-프로파일.)
-- #### [Environment : 프로퍼티.](#Environment-:-프로퍼티.)
-- #### [MessageSource](#MessageSource) 
-- #### [ApplicationEventPublisher](#ApplicationEventPublisher)
-- #### [ResourceLoader](#ResourceLoader)
+- #### [ApplicationContext와 다양한 빈 설정 방법](#-ApplicationContext와-다양한-빈-설정-방법)
+- #### [Autowired](#-Autowired)
+- #### [@Component와 컴포넌트 스캔](#-@Component와-컴포넌트-스캔)
+- #### [빈(Bean)의 스코프(Scope)](#-빈(Bean)의-스코프(Scope))
+- #### [Environment : 프로파일.](#-Environment-:-프로파일.)
+- #### [Environment : 프로퍼티.](#-Environment-:-프로퍼티.)
+- #### [MessageSource](#-MessageSource) 
+- #### [ApplicationEventPublisher](#-ApplicationEventPublisher)
+- #### [ResourceLoader](#-ResourceLoader)
+- #### [Validation 추상화](#-Validation)
+- #### [데이터 바인딩 추상화: PropertyEditor](#-데이터-바인딩-추상화-:-PropertyEditor)
 
 
 
@@ -533,3 +535,114 @@ public void run(ApplicationArguments args) throws Exception {
     - ApplicaitonContext는 WebserverApplicationContex이지만 resource에 'classpath:'라는 prefix를 사용했기 때문에 Resource는 ClassPathResource가 된다.
     - 'classpath:'를 지우면 ServletContextResource가 되고, 애플리케이션의 루트에서 context path를 찾게 된다.
     하지만 스프링 부트가 띄워주는 내장 톰켓 context path가 지정되어 있지 않기 때문에 resource를 찾을 수 없다.
+
+
+# Validation
+******
+
+> org.springframework.validation.Validator     
+> : 애플리케이션에서 사용하는 객체 검증용 인터페이스
+
+- ### 특징
+
+
+    - 어떤 계층과도 관계가 없다. -> 모든 계층(웹, 서비스, 데이터)에서 사용해도 좋다.
+    - 구현체 중 하나로 JSR-303(Bean Validation 1.0)과 JSR-349(Bean Validation 1.1)을 지원(LocalValidatorFactoryBean)
+    - DataBinder에 들어가 바인딩 할 때 사용되기도 한다.
+
+- ### 인터페이스
+
+
+    - boolean supports(class clazz) : 어떤 타입의 객체를 검증할 것인지 결정.
+    - void validate(Object obj, Errors e) : 실제 검증 로직
+        - 구현할 때 ValidationUtils를 사용하면 편리.
+
+### 1. Validator 클래스 
+```java
+public class EventValidator implements Validator {
+    @Override
+    public boolean supports(Class<?> aClass) {
+        return Event.class.equals(aClass);
+    }
+    @Override
+    public void validate(Object o, Errors errors) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors,"title","notempty","Empty title is not allowed");
+    }
+}
+```
+    - supports 에서 클래스의 타입이 Event Class 일때 true 반환
+    - validate : title이 Empty 거나 공백이면 notempty에러, notempty.title과 같이 쓸 수 있지만 아래 이미지와 같이 모든 에러코드를 담아주기 때문에 생략.
+    3번째 인자는 Default error code
+    - ValidationUtils를 사용하지 않고 errors.reject를 사용할 수도 있다.
+![img_15.png](img_15.png)
+
+```java
+@Override
+public void run(ApplicationArguments args) throws Exception {
+    Event event = new Event();
+    EventValidator eventValidator = new EventValidator();
+    // Spring MVC 가 자동으로 생성해서 전달해 줌. 실제로 잘 사용할 일이 없다.
+    Errors errors = new BeanPropertyBindingResult(event,"event");
+
+    // event 객체를 검증해 errors 객체에 담아준다.
+    eventValidator.validate(event,errors);
+
+    System.out.println(errors.hasErrors());
+
+    errors.getAllErrors().forEach(e ->{
+        System.out.println("=== error code ===");
+        Arrays.stream(e.getCodes()).forEach(System.out::println);
+        System.out.println(e.getDefaultMessage());
+    });
+}
+```
+
+### 2. 어노테이션 기반
+
+```xml
+<dependency>
+    <groupId>javax.validation</groupId>
+    <artifactId>validation-api</artifactId>
+    <version>2.0.1.Final</version>
+</dependency>
+<dependency>
+    <groupId>org.hibernate.validator</groupId>
+    <artifactId>hibernate-validator</artifactId>
+    <version>6.0.7.Final</version>
+</dependency>
+```
+
+```java
+@Qualifier("defaultValidator")
+@Autowired
+Validator validator;
+
+validator.validate(event,errors);
+```
+
+```java
+@NotEmpty
+String title;
+
+@Min(0) @Max(4)
+Integer limit;
+
+@Email
+String email;
+```
+![img_16.png](img_16.png)
+
+
+    - Spring 2.0.5 이상 부터 LocalValidatorFactoryBean을 자동으로 Bean으로 등록.
+    - Bean Validation 2.0.1의 구현체로 hibernate-validator 사용.
+    - Default 메시지 또한 자동으로 정해줌.
+
+
+# 데이터 바인딩 추상화 : PropertyEditor
+******
+
+> - org.springframework.validation.DataBinder
+> - 기술적 관점 : 프로퍼티 값을 타겟 객체에 설정하는 기능.
+> - 사용자 관점 : 사용자의 입력값을 애플리케이션 도메인 모델에 동적으로 변환해 넣어주는 기능.
+> > 입력값은 대부분 문자열인데, 그 값을 객체가 가지고 있는 int,long,Boolean, Data, Event, Book과 같은 도메인 타입으로 변환.
+
