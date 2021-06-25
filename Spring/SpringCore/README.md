@@ -1,20 +1,21 @@
 # 📜 목차
 ****
 
-- #### [ApplicationContext와 다양한 빈 설정 방법](#ApplicationContext와-다양한-빈-설정-방법)
-- #### [Autowired](#Autowired)
-- #### [@Component와 컴포넌트 스캔](#@Component와-컴포넌트-스캔)
-- #### [빈(Bean)의 스코프(Scope)](#빈(Bean)의-스코프(Scope))
-- #### [Environment : 프로파일.](#Environment-:-프로파일.)
-- #### [Environment : 프로퍼티.](#Environment-:-프로퍼티.)
-- #### [MessageSource](#MessageSource) 
-- #### [ApplicationEventPublisher](#ApplicationEventPublisher)
-- #### [ResourceLoader](#ResourceLoader)
-- #### [Validation 추상화](#Validation)
-- #### [데이터 바인딩 추상화: PropertyEditor](#데이터-바인딩-추상화-:-PropertyEditor)
-- #### [데이터 바인딩 추상화 : Converter와 Formatter](#데이터-바인딩-추상화-:-Converter와-Formatter)
-- #### [SpEL (Spring Expression Language)](#SpEL-(Spring-Expression-Language))
-- #### [Null-safety](#Null-Safety)
+- #### [ApplicationContext와 다양한 빈 설정 방법](#ApplicationContext와-다양한-빈-설정-방법-1)
+- #### [Autowired](#Autowired-1)
+- #### [@Component와 컴포넌트 스캔](#@Component와-컴포넌트-스캔=1)
+- #### [빈(Bean)의 스코프(Scope)](#빈Bean의-스코프Scope-1)
+- #### [Environment : 프로파일](#environment--프로파일-1)
+- #### [Environment : 프로퍼티](#environment--프로퍼티-1)
+- #### [MessageSource](#messageSource-1) 
+- #### [ApplicationEventPublisher](#applicationEventPublisher-1)
+- #### [ResourceLoader](#resourceLoader-1)
+- #### [Resource 추상화](#resource-추상화-1)
+- #### [Validation 추상화](#validation)
+- #### [데이터 바인딩 추상화: PropertyEditor](#데이터-바인딩-추상화--propertyeditor)
+- #### [데이터 바인딩 추상화 : Converter와 Formatter](#데이터-바인딩-추상화--converter와-formatter-1)
+- #### [SpEL (Spring Expression Language)](#spEL-Spring-expression-language-1)
+- #### [Null-safety](#null-safety-1)
 
 # ApplicationContext와 다양한 빈 설정 방법
 ***********
@@ -271,7 +272,7 @@ System.out.println(Arrays.toString(environment.getActiveProfiles()));
 ![img_7.png](img_7.png)
 
 
-# Environment : 프로퍼티.
+# Environment : 프로퍼티
 
 ### :: 프로퍼티 지정
 1. -D 옵션
@@ -462,7 +463,7 @@ public void handle(ContextClosedEvent event){
 
 
 # ResourceLoader
-*********
+****
 > 리소스를 읽어오는 기능을 제공하는 인터페이스.
 > 
 > ApplicationContext extends ResourceLoader
@@ -785,6 +786,15 @@ registry.addFormatter(new EventFormatter());
 > - Expression expression = parser.parseExpression("SpEL 표현식")
 > - String value = expression.getvalue(context,String.class)
 
+
+- ### 실제로 어디서 쓰나?
+> - @Value
+> - @ConditionalOnExpression
+> - 스프링 시큐리티 (
+   메소드 시큐리티 @PreAuthorize, @PostAuthorize, @Prefilter, @PostFilter, XML 인터셉터 URL 설정 ...)
+> - 스프링 데이터 (@Query)
+> - Thymeleaf    
+> ...
 - ### 예시
 ```java
   // 표현식
