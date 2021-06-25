@@ -13,7 +13,7 @@
 - #### [Validation 추상화](#-Validation)
 - #### [데이터 바인딩 추상화: PropertyEditor](#-데이터-바인딩-추상화-:-PropertyEditor)
 - #### [데이터 바인딩 추상화 : Converter와 Formatter](#-데이터-바인딩-추상화-:-Converter와-Formatter)
-
+- #### [SpEL (Spring Expression Language)](#-SpEL-(Spring-Expression-Language))
 
 
 # ApplicationContext와 다양한 빈 설정 방법
@@ -764,5 +764,59 @@ registry.addFormatter(new EventFormatter());
 > > @WebMvcTest({EventFormatter.class, EventController.class})
 
 
+
+# SpEL (Spring Expression Language)
+****
+
+- ### 스프링 EL 이란?
+> - 객체 그래프를 조회하고 조작하느 기능을 제공한다.
+> - Unified EL과 비슷하지만, 메소드 호출, 문자열 템플릿 기능도 제공.
+> - 여러 EL이 있지만, spEL은 모든 스프링 프로젝트 전반에 걸쳐 사용할 EL로 만들었다.
+> - 스프링 3.0부터 지원.
+
+- ### 문법
+> - \#{"표현식"}
+> - ${"프로퍼티"}
+> - 표현식은 프로퍼티를 가질 수 있지만 반대는 불가능. ( #{${프로퍼티}+1} )
+
+- ### SpEL 구성
+> - ExpressionParser parser =new spelExpressionParser()
+> - StandardEvaluationContext context = new StandardEvaluationContext(bean)
+> - Expression expression = parser.parseExpression("SpEL 표현식")
+> - String value = expression.getvalue(context,String.class)
+
+- ### 예시
+```java
+  // 표현식
+  @Value("#{1+1}")
+  int value;
+  
+  @Value("#{'hello' + ' world'}")
+  String greeting;
+  
+  @Value("#{1 eq 1}")
+  boolean trueOrFalse;
+  
+  // 프로퍼티
+  @Value("${my.value}")
+  String myValue;
+  
+  // 표현식{프로퍼티}
+  @Value("#{${my.value} + 'aaa'}")
+  String myValueAAA;
+  
+  // Bean의 필드값
+  @Value("#{sampleBean.data}")
+  int sampleData;
+  
+  
+  ExpressionParser parser = new SpelExpressionParser();
+  // List
+  List<String> l = parser.parseExpression("{'a','b','c','d'}").getValue(List.class);
+  // Method
+  String bc = parser.parseExpression("'abc'.substring(1,3)").getValue(String.class);
+```
+
+- [레퍼런스](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#spring-core)
 
  
