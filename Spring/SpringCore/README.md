@@ -12,6 +12,7 @@
 - #### [ResourceLoader](#-ResourceLoader)
 - #### [Validation 추상화](#-Validation)
 - #### [데이터 바인딩 추상화: PropertyEditor](#-데이터-바인딩-추상화-:-PropertyEditor)
+- #### [데이터 바인딩 추상화 : Converter와 Formatter](#-데이터-바인딩-추상화-:-Converter와-Formatter)
 
 
 
@@ -622,7 +623,8 @@ validator.validate(event,errors);
 
 ```java
 @NotEmpty
-String title;
+String title;# Validation
+
 
 @Min(0) @Max(4)
 Integer limit;
@@ -646,3 +648,121 @@ String email;
 > - 사용자 관점 : 사용자의 입력값을 애플리케이션 도메인 모델에 동적으로 변환해 넣어주는 기능.
 > > 입력값은 대부분 문자열인데, 그 값을 객체가 가지고 있는 int,long,Boolean, Data, Event, Book과 같은 도메인 타입으로 변환.
 
+> - 스프링 3.0 이전까지 DataBinder가 변환 작업으로 사용하던 인터페이스
+> - 쓰레드-세이프 하지 않음.(상태정보를 저장...) -> 싱글톤 빈으로 등록해서 사용하면 안됨!Event(Integer.parseInt(text))
+> - Object와 String 간의 변환만 가능(그러나 대부분의 경우를 차지.)
+
+```java
+@InitBinder
+public void init(WebDataBinder webDataBinder){
+    webDataBinder.registerCustomEditor(Event.class, new EventEditor());
+}
+
+@GetMapping("/event/{event}")
+public String getEvent(@PathVariable Event event){
+    System.out.println(event);
+    return event.getId().toString();
+}
+```
+
+
+```java
+public class EventEditor extends PropertyEditorSupport {
+    @Override
+    public void setAsText(String text) throws IllegalArgumentException {
+        setValue(new Event(Integer.parseInt(text)));
+    }
+    
+}
+```
+> webDataBinder을 거치게 되고, setAsText에서 받은 문자열을 Integer로 변환하여 Event객체를 생성하여 값을 설정.
+> @PathVariable의 event 파라미터로 전달된다.
+
+
+# 데이터 바인딩 추상화 : Converter와 Formatter
+****
+
+### 1. Converter
+
+> - S 타입을 T 타입으로 변환할 수 있는 매우 일반적인 변환기.
+> - 상태 정보 없음 == Stateless == Thread safe
+> - ConverterRegistry
+
+
+```java
+public class EventConverter {
+    public static class StringToEventConverter implements Converter<String, Event>{
+        
+        @Override
+        public Event convert(String s) {
+            return new Event(Integer.parseInt(s));
+        }
+    }
+    
+    public static class EventToStringConverter implements Converter<Event, String>{
+        
+        @Override
+        public String convert(Event event) {
+            return event.getId().toString();
+        }
+    }
+}
+```
+> 변환할 타입마다 Converter 정의.
+
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new EventConverter.StringToEventConverter());
+    }
+}
+```
+> registry에 Converter 등록.
+
+
+### 2. Formatter
+
+
+```java
+public class EventFormatter implements Formatter<Event> {
+
+    @Override
+    public Event parse(String s, Locale locale) throws ParseException {
+        return new Event(Integer.parseInt(s));
+    }
+
+    @Override
+    public String print(Event event, Locale locale) {
+        return event.getId().toString();
+    }
+}
+```
+> Bean으로 등록하고 MessageSource를 주입받아 locale 정보와 함께 사용 가능.
+
+```java
+registry.addFormatter(new EventFormatter());
+```
+
+
+### 3. ConversionService
+> - 실제 변환 작업은 이 인터페이스를 통해 쓰레드 세이프 하게 사용 가능.
+> - 스프링 MVC, 빈(value)설정, SpEL에서 사용.
+
+- DefaultFormattingConversionService
+    - FormatterRegistry -> ConverterRegistry (상속관계)
+    - ConversionService
+    - 여러 기본 converter, formatter 등록.
+    
+> - 웹 어플리케이션인 경우에 DefaultFormattingConversionService를 상속한 WebConversionService를 빈으로 등록해준다.
+> - converter와 formatter를 Bean으로 등록하면 Config없이 자동으로 등록해준다.
+
+> - formatter MvcTest 작성시 MvcTest는 웹과 관련된(컨트롤러 등)만 bean으로 등록해주기 때문에 추가로 bean으로 등록해주어야 한다
+> > @WebMvcTest({EventFormatter.class, EventController.class})
+
+
+
+ 
