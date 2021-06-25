@@ -1,20 +1,20 @@
 # 📜 목차
 ****
 
-- #### [ApplicationContext와 다양한 빈 설정 방법](#-ApplicationContext와-다양한-빈-설정-방법)
-- #### [Autowired](#-Autowired)
-- #### [@Component와 컴포넌트 스캔](#-@Component와-컴포넌트-스캔)
-- #### [빈(Bean)의 스코프(Scope)](#-빈(Bean)의-스코프(Scope))
-- #### [Environment : 프로파일.](#-Environment-:-프로파일.)
-- #### [Environment : 프로퍼티.](#-Environment-:-프로퍼티.)
-- #### [MessageSource](#-MessageSource) 
-- #### [ApplicationEventPublisher](#-ApplicationEventPublisher)
-- #### [ResourceLoader](#-ResourceLoader)
-- #### [Validation 추상화](#-Validation)
-- #### [데이터 바인딩 추상화: PropertyEditor](#-데이터-바인딩-추상화-:-PropertyEditor)
-- #### [데이터 바인딩 추상화 : Converter와 Formatter](#-데이터-바인딩-추상화-:-Converter와-Formatter)
-- #### [SpEL (Spring Expression Language)](#-SpEL-(Spring-Expression-Language))
-
+- #### [ApplicationContext와 다양한 빈 설정 방법](#ApplicationContext와-다양한-빈-설정-방법)
+- #### [Autowired](#Autowired)
+- #### [@Component와 컴포넌트 스캔](#@Component와-컴포넌트-스캔)
+- #### [빈(Bean)의 스코프(Scope)](#빈(Bean)의-스코프(Scope))
+- #### [Environment : 프로파일.](#Environment-:-프로파일.)
+- #### [Environment : 프로퍼티.](#Environment-:-프로퍼티.)
+- #### [MessageSource](#MessageSource) 
+- #### [ApplicationEventPublisher](#ApplicationEventPublisher)
+- #### [ResourceLoader](#ResourceLoader)
+- #### [Validation 추상화](#Validation)
+- #### [데이터 바인딩 추상화: PropertyEditor](#데이터-바인딩-추상화-:-PropertyEditor)
+- #### [데이터 바인딩 추상화 : Converter와 Formatter](#데이터-바인딩-추상화-:-Converter와-Formatter)
+- #### [SpEL (Spring Expression Language)](#SpEL-(Spring-Expression-Language))
+- #### [Null-safety](#Null-Safety)
 
 # ApplicationContext와 다양한 빈 설정 방법
 ***********
@@ -819,4 +819,29 @@ registry.addFormatter(new EventFormatter());
 
 - [레퍼런스](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#spring-core)
 
- 
+
+
+# Null Safety
+****
+
+```java
+// return null을 허용하지 않음
+@NonNull
+public String createEvent(@NonNull String name){ //name null을 허용하지 않음.
+    return null;
+}
+```
+
+![img_17.png](img_17.png)
+> springframwork의 NonNull, Nullable이 등록되어있지 않다. 추가해 주고 재시작.
+
+
+
+- ### 목적
+> 툴의 지원을 받아 컴파일 시점에 최대한 NullPointException을 방지하는 것.
+
+- ### 스프링 5에 추가된 Null관련 애노테이션
+> - @NonNull
+> - @Nullable
+> - @NonNullApi (패키지 레벨 설정)
+> - @NonNullFields (패키지 레벨 설정.)
