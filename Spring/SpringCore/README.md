@@ -15,12 +15,12 @@
 - #### [데이터 바인딩 추상화: PropertyEditor](#데이터-바인딩-추상화--propertyeditor)
 - #### [데이터 바인딩 추상화 : Converter와 Formatter](#데이터-바인딩-추상화--converter와-formatter-1)
 - #### [SpEL (Spring Expression Language)](#spEL-Spring-expression-language-1)
-- #### [스프링 AOP 개념 소개](#스프링-aop-개념-소개-1)
-- #### [프록시 기반 AOP](#프록시-기반-aop)
+- #### [스프링 AOP 개념 소개](#스프링-aop-개-소개-1)
+- #### [프록시 기반 AOP](#프록시-기반-aop-1)
 - #### [@AOP](#aop-1)
 - #### [Null-safety](#null-safety-1)
 
-# ApplicationContext와 다양한 빈 설정 방법
+# 📌 ApplicationContext와 다양한 빈 설정 방법
 ***********
 
 ## 1. XML
@@ -54,7 +54,7 @@ public static void main(String[] args) {
     System.out.println(bookService.bookRepository);
 }
 ```
-![img_2.png](img_2.png)       
+![img_2.png](img/img_2.png)       
 :: bean 등록, bookRepository에 주입 확인.
 
 > 단점 : 빈으로 등록하는 것이 번거롭다.
@@ -105,7 +105,7 @@ public class ApplicationConfig {
 
 
 
-# Autowired
+# 📌 Autowired
 ********
 ### :: @Autowired
     
@@ -170,7 +170,7 @@ app.run(args);
     - Configuration
 
 
-# 빈(Bean)의 스코프(Scope)
+# 📌 빈(Bean)의 스코프(Scope)
 ****
 
 ### 1. 싱글톤(Singleton) : 하나의 객체를 공유. Default
@@ -194,7 +194,7 @@ public class AppRunner implements ApplicationRunner{
 ```
     - 두 Proto 객체가 같은 객체임을 확인할 수 있다.
 
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 
 
 ### 2. 프로토타입(Prototype) : <mark style='background-color: #fff5b1'> 빈을 받아 올 때</mark> 마다 새로운 인스턴스.
@@ -208,7 +208,7 @@ System.out.println(ctx.getBean(Proto.class));
 System.out.println(ctx.getBean(Proto.class));
 System.out.println(ctx.getBean(Proto.class));
 ```
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 
 
 > 문제 : 싱글톤 빈이 프로토 타입 빈을 참조하면?    
@@ -228,7 +228,7 @@ System.out.println(ctx.getBean(Proto.class));
 
 
 
-# Environment : 프로파일
+# 📌 Environment : 프로파일
 ****
 
 > ApplicationContext extends EnvironmentCapable
@@ -261,10 +261,10 @@ public class TestBookRepisitory implements BookRepository{
 
 ### :: profile 설정
 1. Active Prifiles      
-![img_5.png](img_5.png)
+![img_5.png](img/img_5.png)
    
 2. VM options
-![img_6.png](img_6.png)
+![img_6.png](img/img_6.png)
    
 
 ```java
@@ -272,10 +272,10 @@ Environment environment =  ctx.getEnvironment();
 System.out.println(Arrays.toString(environment.getDefaultProfiles()));
 System.out.println(Arrays.toString(environment.getActiveProfiles()));
 ```
-![img_7.png](img_7.png)
+![img_7.png](img/img_7.png)
 
 
-# Environment : 프로퍼티
+# 📌 Environment : 프로퍼티
 
 ### :: 프로퍼티 지정
 1. -D 옵션
@@ -312,14 +312,14 @@ String appName;
 > 우선순위 : 계층 구조이기 때문에 우선순위가 존재, VM option이 우선순위가 더 높다.
 
 
-# MessageSource
+# 📌 MessageSource
 ***
 ### :: 국제화 기능을 제공하는 인터페이스.
 
 > ApplicationContext extends MessageSource
 > > getMessage(String code, Object[] args, Locale)
 
-![img_8.png](img_8.png)
+![img_8.png](img/img_8.png)
 ```properties
 #messages.properties
 greeting=Hello, {0}
@@ -331,7 +331,7 @@ greeting=안녕, {0}
 ```java
  System.out.println(messageSource.getMessage("greeting", new String[]{"taejun"}, Locale.KOREA));
 ```
-![img_9.png](img_9.png)
+![img_9.png](img/img_9.png)
 
      - 스프링 부트를 사용하면 기본적으로 ResourceBundleMessageSource가 Bean으로 등록되어 있기 때문에 별다른 설정없이 바로 사용할 수 있다.
 
@@ -349,10 +349,10 @@ public MessageSource messageSource(){
 ```
 :: 애플리케이션중에 파일을 변경하고 Build를 실행하면 실시간으로 변경 가능.
 
-![img_10.png](img_10.png)
+![img_10.png](img/img_10.png)
 
 
-# ApplicationEventPublisher
+# 📌 ApplicationEventPublisher
 
 > ApplicationContext extends ApplicationEventPublisher
 > > publishEvent(ApplicationEvent event)
@@ -441,7 +441,7 @@ public class MyEventHandler  {
 >     @Order(Ordered.HIGHEST_PRECEDENCE+ n)을 이용하여 우선순위 조정 가능.
 
 > 기본적으로는 Synchronized 이지만 @EnableAsync 와 @Async를 이용하여 각각 다른 쓰레드에서 비동기적으로 처리할 수 있다.    
-![img_12.png](img_12.png)
+![img_12.png](img/img_12.png)
 
 
 ### :: 스프링이 제공하는 기본 이벤트
@@ -462,10 +462,10 @@ public void handle(ContextClosedEvent event){
     System.out.println("=== Context ClosedEvent ===");
 }
 ```
-![img_13.png](img_13.png)
+![img_13.png](img/img_13.png)
 
 
-# ResourceLoader
+# 📌 ResourceLoader
 ****
 > 리소스를 읽어오는 기능을 제공하는 인터페이스.
 > 
@@ -497,7 +497,7 @@ public void run(ApplicationArguments args) throws Exception {
 ```
 
 
-# Resource 추상화
+# 📌 Resource 추상화
 ****
 - ### 특징
 > - java.net.URL을 추상화 한 것.
@@ -534,7 +534,7 @@ public void run(ApplicationArguments args) throws Exception {
         System.out.println(resourceLoader.getClass());
     }
 ```
-![img_14.png](img_14.png)
+![img_14.png](img/img_14.png)
 
 
     - ApplicaitonContext는 WebserverApplicationContex이지만 resource에 'classpath:'라는 prefix를 사용했기 때문에 Resource는 ClassPathResource가 된다.
@@ -542,7 +542,7 @@ public void run(ApplicationArguments args) throws Exception {
     하지만 스프링 부트가 띄워주는 내장 톰켓 context path가 지정되어 있지 않기 때문에 resource를 찾을 수 없다.
 
 
-# Validation
+# 📌 Validation
 ******
 
 > org.springframework.validation.Validator     
@@ -579,7 +579,7 @@ public class EventValidator implements Validator {
     - validate : title이 Empty 거나 공백이면 notempty에러, notempty.title과 같이 쓸 수 있지만 아래 이미지와 같이 모든 에러코드를 담아주기 때문에 생략.
     3번째 인자는 Default error code
     - ValidationUtils를 사용하지 않고 errors.reject를 사용할 수도 있다.
-![img_15.png](img_15.png)
+![img_15.png](img/img_15.png)
 
 ```java
 @Override
@@ -636,7 +636,7 @@ Integer limit;
 @Email
 String email;
 ```
-![img_16.png](img_16.png)
+![img_16.png](img/img_16.png)
 
 
     - Spring 2.0.5 이상 부터 LocalValidatorFactoryBean을 자동으로 Bean으로 등록.
@@ -644,7 +644,7 @@ String email;
     - Default 메시지 또한 자동으로 정해줌.
 
 
-# 데이터 바인딩 추상화 : PropertyEditor
+# 📌 데이터 바인딩 추상화 : PropertyEditor
 ******
 
 > - org.springframework.validation.DataBinder
@@ -683,7 +683,7 @@ public class EventEditor extends PropertyEditorSupport {
 > @PathVariable의 event 파라미터로 전달된다.
 
 
-# 데이터 바인딩 추상화 : Converter와 Formatter
+# 📌 데이터 바인딩 추상화 : Converter와 Formatter
 ****
 
 ### 1. Converter
@@ -769,7 +769,7 @@ registry.addFormatter(new EventFormatter());
 
 
 
-# SpEL (Spring Expression Language)
+# 📌 SpEL (Spring Expression Language)
 ****
 
 - ### 스프링 EL 이란?
@@ -832,11 +832,11 @@ registry.addFormatter(new EventFormatter());
 
 - [레퍼런스](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#spring-core)
 
-# 스프링 AOP 개념 소개
+# 📌 스프링 AOP 개념 소개
 ****
 > AOP : Aspect-oriendted Programming은 OOP를 보완하는 수단, 흩어진 Aspect를 모듈화할 수 있는 프로그래밍 기법.
 
-![img_18.png](img_18.png)
+![img_18.png](img/img_18.png)
 출처 : 백기선님 인프런 스프링 프레임워크 핵심 기술편.
 
 - ### 주요 개념
@@ -861,7 +861,7 @@ registry.addFormatter(new EventFormatter());
 > - 컴파일, 로드 타임은 AspectJ를 사용, 런타임은 Spring AOP를 주로 사용.
 
 
-# 프록시 기반 AOP
+# 📌 프록시 기반 AOP
 ****
 
 - ### 스프링 AOP 특징
@@ -872,7 +872,7 @@ registry.addFormatter(new EventFormatter());
 - ### 프록시 패턴.
 > 기존 코드의 변경 없이 접근 제어, 또는 부가 기능 추가.
 
-![img_19.png](img_19.png) 출처 : 백기선님 스프링 프레임워크 핵심 기술.
+![img_19.png](img/img_19.png) 출처 : 백기선님 스프링 프레임워크 핵심 기술.
 
 ### Subject
 ```java
@@ -931,7 +931,7 @@ public class ProxySimpleEventService implements EventService{
 > - 객체들의 관계가 복잡해 진다.
 
 
-# @AOP
+# 📌 @AOP
 *****
 
 - ### Spring AOP
@@ -965,7 +965,7 @@ public class perfAspect {
     }
 }
 ```
-![img_20.png](img_20.png)     
+![img_20.png](img/img_20.png)     
 > 툴의 지원을 받아 적용된 메소드 확인 가능.
 
 
@@ -1000,7 +1000,7 @@ public void hello(){
 
 
 
-# Null Safety
+# 📌 Null Safety
 ****
 
 ```java
@@ -1011,10 +1011,9 @@ public String createEvent(@NonNull String name){ //name null을 허용하지 않
 }
 ```
 
-![img_17.png](img_17.png)
+![img_17.png](img/img_17.png)
+
 > springframwork의 NonNull, Nullable이 등록되어있지 않다. 추가해 주고 재시작.
-
-
 
 
 - ### 목적
