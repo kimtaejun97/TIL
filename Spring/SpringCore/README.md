@@ -15,6 +15,9 @@
 - #### [데이터 바인딩 추상화: PropertyEditor](#데이터-바인딩-추상화--propertyeditor)
 - #### [데이터 바인딩 추상화 : Converter와 Formatter](#데이터-바인딩-추상화--converter와-formatter-1)
 - #### [SpEL (Spring Expression Language)](#spEL-Spring-expression-language-1)
+- #### [스프링 AOP 개념 소개](#스프링-aop-개념-소개-1)
+- #### [프록시 기반 AOP](#프록시-기반-aop)
+- #### [@AOP](#aop-1)
 - #### [Null-safety](#null-safety-1)
 
 # ApplicationContext와 다양한 빈 설정 방법
@@ -829,6 +832,172 @@ registry.addFormatter(new EventFormatter());
 
 - [레퍼런스](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#spring-core)
 
+# 스프링 AOP 개념 소개
+****
+> AOP : Aspect-oriendted Programming은 OOP를 보완하는 수단, 흩어진 Aspect를 모듈화할 수 있는 프로그래밍 기법.
+
+![img_18.png](img_18.png)
+출처 : 백기선님 인프런 스프링 프레임워크 핵심 기술편.
+
+- ### 주요 개념
+> - Aspect : 흩어진 것들을 모은 모듈.
+> - Target : Adivice가 적용 되는 대상
+> - Advice : 해야할 일들.
+> - Join Point : 접근 지점. 메소드 호출, 생성자 호출전, 생성자 호출, 필드 접근전, 필드 값을 가져갔을 때 등.. 
+> - Pointcut : 어디에 적용해야 하는지. A라는 클래스의 a 메소드를 호출할 때 등..
+
+- ### 구현체(자바)
+> - AspectJ 
+> - 스프링 AOP : 국한적인 기능. 
+
+- ### AOP 적용 방법.
+> - 컴파일 : 자바 파일을 클래스 파일로 만들때 바이트 코드를 조작, 클래스 파일에 같이 포함 된다.      
+    > 별도의 컴파일이 한번 더 필요함.
+> - 로드 타임 : 클래스 파일을 로딩하는 시점에 Advice를 끼워넣음.(Load Time Weaving).     
+    > 약간의 성능 부하, 로드타임 위버의 설정 필요.
+> - 런타임 : A라는 클래스 타입의 Bean을 만들 때 A Bean의 프록시 빈을 생성, 프록시 빈이 Advice를 실행.      
+    > 약간의 성능 부하. 추가적인 설정이 필요 없고 문법이 쉽다.
+
+> - 컴파일, 로드 타임은 AspectJ를 사용, 런타임은 Spring AOP를 주로 사용.
+
+
+# 프록시 기반 AOP
+****
+
+- ### 스프링 AOP 특징
+> - 프록시 기반의 AOP 구현체.
+> - 스프링 빈에만 AOP를 적용할 수 있다.
+> - 모든 AOP 기능을 공하는 것이 아닌 스프링 IoC와 연동하여 엔터프라이즈 애플리케이션에서 가장 흔한 문제에 대한 해결책을 제공하는 것이 목적.
+
+- ### 프록시 패턴.
+> 기존 코드의 변경 없이 접근 제어, 또는 부가 기능 추가.
+
+![img_19.png](img_19.png) 출처 : 백기선님 스프링 프레임워크 핵심 기술.
+
+### Subject
+```java
+@Service
+public class SimpleEventService implements EventService{
+    @Override
+    public void createEvent() {
+        System.out.println("Cerated an Event");
+    }
+
+    @Override
+    public void publishEvent() {
+        System.out.println("Published an Event");
+    }
+
+    public void deleteEvent(){
+        System.out.println("Delete an Event");
+    }
+}
+```
+
+### Proxy class
+```java
+@Primary  //주입 받을때 최우선으로 선택되기 위해.
+@Service
+public class ProxySimpleEventService implements EventService{
+
+    @Autowired
+    SimpleEventService simpleEventService; //real class를 주입받음.
+
+    @Override
+    public void createEvent() {
+        long begin = System.currentTimeMillis();
+        simpleEventService.createEvent(); // real class의 기능을 그대로 위임.
+        System.out.println(System.currentTimeMillis() - begin); // 기능 추가.
+    }
+
+    @Override
+    public void publishEvent() {
+        long begin = System.currentTimeMillis();
+        simpleEventService.publishEvent();
+        System.out.println(System.currentTimeMillis() - begin);
+    }
+
+    @Override
+    public void deleteEvent() {
+        simpleEventService.deleteEvent();
+    }
+}
+```
+> Proxy 클래스를 생성하여 Real 클래스의 기능을 그대로 위임받고, 기능을 추가. 기존의 코드를 변경하지 않고 기능을 추가할 수 있다.
+
+- ### 프록시 패턴의 문제점.
+> - 매번 프록시 클래스를 작성?
+> - 여러 클래스, 여러 메소드에 동일한 기능을 추가하려면? 중복코드.
+> - 객체들의 관계가 복잡해 진다.
+
+
+# @AOP
+*****
+
+- ### Spring AOP
+> - 스프링 IoC 컨테이너가 제공하는 기반 시설과 다이나믹 프록시를 사용하여 여로 복잡한 문제 해결.
+> - 동적 프록시 : 동적으로 프록시 객체를 생성.          
+    > 자바가 제공하는 방법은 인터페이스 기반 프록시 생성.   
+    > CGlib은 클래스 기반 프록시도 지원.     
+> - 스프링 IoC : 기존 빈을 대체하는 동적 프록시 빈을 만들어 등록 시켜준다.      
+    > 클라이언트 코드 변경 없음.     
+    > AbstractAutoProxyCreator implements BeanPostProcessor
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-aop</artifactId>
+</dependency>
+```
+
+### 1. @Around("execution()")
+```java
+@Component
+@Aspect
+public class perfAspect {
+    // Value에는 Pointcut 이름 또는 Pointcut 정의.
+    @Around("execution(* com.bigave..*.EventService.*(..))") //com.bigave 패키지 밑에있는 모든 클래스 중에서 EventService안에 들어있는 모든 메소드에 아래 메서드(행위)를 적용하라.
+    public Object legPerf(ProceedingJoinPoint pjp) throws Throwable {
+        long begin = System.currentTimeMillis();
+        Object retVal = pjp.proceed();
+        System.out.println(System.currentTimeMillis() - begin);
+        return retVal;
+    }
+}
+```
+![img_20.png](img_20.png)     
+> 툴의 지원을 받아 적용된 메소드 확인 가능.
+
+
+### 2. @Around("@Annotaion()") : 특정 클래스 또는 메소드에만 적용.
+
+```java
+//애노테이션 정의.
+@Retention(RetentionPolicy.CLASS) //Default : CLASS파일까지 유지. SOURCE : 컴파일 까지 유지. RUNTIME: 런타임 까지.
+@Target(ElementType.METHOD)
+public @interface PerfLogging {
+}
+
+// Aspect
+@Around("@annotation(PerfLogging)")
+
+// target Method
+@PerfLogging
+```
+
+### 3. @Around("bean()") : 특정 빈의 모든 메소드에 적용.
+```java
+@Around("@bean(simpleEventService)")
+```
+
+### 4. @Before() : 지정된 메소드의 실행 전에.
+```java
+@Before("bean(simpleEventService)") // 지정된 메소드의 실행 전에.
+public void hello(){
+    System.out.println("hello");
+}
+```
+
 
 
 # Null Safety
@@ -844,6 +1013,7 @@ public String createEvent(@NonNull String name){ //name null을 허용하지 않
 
 ![img_17.png](img_17.png)
 > springframwork의 NonNull, Nullable이 등록되어있지 않다. 추가해 주고 재시작.
+
 
 
 
