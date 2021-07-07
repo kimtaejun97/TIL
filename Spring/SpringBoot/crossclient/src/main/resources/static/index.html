@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(function(){
+        $.ajax("http://localhost:18080/cross")
+        .done(function(){
+            alert("hello cross server");
+        })
+        .fail(function (){
+            alert("cross fail")
+        })
+    })
+
+</script>
+</body>
+</html>
