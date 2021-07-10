@@ -1,5 +1,6 @@
 package com.studyweb.studyweb.account;
 
+import com.studyweb.studyweb.domain.Account;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,11 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyVararg;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -64,9 +67,15 @@ public class AccountControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
 
-        assertThat(accountRepository.existsByEmail("correct@email.com"));
+
+        Account account =accountRepository.findByEmail("correct@email.com");
+        assertNotNull(account);
+        assertNotEquals(account.getPassword(), "12345678");
         //send 메서드가 호출 되었는지.
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
+
+
+
     }
 
 }
