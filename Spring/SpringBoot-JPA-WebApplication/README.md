@@ -123,5 +123,9 @@ public void initBinder(WebDataBinder webDataBinder){
 > 3. 완료 후 웰컴 페이지로 리다이렉트.
 
 
+### - 테스트
+- CSRF Token : 타 사이트에서 폼 데이터를 전송하는 것을 방지.
+
+
 
 

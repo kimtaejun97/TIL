@@ -40,19 +40,18 @@
     </nav>
     <div class="container">
         <div class="py-5 text-center">
-            <h2>계정 만들기</h2>
+            <h2>계정 생성</h2>
         </div>
         <div class="row justify-content-center">
-            <form class="needs-validation col-sm-6" action="#"
-                  th:action="@{/sign-up}" th:object="${signUpForm}" method="post" novalidate>
+            <form class="needs-validation col-sm-6" th:action="@{/sign-up}" th:object="${signUpForm}" method="post" novalidate>
                 <div class="form-group">
                     <label for="nickname">닉네임</label>
                     <input id="nickname" type="text" th:field="*{nickName}" class="form-control"
                            placeholder="NickName" aria-describedby="nicknameHelp" required minlength="3" maxlength="20">
                     <small id="nicknameHelp" class="form-text text-muted">
-                        공백없이 문자와 숫자로만 3자 이상 20자 이내로 입력하세요. 가입후에 변경할 수 있습니다.
+                        공백없이 문자와 숫자,특수기호 _,-로만 3자 이상 20자 이내로 입력하세요. 가입후에 변경할 수 있습니다.
                     </small>
-                    <small class="invalid-feedback">닉네임을 입력하세요.</small>
+                    <small class="invalid-feedback">닉네임을 확인하세요.</small>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('nickName')}" th:errors="*{nickName}">Nickname Error</small>
                 </div>
 
@@ -63,7 +62,7 @@
                     <small id="emailHelp" class="form-text text-muted">
                         스터디올래는 사용자의 이메일을 공개하지 않습니다.
                     </small>
-                    <small class="invalid-feedback">이메일을 입력하세요.</small>
+                    <small class="invalid-feedback">이메일을 확인하세요.</small>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</small>
                 </div>
 
@@ -74,7 +73,7 @@
                     <small id="passwordHelp" class="form-text text-muted">
                         8자 이상 50자 이내로 입력하세요. 영문자, 숫자, 특수기호를 사용할 수 있으며 공백은 사용할 수 없습니다.
                     </small>
-                    <small class="invalid-feedback">패스워드를 입력하세요.</small>
+                    <small class="invalid-feedback">패스워드를 확인하세요.</small>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</small>
                 </div>
 
