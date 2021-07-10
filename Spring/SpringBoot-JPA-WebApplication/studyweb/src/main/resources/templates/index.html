@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <th:block th:replace="fragment :: headerFragment"/>
 </head>
-<body>
-home
+<body class =bg-light>
+
+<th:block th:replace="fragment :: navFragment"/>
+
+Home
+
+<th:block th:replace="fragment :: footerFragment"/>
 </body>
 </html>

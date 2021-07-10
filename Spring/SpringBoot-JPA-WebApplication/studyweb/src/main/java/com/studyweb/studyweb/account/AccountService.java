@@ -6,6 +6,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -18,7 +19,7 @@ public class AccountService {
     public String createAcconut(AccountJoinRequestDto accountJoinRequestDto) {
         return accountRepository.save(accountJoinRequestDto.toEntity()).getNickName();
     }
-
+    @Transactional
     public void processNewAccount(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
         newAccount.generateEmailCheckToken();
@@ -49,4 +50,5 @@ public class AccountService {
 
         javaMailSender.send(mailMessage);
     }
+
 }

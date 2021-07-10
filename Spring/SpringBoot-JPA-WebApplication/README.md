@@ -174,6 +174,8 @@ JavaMailSender javaMailSender;
 
         Account account =accountRepository.findByEmail("correct@email.com");
         assertNotNull(account);
+        assertNotNull(account.getEmailCheckToken());
+        
         //send 메서드가 호출 되었는지. org.mockito
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
     }
@@ -199,6 +201,34 @@ Account account =accountRepository.findByEmail("correct@email.com");
 
 assertNotEquals(account.getPassword(), "12345678");
 ```
+
+
+# 📌 인증 메일 확인.
+```java
+@GetMapping("/check-email-token")
+public String checkEmailToken(String token, String email, Model model){
+    Account account = accountRepository.findByEmail(email);
+    String view = "account/checked-email";
+
+    if(account == null){
+        model.addAttribute("error", "wrong.email");
+        return view;
+    }
+
+    if (!account.getEmailCheckToken().equals(token)){
+        model.addAttribute("error", "wrong.token");
+        return view;
+    }
+
+    account.setEmailVerified(true);
+    account.setJoinedAt(LocalDateTime.now());
+    model.addAttribute("numberOfUser", accountRepository.count());
+
+    return view;
+}
+```
+> - 인증 메일 정보가 올바르지 않다면 error를 담고, 올바르면 이메일 인증표시를 하고 가입 날짜를 계정정보에 추가.
+> - checked-email 페이지에서 error의 여부에 따라 메시지를 보여준다.
 
 
 
