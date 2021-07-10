@@ -5,10 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ca69fc23-58c2-40c8-b053-2bbf6e93d599" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/java/com/studyweb/studyweb/domain/Account.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/java/com/studyweb/studyweb/account/AccountController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/java/com/studyweb/studyweb/account/AccountJoinRequestDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/java/com/studyweb/studyweb/account/AccountRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/java/com/studyweb/studyweb/account/AccountService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/java/com/studyweb/studyweb/account/SignUpForm.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/java/com/studyweb/studyweb/account/SignUpFormValidator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/java/com/studyweb/studyweb/config/SecurityCofig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/resources/static/images/default_banner.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/resources/static/images/logo_sm.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/resources/templates/account/sign-up.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/main/resources/templates/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/test/java/com/studyweb/studyweb/account/AccountControllerTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/src/test/java/com/studyweb/studyweb/account/AccountJoinRequestDtoTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../SpringBoot-JPA-WebApplication/studyweb/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +41,12 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
   </component>
   <component name="RunManager">
     <configuration name="SpringbootApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
