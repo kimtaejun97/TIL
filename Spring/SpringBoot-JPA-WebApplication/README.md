@@ -340,6 +340,7 @@ ${#authentication.name} 로 이름 참조도 가능.
 
 
 # 📌 프로필 이미지 및 아이콘
+*****
 > - npm install jdenticon
 > - npm install font-awesome
 
@@ -353,4 +354,55 @@ ${#authentication.name} 로 이름 참조도 가능.
 
 ```
 - font-awesome : fa {docs 참조해서 아이콘 id}
-- jdenticon : name에 따라 다른 값이 들어가도록 설정 함.늅
+- jdenticon : name에 따라 다른 값이 들어가도록 설정 함.
+
+
+# 📌 이메일 인증 경고창.
+```html
+<div class ="alert alert-warning" role="alert" th:if="${account != null && !account.emailVerified}" >
+    가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인 하세요.</a>
+</div>
+```
+
+```java
+@GetMapping("/")
+public String home(@CurrentUser Account account, Model model){
+    if(account != null){
+        model.addAttribute(account);
+    }
+
+    return "index";
+```
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+@AuthenticationPrincipal(expression = "#this =='anonymousUser' ? null :account")
+public @interface CurrentUser {
+
+}
+```
+- User인증이 되지 않으면 Principal 은 "anonymousUser"라는 문자열. 인증이 되어있지 않다면 null을 인증이 되어있다면 principal에서 account 객체를 꺼내 넘겨준다.
+
+```java
+UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                new UserAccount(account),
+                account.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+```
+- login에서 AuthenticationPrincipal을 닉네임이 아닌 UserAccount로 변경.
+
+```java
+@Getter
+public class UserAccount extends User {
+
+    private Account account;
+
+    public UserAccount(Account account) {
+        super(account.getNickName(), account.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        this.account =account;
+    }
+}
+```
+- 
