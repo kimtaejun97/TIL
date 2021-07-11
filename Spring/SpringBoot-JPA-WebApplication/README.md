@@ -204,6 +204,7 @@ assertNotEquals(account.getPassword(), "12345678");
 
 
 # 📌 인증 메일 확인.
+*****
 ```java
 @GetMapping("/check-email-token")
 public String checkEmailToken(String token, String email, Model model){
@@ -229,6 +230,25 @@ public String checkEmailToken(String token, String email, Model model){
 ```
 > - 인증 메일 정보가 올바르지 않다면 error를 담고, 올바르면 이메일 인증표시를 하고 가입 날짜를 계정정보에 추가.
 > - checked-email 페이지에서 error의 여부에 따라 메시지를 보여준다.
+
+
+# 📌 회원 가입, 인증 후 자동 로그인.
+****
+> - 스프링 시큐리티에서 로그인 : SecurityContext에 Authentication(token)이 존재 하는가.
+> - UsernamePasswordAuthenticationToken 으로 token을 생성하고 SecuriryContext에 넣어준다.
+```java
+public void login(Account account) {
+
+    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+            account.getNickName(),
+            account.getPassword(),
+            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+    );
+
+    SecurityContext context = SecurityContextHolder.getContext();
+    context.setAuthentication(token);
+}
+```
 
 
 
