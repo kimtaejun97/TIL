@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <th:block th:replace="fragment :: headerFragment"/>
-</head>
+<head th:replace="fragments :: headerFragment" ></head>
 <body class =bg-light>
 
-<th:block th:replace="fragment :: navFragment"/>
+<th:block th:replace="fragments :: navFragment"/>
 
 <div class="py-5 text-center" th:if="${error}">
     <p class="lead">이메일 확인</p>
@@ -22,6 +20,6 @@
     <small class="text-info">이제부터 가입할 때 사용한 이메일 또는 닉네임으로 로그인 할 수 있습니다.</small>
 </div>
 
-<th:block th:replace="fragment :: footerFragment"/>
+<div th:replace="fragments :: footerFragment"></div>
 </body>
 </html>

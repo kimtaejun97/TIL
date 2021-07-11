@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <th:block th:replace="fragment :: headerFragment"/>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
 <body class =bg-light>
 
-<th:block th:replace="fragment :: navFragment"/>
+<th:block th:replace="fragments :: navFragment"/>
+<div class ="alert alert-warning" role="alert" th:if="${account != null && !account.emailVerified}" >
+    가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link"></a> 계정 인증 이메일을 확인 하세요.
+</div>
 
 Home
 
-<th:block th:replace="fragment :: footerFragment"/>
+<div th:replace="fragments :: footerFragment"></div>
+
 </body>
 </html>

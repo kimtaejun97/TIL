@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <th:block th:replace="fragment :: headerFragment"/>
-</head>
+<head th:replace="fragments :: headerFragment"></head>
 <body class =bg-light>
-    <th:block th:replace="fragment :: navFragment"/>
+    <th:block th:replace="fragments :: navFragment"/>
 
     <div class="container">
         <div class="py-5 text-center">
@@ -45,27 +43,7 @@
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</small>
                 </div>
 
-                <div class="form-group"><script type="application/javascript" th:fragment="form-validation">
-                    (function () {
-                        'use strict';
-
-                        window.addEventListener('load', function () {
-                            // Fetch all the forms we want to apply custom Bootstrap validation styles to
-                            var forms = document.getElementsByClassName('needs-validation');
-
-                            // Loop over them and prevent submission
-                            Array.prototype.filter.call(forms, function (form) {
-                                form.addEventListener('submit', function (event) {
-                                    if (form.checkValidity() === false) {
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                    }
-                                    form.classList.add('was-validated')
-                                }, false)
-                            })
-                        }, false)
-                    }())
-                </script>
+                <div class="form-group">
                     <button class="btn btn-primary btn-block" type="submit"
                             aria-describedby="submitHelp">가입하기</button>
                     <small id="submitHelp" class="form-text text-muted">
@@ -75,7 +53,6 @@
             </form>
         </div>
     </div>
-
     <script type="application/javascript" th:fragment="form-validation">
         (function () {
             'use strict';
@@ -97,6 +74,6 @@
             }, false)
         }())
     </script>
-    <th:block th:replace="fragment :: footerFragment"/>
+    <div th:replace="fragments :: footerFragment"></div>
 </body>
 </html>

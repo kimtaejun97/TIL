@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-<div th:fragment="headerFragment">
+<head th:fragment="headerFragment">
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <title>Study Web</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.css">
     <style>
         .container {
             max-width: 100%;
         }
     </style>
-</div>
+</head>
 
 <div th:fragment="navFragment">
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
@@ -31,23 +32,26 @@
             </ul>
 
             <ul class="navbar-nav justify-content-end">
-                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                <li class="nav-item " sec:authorize="!isAuthenticated()">
                     <a class="nav-link" href="#" th:href="@{/login}">로그인</a>
                 </li>
                 <li class="nav-item" sec:authorize="!isAuthenticated()">
                     <a class="nav-link" href="#" th:href="@{/sign-up}">가입</a>
                 </li>
                 <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link" href="#" th:href="@{/notifications}">알림</a>
+                    <a class="nav-link" href="#" th:href="@{/notifications}">
+                        <i class="fa fa-bell-o"> </i>
+                    </a>
                 </li>
                 <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link btn btn-outline-primary" href="#" th:href="@{/notifications}">스터디 개설</a>
+                    <a class="nav-link btn btn-outline-primary" href="#" th:href="@{/notifications}">
+                        <i class="fa fa-plus"></i> 스터디 개설</a>
                 </li>
 
                 <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                     <a class="nav-link dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        프로필
+                        <svg data-jdenticon-value="user127" th:data-jdenticon-value="${#authentication.name}" width="24" height="24" class="rounded border bg-light"></svg>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="userDropdown">
                         <h6 class="dropdown-header">
@@ -67,11 +71,17 @@
     </nav>
 </div>
 
-<div th:fragment="footerFragment">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-</div>
+<footer th:fragment="footerFragment">
+    <div class="row justify-content-center">
+        <img src="/images/logo_sm.png" alt="Logo" width="100px" height="100px">
+        <small class="d-block mb-3 text-muted">@ 2021</small>
+    </div>
+
+
+    <script src="/node_modules/jquery/dist/jquery.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="/node_modules/jdenticon/dist/jdenticon.js"></script>
+</footer>
 
 
 </html>

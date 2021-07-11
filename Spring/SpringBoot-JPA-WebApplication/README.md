@@ -250,6 +250,107 @@ public void login(Account account) {
 }
 ```
 
+# 📌 인증 상태에 따른 View
+```html
+<dependency>
+    <groupId>org.thymeleaf.extras</groupId>
+    <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+</dependency>
 
 
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security"></html>
 
+<li class="nav-item" sec:authorize="!isAuthenticated()">
+    <a class="nav-link" href="#" th:href="@{/login}">로그인</a>
+</li>
+```
+- isAuthenticated()를 이용하여 인증 상태인지 여부를 가져올 수 있다.
+```html
+${#authentication.name} 로 이름 참조도 가능.
+```
+
+
+# 📌 프론트엔드 라이브러리 설정
+> - Web Jar , NPM
+> - WebJar는 라이브러리 업데이트가 느리고, 올라오지 않은 라이브러리도 흔하다.
+
+- ### 스프링 부트와 NPM
+> - src/main/resource/stati 이하에서는 정적 리소스로 제공(스프링 부트)
+> - package.json에 프론트엔드 라이브러리를 제공
+> - static 디렉토리 아래에 package.json을 위치. -> 정적 리소스로 프론트엔드 라이브러리 사용.
+> > static 디렉토리로 이동.    
+> > npm init   
+> > npm install bootstrap   
+> > npm install jquery
+> - .ginignore에 node_modules, node 추가.
+
+```html
+<link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.css">
+
+<script src="/node_modules/jquery/dist/jquery.js"></script>
+<script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+```
+- ### 빌드
+> - pom.xml을 빌드할 때 static 아래 package.json도 빌드하도록 설정.
+> 
+
+```xml
+<plugin>
+    <groupId>com.github.eirslett</groupId>
+    <artifactId>frontend-maven-plugin</artifactId>
+    <version>1.8.0</version>
+    <configuration>
+        <nodeVersion>v4.6.0</nodeVersion>
+        <workingDirectory>src/main/resources/static</workingDirectory>
+    </configuration>
+    <executions>
+        <execution>
+            <id>install node and npm</id>
+            <goals>
+                <goal>install-node-and-npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+        </execution>
+        <execution>
+            <id>npm install</id>
+            <goals>
+                <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+                <arguments>install</arguments>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+
+- ### 시큐리티 설정
+```java
+ @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+                .mvcMatchers("/node_modules/**")
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+
+    }
+```
+- CommonLocation에서는 node_modules를 포함하지 않기 때문에 따로 추가해 주어야 한다.
+
+
+# 📌 프로필 이미지 및 아이콘
+> - npm install jdenticon
+> - npm install font-awesome
+
+
+```html
+<link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.css">
+<script src="/node_modules/jdenticon/dist/jdenticon.js"></script>
+
+<i class="fa fa-bell-o"> </i>
+<svg data-jdenticon-value="user127" th:data-jdenticon-value="${#authentication.name}" width="24" height="24" class="rounded border bg-light"></svg>
+
+```
+- font-awesome : fa {docs 참조해서 아이콘 id}
+- jdenticon : name에 따라 다른 값이 들어가도록 설정 함.늅
