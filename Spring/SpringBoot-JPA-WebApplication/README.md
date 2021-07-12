@@ -581,3 +581,41 @@ public class PersistentLogins {
     private LocalDateTime lastUsed;
 }
 ```
+
+# 📌 profileView
+```java
+   @GetMapping("/profile/{nickname}")
+    public String viewProfile(@PathVariable String nickname, @CurrentUser Account account, Model model){
+        Account byNickName = accountRepository.findByNickName(nickname);
+
+        if(byNickName == null){
+            throw new IllegalArgumentException(nickname+"에 해당하는 사용자가 없습니다");
+        }
+
+        //account
+        model.addAttribute(byNickName);
+        model.addAttribute("isOwner", byNickName.equals(account));
+
+        return "account/profile";
+
+    }
+```
+
+```html
+<div class="row mt-5 justify-content-center">
+    <div class="col-2">
+        <!-- image -->
+        <svg th:if="${#strings.isEmpty(account.profileImage)}" class="img-fluid float-left rounded img-thumbnail"
+            th:data-jdenticon-value="${account.nickName}" width="125", height="125"></svg>
+        <img th:if="${!#strings.isEmpty(account.profileImage)}" class="img-fluid float-left rounded img-thumbnail"
+             th:src="${account.profileImage}" width="125", height="125"/>
+    </div>
+    <div class="col-8">
+        <h1 class="display-4" th:text="${account.nickName}"></h1>
+        <p class="lead" th:if="${!#strings.isEmpty(account.bio)}" th:text="${account.bio}"></p>
+        <p class="lead" th:if="${#strings.isEmpty(account.bio) && isOwner}" >
+            <span>한 줄 소개를 추가하세요.</span>
+        </p>
+    </div>
+</div>
+```

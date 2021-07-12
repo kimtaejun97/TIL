@@ -56,10 +56,7 @@ public class Account {
 
     }
 
-    public void completeSignUp() {
-        this.emailVerified= true;
-        this.joinedAt = LocalDateTime.now();
-    }
+
 
     public boolean isValidToken(String token) {
         return this.emailCheckToken.equals(token);
@@ -67,5 +64,10 @@ public class Account {
 
     public boolean canConfirmEmail() {
         return this.emailCheckTokenLastGeneration.isBefore(LocalDateTime.now().minusMinutes(10));
+    }
+
+    public void completeSignUp() {
+        this.emailVerified =true;
+        this.joinedAt = LocalDateTime.now();
     }
 }

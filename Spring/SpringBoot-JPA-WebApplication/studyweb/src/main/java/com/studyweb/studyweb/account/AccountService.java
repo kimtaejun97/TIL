@@ -16,8 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class AccountService implements UserDetailsService {
@@ -27,15 +28,12 @@ public class AccountService implements UserDetailsService {
     private final JavaMailSender javaMailSender;
 
 
-    @Transactional
     public Account processNewAccount(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
         newAccount.generateEmailCheckToken();
         sendSignUpConfirmEmail(newAccount);
         return newAccount;
     }
-
-
 
     private Account saveNewAccount(SignUpForm signUpForm) {
         Account account = Account.builder()
@@ -73,7 +71,6 @@ public class AccountService implements UserDetailsService {
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(token);
     }
-    @Transactional
     public void resendConfirmEmail(String nickName) {
         Account account = accountRepository.findByNickName(nickName);
         account.generateEmailCheckToken();
@@ -87,6 +84,7 @@ public class AccountService implements UserDetailsService {
         javaMailSender.send(simpleMailMessage);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String emailOrNickName) throws UsernameNotFoundException {
         Account account =  accountRepository.findByEmail(emailOrNickName);
@@ -99,5 +97,10 @@ public class AccountService implements UserDetailsService {
 
         return new UserAccount(account);
 
+    }
+
+    public void completeSignUp(Account account) {
+        account.completeSignUp();
+        login(account);
     }
 }
