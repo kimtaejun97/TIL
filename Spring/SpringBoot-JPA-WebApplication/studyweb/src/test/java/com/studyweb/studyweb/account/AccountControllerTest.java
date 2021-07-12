@@ -177,12 +177,12 @@ public class AccountControllerTest {
                 .andExpect(view().name("redirect:/"));
 
 
-        assertThat(prevToken).isNotEqualTo(account.getEmailCheckToken());
+        assertThat(prevToken).isNotEqualTo(newAccount.getEmailCheckToken());
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
 
         mockMvc.perform(get("/check-email-token")
-                .param("token", account.getEmailCheckToken())
-                .param("email",account.getEmail()))
+                .param("token", newAccount.getEmailCheckToken())
+                .param("email",newAccount.getEmail()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/checked-email"))
                 .andExpect(model().attributeDoesNotExist("error"))

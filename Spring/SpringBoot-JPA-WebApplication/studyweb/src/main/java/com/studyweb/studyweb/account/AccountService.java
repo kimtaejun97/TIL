@@ -73,9 +73,10 @@ public class AccountService implements UserDetailsService {
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(token);
     }
-    public void resendConfirmEmail(Account account) {
+    @Transactional
+    public void resendConfirmEmail(String nickName) {
+        Account account = accountRepository.findByNickName(nickName);
         account.generateEmailCheckToken();
-        accountRepository.save(account);
 
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setTo(account.getEmail());
@@ -84,7 +85,6 @@ public class AccountService implements UserDetailsService {
                 +"&email="+account.getEmail());
 
         javaMailSender.send(simpleMailMessage);
-
     }
 
     @Override

@@ -12,6 +12,26 @@
 
 
 
+## 📃 목차
+***
+- #### [회원가입 뷰](#-회원가입-뷰)
+- #### [패스워드 인코딩](#-패스워드-인코딩)
+- #### [인증 메일 확인](#-인증-메일-확인)
+- #### [회원가입, 인증 후 자동 로그인](#-회원가입,-인증-후-자동-로그인)
+- #### [인증 상태에 따른 View](#-인증-상태에-따른-view)
+- #### [프론트엔드 라이브러리 설정](#-프론트엔드-라이브러리-설정)
+- #### [프로필 이미지 및 아이콘](#-프로필-이미지-및-아이콘)
+- #### [이메일 인증 경고창](#-이메일-인증-경고창)
+- #### [인증 이메일 재전송](#-인증-이메일-재전송)
+- #### [로그인, 로그아웃](#-로그인,-로그아웃)
+- #### [로그인 기억하](#-로그인-기억하기)
+- #### [](#-)
+- #### [](#-)
+- #### [](ㅍ)
+
+
+
+
 # 📌 회원가입 뷰
 ***
     - 타임리프 : 객체를 폼 객체로 설정하기
@@ -203,7 +223,7 @@ assertNotEquals(account.getPassword(), "12345678");
 ```
 
 
-# 📌 인증 메일 확인.
+# 📌 인증 메일 확인
 *****
 ```java
 @GetMapping("/check-email-token")
@@ -232,7 +252,7 @@ public String checkEmailToken(String token, String email, Model model){
 > - checked-email 페이지에서 error의 여부에 따라 메시지를 보여준다.
 
 
-# 📌 회원 가입, 인증 후 자동 로그인.
+# 📌 회원 가입, 인증 후 자동 로그인
 ****
 > - 스프링 시큐리티에서 로그인 : SecurityContext에 Authentication(token)이 존재 하는가.
 > - UsernamePasswordAuthenticationToken 으로 token을 생성하고 SecuriryContext에 넣어준다.
@@ -358,6 +378,7 @@ ${#authentication.name} 로 이름 참조도 가능.
 
 
 # 📌 이메일 인증 경고창.
+****
 ```html
 <div class ="alert alert-warning" role="alert" th:if="${account != null && !account.emailVerified}" >
     가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인 하세요.</a>
@@ -407,3 +428,156 @@ public class UserAccount extends User {
 ```
 - account 라는 필드명은 @CurrentUser Account account 의 account 와 매핑된다.
 
+
+# 📌 인증 이메일 재전송
+***
+```java
+@GetMapping("/resend-confirm-email")
+public String resendPage(@CurrentUser Account account, Model model){
+
+    if(!account.canConfirmEmail()){
+        model.addAttribute("error", "인증 이메일은 10분에 한번만 전송할 수 있습니다.");
+        model.addAttribute("email",account.getEmail());
+        return "account/check-email";
+    }
+
+    accountService.resendConfirmEmail(account.getNickName());
+    return "redirect:/";
+}
+```
+
+```java
+@Transactional
+public void resendConfirmEmail(String nickName) {
+        Account account = accountRepository.findByNickName(nickName);
+        account.generateEmailCheckToken();
+
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo(account.getEmail());
+        simpleMailMessage.setSubject("스터디웹 회원 인증");
+        simpleMailMessage.setText("/check-email-token?token="+account.getEmailCheckToken()
+        +"&email="+account.getEmail());
+
+        javaMailSender.send(simpleMailMessage);
+}
+```
+- canConfirmEmail()에서는 현재 시간과 마지막으로 checkToken을 생성한 시간을 비교하여 10이 지나지 않았다면 전송하지 않고 경고창.
+- 토큰을 새로 만들어 이메일 전송.
+
+
+# 📌 로그인, 로그아웃
+***
+```java
+http.formLogin()
+            .loginPage("/login").permitAll()
+            .and()
+        .logout().logoutSuccessUrl("/");
+```
+
+```java
+@Override
+public UserDetails loadUserByUsername(String emailOrNickName) throws UsernameNotFoundException {
+    Account account =  accountRepository.findByEmail(emailOrNickName);
+    if(account == null){
+        account = accountRepository.findByNickName(emailOrNickName);
+    }
+    if(account == null){
+        throw new UsernameNotFoundException(emailOrNickName);
+    }
+
+    return new UserAccount(account);
+
+}
+```
+```java
+private Account account;
+
+    public UserAccount(Account account) {
+        super(account.getNickName(), account.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        this.account =account;
+    }
+```
+- 기본으로 사용되는 formLogin()이 아닌 새로 login.html을 만들어 매핑.
+- Spring Security의 User을 상속받는 클래스인 UserAccount를 이용하여 인증.
+- return User() 로도 가능.
+
+# 📌 로그인 기억하기
+***
+- 기본적으로 Session의 타임 아웃은 30분.
+```properties
+server.servlet.session.timeout=30m
+```
+- 세션이 만료 되더라도 로그인을 유지하기 위해 사용하는 방법(RememberMe)
+    > 쿠키에 인증 정보를 남겨두고 세션이 만료 됐을 때 쿠키에 남아있는 정보로 인증. 
+    
+- 해시 기반의 쿠키
+> - UserName
+> - Password
+> - 만료기간
+> - Key
+> - 쿠키를 탈취당하면 그 계정을 탈취당한 것과 같다.
+
+- 조금 더 안전하게 관리하기
+> - 쿠키 안에 랜덤한 token을 만들어 같이 저장하고 인증 때마다 변경.
+> - Username, 토큰
+> - 해당 방법도 취약, 해커가 쿠키로 인증을 하게되면 원 사용자는 인증할 수 없게 됨.
+
+- 개선된 방법
+> - UserName, Token(랜덤, 매번 변경), 시리즈(랜덤,고정)
+> - 쿠키를 탈취 당하면 원 사용자는 유효하지 않은 토큰과 유효한 시리즈,UserName 으로 접속하게 되고, 이 경우, 모든 토큰을 삭제하여 해커가 더이상 쿠키를 사용하지 못하도록 방지할 수 있다.
+
+
+- ### 스프링 시큐리티 설정 : 해시 기반
+```java
+http.rememberMe().key("랜덤 키값");
+```
+
+- ### 스프링 시큐리티 설정: 개선된 영속화 기반 설정.
+
+```html
+<div class="form-grop form-check">
+    <input type="checkbox" class="form-check-input" id="rememberMe", name="remember-me" checked>
+    <label class="form-check-label" for="rememberMe" aria-describedby="rememberMeHelp">로그인 유지</label>
+</div>
+```
+- name 을 remember-me로 주고 check box가 true 값이면 remember-me 기능 실행.
+
+```java
+private final AccountService accountService;
+private final DataSource dataSource;
+
+http.rememberMe()
+        .userDetailsService(accountService)
+        .tokenRepository(tokenRepository());
+
+@Bean
+public PersistentTokenRepository tokenRepository(){
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        return jdbcTokenRepository;
+
+        }
+```
+- userDetailsService와 TokenRepository를 넘겨줌.
+- JdbcTokenRepositoryImpl에서 만드는 테이블 엔티티를 매핑 시켜준다.
+
+```java
+@Getter @Setter
+@Table(name = "persistent_logins")
+@Entity
+public class PersistentLogins {
+
+    @Id
+    @Column(length = 64)
+    private String series;
+
+    @Column(nullable = false, length = 64)
+    private String username;
+
+    @Column(nullable = false, length = 64)
+    private String token;
+
+    @Column(name = "last_used",nullable = false, length = 64)
+    private LocalDateTime lastUsed;
+}
+```

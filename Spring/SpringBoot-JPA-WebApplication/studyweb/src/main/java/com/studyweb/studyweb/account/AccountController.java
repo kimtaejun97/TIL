@@ -85,9 +85,8 @@ public class AccountController {
             return "account/check-email";
         }
 
-        accountService.resendConfirmEmail(account);
+        accountService.resendConfirmEmail(account.getNickName());
         return "redirect:/";
-
     }
 
 
