@@ -405,4 +405,5 @@ public class UserAccount extends User {
     }
 }
 ```
-- 
+- account 라는 필드명은 @CurrentUser Account account 의 account 와 매핑된다.
+

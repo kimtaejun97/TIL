@@ -53,7 +53,7 @@ public class AccountService {
     private void sendSignUpConfirmEmail(Account newAccount) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(newAccount.getEmail());
-        mailMessage.setSubject("회원 가입 인증");
+        mailMessage.setSubject("스터디 웹 회원 인증");
         //check-email-token 에서 token이 유효한지 확인.
         mailMessage.setText("/check-email-token?token="+ newAccount.getEmailCheckToken()
                 + "&email=" + newAccount.getEmail());
@@ -71,5 +71,18 @@ public class AccountService {
 
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(token);
+    }
+    public void resendConfirmEmail(Account account) {
+        account.generateEmailCheckToken();
+        accountRepository.save(account);
+
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo(account.getEmail());
+        simpleMailMessage.setSubject("스터디웹 회원 인증");
+        simpleMailMessage.setText("/check-email-token?token="+account.getEmailCheckToken()
+                +"&email="+account.getEmail());
+
+        javaMailSender.send(simpleMailMessage);
+
     }
 }

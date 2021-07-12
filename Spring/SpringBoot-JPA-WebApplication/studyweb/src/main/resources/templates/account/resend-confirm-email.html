@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment" ></head>
+<body class =bg-light>
+
+<th:block th:replace="fragments :: navFragment"/>
+
+<div class ="py-5 text-center">
+    <p class="lead">이메일 확인</p>
+    <div class="alert alert-success">인증 메일을 전송했습니다. 메일함을 확인해주세요.</div>
+</div>
+
+
+<div th:replace="fragments :: footerFragment"></div>
+</body>
+</html>

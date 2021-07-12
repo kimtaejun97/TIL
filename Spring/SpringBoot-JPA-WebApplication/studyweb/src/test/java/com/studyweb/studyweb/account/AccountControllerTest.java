@@ -38,6 +38,9 @@ public class AccountControllerTest {
     @MockBean
     JavaMailSender javaMailSender;
 
+    @Autowired
+    AccountService accountService;
+
     @DisplayName("회원 가입 화면 보이는지 테스트")
     @Test
     void signUpform() throws Exception {
@@ -116,6 +119,76 @@ public class AccountControllerTest {
                 .andExpect(model().attributeExists("nickName"))
                 .andExpect(authenticated().withUsername("bigave"));
 
+    }
+
+    @DisplayName("인증 메일 재전송 - 제한 시간(10분) 이전에 시도.")
+    @Test
+    void resendConfirmEmail_blocked() throws Exception {
+        Account account = Account.builder()
+                .nickName("bigave")
+                .email("test@email.com")
+                .password("12345678")
+                .build();
+        Account newAccount = accountRepository.save(account);
+        newAccount.generateEmailCheckToken();
+
+        String prevToken = newAccount.getEmailCheckToken();
+
+        accountService.login(account);
+
+
+        mockMvc.perform(get("/check-email"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/check-email"))
+                .andExpect(model().attribute("email", account.getEmail()));
+
+        mockMvc.perform(get("/resend-confirm-email"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/check-email"))
+                .andExpect(model().attributeExists("error"));
+
+    }
+
+    @DisplayName("인증 메일 재전송 - 제한 시간(10분) 이후에 시도.")
+    @Test
+    void resendConfirmEmail_success() throws Exception {
+        Account account = Account.builder()
+                .nickName("bigave")
+                .email("test@email.com")
+                .password("12345678")
+                .build();
+        Account newAccount = accountRepository.save(account);
+        newAccount.generateEmailCheckToken();
+
+        String prevToken = newAccount.getEmailCheckToken();
+
+        accountService.login(account);
+
+        account.setEmailCheckTokenLastGeneration(account.getEmailCheckTokenLastGeneration().minusMinutes(11));
+
+
+        mockMvc.perform(get("/check-email"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/check-email"))
+                .andExpect(model().attribute("email", account.getEmail()));
+
+        mockMvc.perform(get("/resend-confirm-email"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/"));
+
+
+        assertThat(prevToken).isNotEqualTo(account.getEmailCheckToken());
+        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+
+        mockMvc.perform(get("/check-email-token")
+                .param("token", account.getEmailCheckToken())
+                .param("email",account.getEmail()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/checked-email"))
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(model().attributeExists("numberOfUser"))
+                .andExpect(model().attributeExists("nickName"))
+                .andExpect(authenticated().withUsername("bigave"));
     }
 
 }

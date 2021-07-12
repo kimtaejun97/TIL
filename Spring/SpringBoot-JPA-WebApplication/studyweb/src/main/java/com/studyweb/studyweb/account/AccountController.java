@@ -70,6 +70,28 @@ public class AccountController {
         return view;
     }
 
+    @GetMapping("/check-email")
+    public String checkEmail(@CurrentUser Account account,Model model){
+        model.addAttribute("email",account.getEmail());
+        return "account/check-email";
+    }
+
+    @GetMapping("/resend-confirm-email")
+    public String resendPage(@CurrentUser Account account, Model model){
+
+        if(!account.canConfirmEmail()){
+            model.addAttribute("error", "인증 이메일은 10분에 한번만 전송할 수 있습니다.");
+            model.addAttribute("email",account.getEmail());
+            return "account/check-email";
+        }
+
+        accountService.resendConfirmEmail(account);
+        return "redirect:/";
+
+    }
+
+
+
 
 
 }
