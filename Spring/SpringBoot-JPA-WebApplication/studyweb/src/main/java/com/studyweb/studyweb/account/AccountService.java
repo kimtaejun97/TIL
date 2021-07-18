@@ -1,6 +1,7 @@
 package com.studyweb.studyweb.account;
 
 import com.studyweb.studyweb.domain.Account;
+import com.studyweb.studyweb.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.mail.SimpleMailMessage;
@@ -102,5 +103,13 @@ public class AccountService implements UserDetailsService {
     public void completeSignUp(Account account) {
         account.completeSignUp();
         login(account);
+    }
+
+    public void updateProfile(Account account, Profile profile) {
+        account.setBio(profile.getBio());
+        account.setLocation(profile.getLocation());
+        account.setOccupation(profile.getOccupation());
+        account.setUrl(profile.getUrl());
+        accountRepository.save(account);
     }
 }

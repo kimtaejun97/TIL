@@ -583,6 +583,7 @@ public class PersistentLogins {
 ```
 
 # 📌 profileView
+****
 ```java
    @GetMapping("/profile/{nickname}")
     public String viewProfile(@PathVariable String nickname, @CurrentUser Account account, Model model){
@@ -619,3 +620,4 @@ public class PersistentLogins {
     </div>
 </div>
 ```
+
