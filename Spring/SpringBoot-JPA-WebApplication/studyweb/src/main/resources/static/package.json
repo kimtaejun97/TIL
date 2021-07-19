@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^5.0.2",
+    "cropper": "^4.1.0",
     "font-awesome": "^4.7.0",
     "jdenticon": "^3.1.0",
-    "jquery": "^3.6.0"
+    "jquery": "^3.6.0",
+    "jquery-cropper": "^1.0.1"
   }
 }

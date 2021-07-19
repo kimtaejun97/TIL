@@ -28,6 +28,7 @@
 - #### [Profile View](#-profileview)
 - #### [RedirectAttribute : FlashAttribute](#-redirectattribute---flashattribute)
 - #### [@WithSecurityContext](#--withsecuritycontext)
+- #### [프로필 이미지](#-프로필-이미지)
 
 
 
@@ -685,3 +686,20 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
 > 2. UserDetails 객체 생성. (springSecurity.core.User)
 > 3. 인증 토큰 생성(principal, password, Authorities)
 > 4. Security Context를 생성하고 인증토큰을 등록.
+
+
+
+
+# 📌 프로필 이미지
+***
+```html
+<div class="form-group">
+    <input id="profileImage" type="hidden" th:field="*{profileImage}" class="form-control" />
+</div>
+```
+```html
+ <img th:if="${!#strings.isEmpty(profile.profileImage)}" class="rounded"
+      th:src="${profile.profileImage}" width="125" height="125"/>
+```
+- String 타입으로 이미지를 받을 수 있다.  HTML의 DataURL 이미지는 data:image로 시작
+- ``` if (!e.target.result.startsWith("data:image"))``` 처럼 이미지인지 확인 가능.
