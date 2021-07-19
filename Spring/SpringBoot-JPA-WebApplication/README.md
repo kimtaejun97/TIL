@@ -23,11 +23,11 @@
 - #### [프로필 이미지 및 아이콘](#-프로필-이미지-및-아이콘)
 - #### [이메일 인증 경고창](#-이메일-인증-경고창)
 - #### [인증 이메일 재전송](#-인증-이메일-재전송)
-- #### [로그인, 로그아웃](#-로그인,-로그아웃)
+- #### [로그인, 로그아웃](#-로그인--로그아웃)
 - #### [로그인 기억하](#-로그인-기억하기)
-- #### [](#-)
-- #### [](#-)
-- #### [](ㅍ)
+- #### [Profile View](#-profileview)
+- #### [RedirectAttribute : FlashAttribute](#-redirectattribute---flashattribute)
+- #### [@WithSecurityContext](#--withsecuritycontext)
 
 
 
@@ -621,3 +621,67 @@ public class PersistentLogins {
 </div>
 ```
 
+
+# 📌 RedirectAttribute : FlashAttribute
+****
+```java
+ @PostMapping("/settings/profile")
+    public  String RedirectMessage(RedirectAttributes attributes){
+    
+        attributes.addFlashAttribute("message", "RedirectMessage");
+        
+        return "redirect:/settings/profile";
+    }
+```
+```html
+<div th:if="${message}" class ="alert alert-success alert-dismissible fade show mt-3" role="alert">
+    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+    <span th:text="${message}">메시지</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </button>
+</div>
+```
+- RedirectAttribute 를 이용하여 리다이렉트 할 때 데이터를 전달할 수 있다.
+- FlashAttribute 는 한번 사용하고 사라지는 일회성 데이터.
+- model에 추가된 어트리뷰트처럼 사용하면 된다.
+
+
+# 📌 @WithSecurityContext
+****
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@WithSecurityContext(factory = WithAccountSecurityContextFactory.class )
+public @interface WithAccount {
+    String value();
+}
+```
+```java
+@RequiredArgsConstructor
+public class WithAccountSecurityContextFactory implements WithSecurityContextFactory<WithAccount> {
+
+    private final AccountService accountService;
+
+    @Override
+    public SecurityContext createSecurityContext(WithAccount withAccount) {
+
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setNickName(withAccount.value());
+        signUpForm.setEmail("test@email.com");
+        signUpForm.setPassword("123123123");
+        accountService.processNewAccount(signUpForm);
+
+        UserDetails principal = accountService.loadUserByUsername(withAccount.value());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+
+        return context;
+    }
+}
+```
+- 테스트를 진행할 때 특정 컨택스트가 등록되어 있어야하는 테스트의 경우(로그인) Securitycontext를 생성하여 등록한 후 테스트를 진행할 수 있다.
+> 1. 계정 생성
+> 2. UserDetails 객체 생성. (springSecurity.core.User)
+> 3. 인증 토큰 생성(principal, password, Authorities)
+> 4. Security Context를 생성하고 인증토큰을 등록.

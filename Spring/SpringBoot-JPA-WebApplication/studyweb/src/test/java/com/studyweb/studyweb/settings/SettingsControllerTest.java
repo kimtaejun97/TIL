@@ -74,6 +74,7 @@ class SettingsControllerTest {
     @DisplayName("프로필 수정하기 View")
     @Test
     void updateProfileView() throws Exception {
+
         mockMvc.perform(get("/settings/profile"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("settings/profile"))
