@@ -3,8 +3,13 @@ package com.studyweb.studyweb.settings;
 import com.studyweb.studyweb.account.AccountService;
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
+import com.studyweb.studyweb.settings.form.NickNameForm;
+import com.studyweb.studyweb.settings.form.Notification;
+import com.studyweb.studyweb.settings.form.Password;
+import com.studyweb.studyweb.settings.form.Profile;
+import com.studyweb.studyweb.settings.validator.NickNameValidator;
+import com.studyweb.studyweb.settings.validator.PasswordValidator;
 import lombok.RequiredArgsConstructor;
-import org.dom4j.rule.Mode;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,14 +28,20 @@ public class SettingsController {
 
     private final AccountService accountService;
     private final PasswordValidator passwordValidator;
+    private final NickNameValidator nickNameValidator;
 
     private final ModelMapper modelMapper;
 
 
 
     @InitBinder("password")
-    public void initBinder(WebDataBinder webDataBinder){
+    public void passwordInitBinder(WebDataBinder webDataBinder){
         webDataBinder.addValidators(passwordValidator);
+    }
+
+    @InitBinder("nickNameForm")
+    public void nickNameInitBinder(WebDataBinder webDataBinder){
+        webDataBinder.addValidators(nickNameValidator);
     }
 
     @GetMapping("/settings/profile")
@@ -93,6 +104,27 @@ public class SettingsController {
         return "redirect:/settings/notification";
 
     }
+
+
+    @GetMapping("settings/account")
+    public String accountUpdateForm(@CurrentUser Account account, NickNameForm nickNameForm, Model model){
+        model.addAttribute(modelMapper.map(account , NickNameForm.class));
+        return "settings/account";
+    }
+
+    @PostMapping("/settings/account")
+    public String accountUpdate(@CurrentUser Account account, @Valid NickNameForm nickNameForm, Errors errors , RedirectAttributes attributes, Model model){
+        if(errors.hasErrors()){
+            return "/settings/account";
+        }
+        accountService.updateNickName(account, nickNameForm.getNickName());
+        attributes.addFlashAttribute("message", "닉네임이 변경되었습니다.");
+
+        return "redirect:/settings/account";
+
+    }
+
+
 
 
 

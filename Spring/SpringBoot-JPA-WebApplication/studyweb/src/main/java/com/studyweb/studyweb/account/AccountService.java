@@ -1,12 +1,10 @@
 package com.studyweb.studyweb.account;
 
 import com.studyweb.studyweb.domain.Account;
-import com.studyweb.studyweb.settings.Notification;
-import com.studyweb.studyweb.settings.Password;
-import com.studyweb.studyweb.settings.Profile;
+import com.studyweb.studyweb.settings.form.Notification;
+import com.studyweb.studyweb.settings.form.Profile;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 @Transactional
 @RequiredArgsConstructor
@@ -125,5 +122,11 @@ public class AccountService implements UserDetailsService {
 
         modelMapper.map(notification, account);
         accountRepository.save(account);
+    }
+
+    public void updateNickName(Account account, String nickName) {
+        account.setNickName(nickName);
+        accountRepository.save(account);
+        login(account);
     }
 }

@@ -77,6 +77,7 @@
     <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'notification'}? active" href="#" th:href="@{/settings/notification}">알림</a>
     <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'tags'}? active" href="#" th:href="@{/settings/tags}">관심 주제</a>
     <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'zones'}? active" href="#" th:href="@{/settings/zones}">활동 지역</a>
+    <a class="list-group-item list-group-item-action list-group-item-danger" th:classappend="${currentMenu == 'account'}? active" href="#" th:href="@{/settings/account}">계정</a>
 </div>
 
 <script type="application/javascript" th:fragment="form-validation">

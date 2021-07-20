@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+<link href="=/node_modules/cropper/dist/corpper.css">
+
+<body class =bg-light>
+
+<th:block th:replace="fragments :: navFragment"/>
+
+<div class="container">
+    <div class="row mt-5 justify-content-center">
+        <div class="col-2 justify-content-center">
+            <div th:replace="fragments :: settings-menu (currentMenu='account')"></div>
+        </div>
+        <div class="col-8">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                </symbol>
+            </svg>
+
+            <div th:if="${message}" class ="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+                <span th:text="${message}">메시지</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </button>
+            </div>
+
+            <div class="col-8">
+                <div class="row">
+                    <h2 class="col-12">닉네임 변경</h2>
+                </div>
+                <div class="row">
+                    <form class="needs-validation col-12" th:object="${nickNameForm}" th:action="@{/settings/account}" method="post" novalidate>
+                        <div class="alert alert-warning" role="alert">
+                            닉네임을 변경하면 프로필 페이지 링크도 바뀝니다!
+                        </div>
+                        <div class="form-group">
+                            <input id="nickname" type="text" th:field="*{nickName}" class="form-control" aria-describedby="nicknameHelp" required>
+                            <small id="nicknameHelp" class="form-text text-muted">
+                                공백없이 문자와 숫자로만 3자 이상 20자 이내로 입력하세요. 가입후에 변경할 수 있습니다.
+                            </small>
+                            <small class="invalid-feedback">닉네임을 입력하세요.</small>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('nickName')}" th:errors="*{nickName}">nickname Error</small>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-outline-primary" type="submit" aria-describedby="submitHelp">변경하기</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h2 class="text-danger">계정 삭제</h2>
+                        <div class="alert alert-danger" role="alert">
+                            이 계정은 삭제할 수 없습니다.
+                        </div>
+                        <button class="btn btn-outline-danger disabled">계정 삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validation"></script>
+<div th:replace="fragments :: footerFragment"></div>
+
+</body>
+</html>
+
+

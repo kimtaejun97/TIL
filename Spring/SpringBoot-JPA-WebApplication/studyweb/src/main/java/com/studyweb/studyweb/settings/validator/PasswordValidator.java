@@ -1,8 +1,8 @@
-package com.studyweb.studyweb.settings;
+package com.studyweb.studyweb.settings.validator;
 
 import com.studyweb.studyweb.account.AccountRepository;
-import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
+import com.studyweb.studyweb.settings.form.Password;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
