@@ -29,6 +29,9 @@
 - #### [RedirectAttribute : FlashAttribute](#-redirectattribute---flashattribute)
 - #### [@WithSecurityContext](#--withsecuritycontext)
 - #### [프로필 이미지](#-프로필-이미지)
+- #### [패스워드 비교](#-패스워드-변경)
+- #### [알림 설정](#-알림-설정)
+- #### [Model Mapper](#-model-mapper)
 
 
 
@@ -703,3 +706,9 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
 ```
 - String 타입으로 이미지를 받을 수 있다.  HTML의 DataURL 이미지는 data:image로 시작
 - ``` if (!e.target.result.startsWith("data:image"))``` 처럼 이미지인지 확인 가능.
+
+# 📌 패스워드 비교
+****
+```java
+passwordEncoder.matches(String rawPassword, String encodedPassword)
+```

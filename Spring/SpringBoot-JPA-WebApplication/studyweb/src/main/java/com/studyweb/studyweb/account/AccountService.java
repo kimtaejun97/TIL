@@ -1,6 +1,7 @@
 package com.studyweb.studyweb.account;
 
 import com.studyweb.studyweb.domain.Account;
+import com.studyweb.studyweb.settings.Password;
 import com.studyweb.studyweb.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -111,6 +112,11 @@ public class AccountService implements UserDetailsService {
         account.setOccupation(profile.getOccupation());
         account.setUrl(profile.getUrl());
         account.setProfileImage(profile.getProfileImage());
+        accountRepository.save(account);
+    }
+
+    public void updatePassword(Account account, Password password) {
+        account.setPassword(passwordEncoder.encode(password.getNewPassword()));
         accountRepository.save(account);
     }
 }

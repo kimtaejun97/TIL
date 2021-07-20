@@ -4,12 +4,14 @@ import com.studyweb.studyweb.WithAccount;
 import com.studyweb.studyweb.account.AccountRepository;
 import com.studyweb.studyweb.account.AccountService;
 import com.studyweb.studyweb.domain.Account;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,7 +29,6 @@ class SettingsControllerTest {
     @Autowired
     MockMvc mockMvc;
 
-
     @Autowired
     AccountRepository accountRepository;
 
@@ -35,6 +36,9 @@ class SettingsControllerTest {
     void cleanup(){
         accountRepository.deleteAll();
     }
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @WithAccount("bigave")
     @DisplayName("프로필 수정하기 - 입력 값 정상")
@@ -81,4 +85,68 @@ class SettingsControllerTest {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("profile"));
     }
+
+
+    @WithAccount("bigave")
+    @DisplayName("비밀번호 수정하기 View")
+    @Test
+    void updatePasswordView() throws Exception {
+        mockMvc.perform(get("/settings/password"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/password"))
+                .andExpect(model().attributeExists("password"));
+    }
+
+    @WithAccount("bigave")
+    @DisplayName("비밀번호 수정하기 - 정상 입력")
+    @Test
+    void updatePassword_correct_input() throws Exception {
+        mockMvc.perform(post("/settings/password")
+                .param("nickName","bigave")
+                .param("newPassword", "11112222")
+                .param("checkPassword","11112222")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings/password"))
+                .andExpect(flash().attributeExists("message"));
+
+        Account account = accountRepository.findByNickName("bigave");
+        assertTrue(passwordEncoder.matches("11112222", account.getPassword()));
+
+
+    }
+
+    @WithAccount("bigave")
+    @DisplayName("비밀번호 수정하기 - 이전과 같은 비밀번호")
+    @Test
+    void updatePassword_same_password() throws Exception {
+        mockMvc.perform(post("/settings/password")
+                .param("nickName","bigave")
+                .param("newPassword", "123123123")
+                .param("checkPassword","123123123")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/password"))
+                .andExpect(model().hasErrors())
+                .andExpect(model().attributeExists("password"));
+
+    }
+
+    @WithAccount("bigave")
+    @DisplayName("비밀번호 수정하기 - 두 비밀번호 불일치")
+    @Test
+    void updatePassword_wrong_password() throws Exception {
+        mockMvc.perform(post("/settings/password")
+                .param("newPassword", "11112222")
+                .param("nickName","bigave")
+                .param("checkPassword","22221111")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/password"))
+                .andExpect(model().hasErrors())
+                .andExpect(model().attributeExists("password"));
+
+    }
+
+
 }
