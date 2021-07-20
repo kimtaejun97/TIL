@@ -16,10 +16,10 @@
                 <div class="form-group">
                     <lable for="username">이메일 또는 닉네임</lable>
                     <input id="username" type="text" name="username" class="form-control" placeholder="your@email.com" aria-describedby="emailHelp" required>
-                    <small id ="emailhelp" class="form-text text-muted">
+                    <small id ="emailHelp" class="form-text text-muted">
                         가입 할 때 사용한 이메일 또는 닉네임을 입력하세요.
                     </small>
-                    <small class="invalid-feefback">이메일을 확인하세요</small>
+                    <small class="invalid-feedback">이메일을 확인하세요</small>
                 </div>
 
                 <div class="form-group">
@@ -27,7 +27,7 @@
                     <input id="password" type="text" name="password" class="form-control" placeholder="password" aria-describedby="passwordHelp" required>
                     <small id ="passwordHelp" class="form-text text-muted">패스워드가 기억나지 않는다면 <a href="#" th:href="@{/find-password}"패스워드 찾기></a>
                     <a th:href="@{/email-login}">패스워드 없이 로그인하기</a></small>
-                    <small class="invalid-feefback">패스워드를 확인하세요</small>
+                    <small class="invalid-feedback">패스워드를 확인하세요</small>
                 </div>
 
                 <div class="form-grop form-check">

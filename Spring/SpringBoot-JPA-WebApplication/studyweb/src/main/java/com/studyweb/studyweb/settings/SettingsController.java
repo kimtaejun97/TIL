@@ -1,5 +1,6 @@
 package com.studyweb.studyweb.settings;
 
+import com.studyweb.studyweb.account.AccountRepository;
 import com.studyweb.studyweb.account.AccountService;
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
@@ -29,6 +30,8 @@ public class SettingsController {
     private final AccountService accountService;
     private final PasswordValidator passwordValidator;
     private final NickNameValidator nickNameValidator;
+
+    private final AccountRepository accountRepository;
 
     private final ModelMapper modelMapper;
 
@@ -89,6 +92,7 @@ public class SettingsController {
 
     }
 
+
     @GetMapping("settings/notification")
     public String notificationUpdateForm(@CurrentUser Account account, Model model){
         model.addAttribute(modelMapper.map(account, Notification.class));
@@ -123,6 +127,9 @@ public class SettingsController {
         return "redirect:/settings/account";
 
     }
+
+
+
 
 
 
