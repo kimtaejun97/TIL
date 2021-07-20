@@ -4,6 +4,8 @@ import com.studyweb.studyweb.account.AccountService;
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
 import lombok.RequiredArgsConstructor;
+import org.dom4j.rule.Mode;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -22,6 +24,8 @@ public class SettingsController {
     private final AccountService accountService;
     private final PasswordValidator passwordValidator;
 
+    private final ModelMapper modelMapper;
+
 
 
     @InitBinder("password")
@@ -32,7 +36,7 @@ public class SettingsController {
     @GetMapping("/settings/profile")
     public  String profileUpdateForm(@CurrentUser Account account, Model model ){
         model.addAttribute(account);
-        model.addAttribute(new Profile(account));
+        model.addAttribute(modelMapper.map(account, Profile.class));
 
         return "settings/profile";
     }
@@ -67,11 +71,29 @@ public class SettingsController {
             return "settings/password";
         }
 
-        accountService.updatePassword(account,password);
+        accountService.updatePassword(account,password.getNewPassword());
         attributes.addFlashAttribute("message", "비밀번호 변경 완료.");
 
         return "redirect:/settings/password";
 
     }
+
+    @GetMapping("settings/notification")
+    public String notificationUpdateForm(@CurrentUser Account account, Model model){
+        model.addAttribute(modelMapper.map(account, Notification.class));
+
+        return "settings/notification";
+    }
+
+    @PostMapping("/settings/notification")
+    public String notificationUpdate(@CurrentUser Account account, Notification notification, RedirectAttributes attributes){
+        accountService.updateNotification(account, notification);
+        attributes.addFlashAttribute("message", "알림 설정이 변경되었습니다.");
+
+        return "redirect:/settings/notification";
+
+    }
+
+
 
 }

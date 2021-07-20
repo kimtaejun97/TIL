@@ -1,9 +1,11 @@
 package com.studyweb.studyweb.account;
 
 import com.studyweb.studyweb.domain.Account;
+import com.studyweb.studyweb.settings.Notification;
 import com.studyweb.studyweb.settings.Password;
 import com.studyweb.studyweb.settings.Profile;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -28,6 +30,8 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
+
+    private final ModelMapper modelMapper;
 
 
     public Account processNewAccount(SignUpForm signUpForm) {
@@ -107,16 +111,19 @@ public class AccountService implements UserDetailsService {
     }
 
     public void updateProfile(Account account, Profile profile) {
-        account.setBio(profile.getBio());
-        account.setLocation(profile.getLocation());
-        account.setOccupation(profile.getOccupation());
-        account.setUrl(profile.getUrl());
-        account.setProfileImage(profile.getProfileImage());
+        // source, destination
+        modelMapper.map(profile, account);
         accountRepository.save(account);
     }
 
-    public void updatePassword(Account account, Password password) {
-        account.setPassword(passwordEncoder.encode(password.getNewPassword()));
+    public void updatePassword(Account account, String newPassword) {
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
+    public void updateNotification(Account account, Notification notification) {
+
+        modelMapper.map(notification, account);
         accountRepository.save(account);
     }
 }

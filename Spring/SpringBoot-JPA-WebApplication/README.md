@@ -30,7 +30,7 @@
 - #### [@WithSecurityContext](#--withsecuritycontext)
 - #### [프로필 이미지](#-프로필-이미지)
 - #### [패스워드 비교](#-패스워드-변경)
-- #### [알림 설정](#-알림-설정)
+- #### [체크박스 값 전달](#-체크박스-값-전달)
 - #### [Model Mapper](#-model-mapper)
 
 
@@ -712,3 +712,50 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
 ```java
 passwordEncoder.matches(String rawPassword, String encodedPassword)
 ```
+
+# 📌 체크박스 값 전달
+****
+```java
+<div class="custom-control custom-switch custom-control-inline">
+        <input type="checkbox" th:field="*{studyCreatedByEmail}" class="custom-control-input" id="studyCreatedByEmail">
+        <label class="custom-control-label" for="studyCreatedByEmail">이메일로 받기</label>
+</div>  
+```
+- 똑같이 field로 받고 boolean 값으로 저장. 체크하면 true
+
+
+# 📌 Model-Mapper
+*****
+- 객체의 프로퍼를 다른 객체의 프로퍼티로 매핑해주는 유틸리티 라이브러
+```xml
+<dependency>
+    <groupId>org.modelmapper</groupId>
+    <artifactId>modelmapper</artifactId>
+    <version>2.4.4</version>
+</dependency>
+```
+
+```java
+
+@Bean
+public ModelMapper modelMapper(){
+    ModelMapper modelMapper = new ModelMapper();
+    modelMapper.getConfiguration()
+        .setDestinationNameTokenizer(NameTokenizers.UNDERSCORE)
+        .setSourceNameTokenizer(NameTokenizers.UNDERSCORE);
+    
+    return modelMapper
+}
+```
+- NameTokenizers.UNDERSCORE : _를 사용했을 때에만 nested 객체(account_nickName -> account.nickName)를 참조하는 것으로 간주,      아니라면 해당 객체의 프로퍼티로 간주한다.
+
+```java
+//modelMapper.map(source, destination)
+        
+1. modelMapper.map(profile, account);
+2. model.addAttribute(modelMapper.map(account, Notification.class));
+
+
+```
+- source 객체의 프로퍼티 값들을 destination 객체의 프로퍼티 값에 매핑시켜 값을 할당한다.
+- 2번과 같이 새로운 객체를 생성하여 할당도 가능.

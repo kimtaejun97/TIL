@@ -1,10 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+<link href="=/node_modules/cropper/dist/corpper.css">
+
+<body class =bg-light>
+
+<th:block th:replace="fragments :: navFragment"/>
+
+<div class="container">
+    <div class="row mt-5 justify-content-center">
+        <div class="col-2 justify-content-center">
+            <div th:replace="fragments :: settings-menu (currentMenu='password')"></div>
+        </div>
+        <div class="col-8">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                </symbol>
+            </svg>
+
+            <div th:if="${message}" class ="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+                <span th:text="${message}">메시지</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </button>
+            </div>
+
+            <div class="col-8">
+                <div class="row">
+                    <h2 class="col-12">알림 설정</h2>
+                </div>
+                <div class="row mt-3" th:fragment="profile-form">
+                    <form class="col-12" action="#" th:action="@{/settings/notification}" th:object="${notification}" method="post" novalidate>
+                        <div class="alert alert-light" role="alert">
+                            <strong><a href="#" th:href="@{/settings/locations}">주요 활동 지역</a>에
+                                <a href="#" th:href="@{/settings/keywords}">관심있는 주제</a>의 스터디가 만들어졌을 때</strong> 알림을 받을 방법을 설정하세요.
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-switch custom-control-inline">
+                                <input type="checkbox" th:field="*{studyCreatedByEmail}" class="custom-control-input" id="studyCreatedByEmail">
+                                <label class="custom-control-label" for="studyCreatedByEmail">이메일로 받기</label>
+                            </div>
+                            <div class="custom-control custom-switch custom-control-inline">
+                                <input type="checkbox" th:field="*{studyCreatedByWeb}" class="custom-control-input" id="studyCreatedByWeb">
+                                <label class="custom-control-label" for="studyCreatedByWeb">웹으로 받기</label>
+                            </div>
+                        </div>
+                        <div class="alert alert-light" role="alert">
+                            <strong>스터디 모임 참가 신청</strong> 결과 알림을 받을 방법을 설정하세요.
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-switch custom-control-inline">
+                                <input type="checkbox" th:field="*{studyEnrollmentResultByEmail}" class="custom-control-input" id="studyEnrollmentResultByEmil">
+                                <label class="custom-control-label" for="studyEnrollmentResultByEmil">이메일로 받기</label>
+                            </div>
+                            <div class="custom-control custom-switch custom-control-inline">
+                                <input type="checkbox" th:field="*{studyEnrollmentResultByWeb}" class="custom-control-input" id="studyEnrollmentResultByWeb">
+                                <label class="custom-control-label" for="studyEnrollmentResultByWeb">웹으로 받기</label>
+                            </div>
+                        </div>
+                        <div class="alert alert-light" role="alert">
+                            <strong>참여중인 스터디</strong>에 대한 알림을 받을 방법을 설정하세요.
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-switch custom-control-inline">
+                                <input type="checkbox" th:field="*{studyUpdatedByEmail}" class="custom-control-input" id="studyWatchByEmail">
+                                <label class="custom-control-label" for="studyWatchByEmail">이메일로 받기</label>
+                            </div>
+                            <div class="custom-control custom-switch custom-control-inline">
+                                <input type="checkbox" th:field="*{studyUpdatedByWeb}" class="custom-control-input" id="studyWatchByWeb">
+                                <label class="custom-control-label" for="studyWatchByWeb">웹으로 받기</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-outline-primary" type="submit" aria-describedby="submitHelp">저장하기</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validation"></script>
+<div th:replace="fragments :: footerFragment"></div>
 
 </body>
 </html>
+
