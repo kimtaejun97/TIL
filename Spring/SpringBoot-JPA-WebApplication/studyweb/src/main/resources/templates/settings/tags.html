@@ -19,7 +19,7 @@
                     <div class ="alert alert-info" role="alert">
                         참여하고 싶은 스터디 주제를 입력해 주세요. 태그를 입력하고 (,) 또는 엔터를 입력하세요.
                     </div>
-                    <input id="tags" type="text" name="tags" class = "tagify-outside" aria-describedby="tagHelp">
+                    <input id="tags" type="text" name="tags" class = "tagify-outside" aria-describedby="tagHelp" th:value="${#strings.listJoin(tags,',')}">
             </div>
         </div>
     </div>

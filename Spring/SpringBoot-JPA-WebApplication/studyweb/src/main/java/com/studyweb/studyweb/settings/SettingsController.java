@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Controller
@@ -131,6 +133,10 @@ public class SettingsController {
     @GetMapping("/settings/tags")
     public String updateTags(@CurrentUser Account account, Model model){
         model.addAttribute(account);
+        Set<Tag> tags = accountService.getTags(account);
+
+        model.addAttribute("tags", tags.stream().map(Tag::getTitle).collect(Collectors.toList()));
+
         return "settings/tags";
     }
 
@@ -140,11 +146,23 @@ public class SettingsController {
         Tag tag = tagRepository.findByTitle(title);
 
         if(tag ==null){
-            tagRepository.save(Tag.builder()
+            tag = tagRepository.save(Tag.builder()
                     .title(title)
                     .build());
         }
         accountService.addTag(account, tag);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("settings/tags/remove")
+    public @ResponseBody ResponseEntity removeTag(@CurrentUser Account account, @RequestBody TagForm tagForm){
+        String title = tagForm.getTagTitle();
+        Tag tag = tagRepository.findByTitle(title);
+        if(tag == null){
+            return ResponseEntity.badRequest().build();
+        }
+        accountService.removeTag(account, tag);
 
         return ResponseEntity.ok().build();
     }

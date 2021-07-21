@@ -759,3 +759,31 @@ public ModelMapper modelMapper(){
 ```
 - source 객체의 프로퍼티 값들을 destination 객체의 프로퍼티 값에 매핑시켜 값을 할당한다.
 - 2번과 같이 새로운 객체를 생성하여 할당도 가능.
+
+# 📌 관심 주제 등록 : ajax 전송시 csrf
+****
+```javascript
+<script type="application/javascript" th:inline="javascript">
+    var csrfToken = /*[[${_csrf.token}]]*/null;
+    var csrfHeader = /*[[${_csrf.headerName}]]*/null;
+    $(document).ajaxSend(function (e, xhr, options){
+       xhr.setRequestHeader(csrfHeader, csrfToken);
+    });
+</script>
+```
+- 헤더에 cssrf 토큰 추가.
+
+# 📌 ManyToMany
+****
+```java
+@ManyToMany
+private Set<Tag> tags;
+
+public void addTag(Account account, Tag tag) {
+    Optional<Account> byId = accountRepository.findById(account.getId());
+
+    byId.ifPresent(a -> a.getTags().add(tag));
+}
+```
+- 자동으로 account_tags 테이블을 생성하고 조인이 발생.   
+![img.png](img.png)
