@@ -24,6 +24,7 @@
         </div>
     </div>
 </div>
+<div id ="whitelist" th:text="${whitelist}" hidden></div>
 
 <div th:replace="fragments :: footerFragment"></div>
 <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
@@ -63,6 +64,7 @@
 
         var tagify = new Tagify(tagInput, {
             pattern: /^.{0,20}$/,
+            whitelist: JSON.parse(document.querySelector("#whitelist").textContent),
             dropdown: {
                 enabled: 1
             }

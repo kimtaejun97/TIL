@@ -787,3 +787,17 @@ public void addTag(Account account, Tag tag) {
 ```
 - 자동으로 account_tags 테이블을 생성하고 조인이 발생.   
 ![img.png](img.png)
+
+
+
+# 📌 ObjectMapper
+***
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+private ObjectMapper objectMapper;
+
+List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+model.addAttribute("whitelist", objectMapper.writeValueAsString(allTags));
+```
+- String List를 Json으로 변환
