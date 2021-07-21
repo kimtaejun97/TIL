@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments :: headerFragment"></head>
-<link href="=/node_modules/cropper/dist/corpper.css">
+<link href="=/node_modules/cropper/dist/cropper.css">
+<link href="=/node_modules/cropperjs/dist/cropper.css">
 
 <body class =bg-light>
 
@@ -118,7 +119,9 @@
 
 <div th:replace="fragments :: footerFragment"></div>
 <script src="/node_modules/cropper/dist/cropper.js"></script>
+<script src="/node_modules/cropperjs/dist/cropper.js"></script>
 <script src="/node_modules/jquery-cropper/dist/jquery-cropper.js"></script>
+
 <script type="application/javascript">
     $(function() {
         cropper = '';

@@ -4,21 +4,19 @@ import com.studyweb.studyweb.account.AccountRepository;
 import com.studyweb.studyweb.account.AccountService;
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
-import com.studyweb.studyweb.settings.form.NickNameForm;
-import com.studyweb.studyweb.settings.form.Notification;
-import com.studyweb.studyweb.settings.form.Password;
-import com.studyweb.studyweb.settings.form.Profile;
+import com.studyweb.studyweb.domain.Tag;
+import com.studyweb.studyweb.settings.form.*;
 import com.studyweb.studyweb.settings.validator.NickNameValidator;
 import com.studyweb.studyweb.settings.validator.PasswordValidator;
+import com.studyweb.studyweb.tags.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
@@ -32,6 +30,8 @@ public class SettingsController {
     private final NickNameValidator nickNameValidator;
 
     private final AccountRepository accountRepository;
+
+    private final TagRepository tagRepository;
 
     private final ModelMapper modelMapper;
 
@@ -128,7 +128,26 @@ public class SettingsController {
 
     }
 
+    @GetMapping("/settings/tags")
+    public String updateTags(@CurrentUser Account account, Model model){
+        model.addAttribute(account);
+        return "settings/tags";
+    }
 
+    @PostMapping("/settings/tags/add")
+    public @ResponseBody ResponseEntity addTag(@CurrentUser Account account, @RequestBody TagForm tagForm){
+        String title = tagForm.getTagTitle();
+        Tag tag = tagRepository.findByTitle(title);
+
+        if(tag ==null){
+            tagRepository.save(Tag.builder()
+                    .title(title)
+                    .build());
+        }
+        accountService.addTag(account, tag);
+
+        return ResponseEntity.ok().build();
+    }
 
 
 

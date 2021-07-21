@@ -1,10 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+
+<body class =bg-light>
+
+<th:block th:replace="fragments :: navFragment"/>
+
+<div class="container">
+    <div class="row mt-5 justify-content-center">
+        <div class="col-2 justify-content-center">
+            <div th:replace="fragments :: settings-menu (currentMenu='tags')"></div>
+        </div>
+        <div class="col-8">
+            <div class="row">
+                <h2>관심있는 스터디 주제</h2>
+            </div>
+            <div class = row>
+                    <div class ="alert alert-info" role="alert">
+                        참여하고 싶은 스터디 주제를 입력해 주세요. 태그를 입력하고 (,) 또는 엔터를 입력하세요.
+                    </div>
+                    <input id="tags" type="text" name="tags" class = "tagify-outside" aria-describedby="tagHelp">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments :: footerFragment"></div>
+<script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
+<script type="application/javascript" th:inline="javascript">
+    var csrfToken = /*[[${_csrf.token}]]*/null;
+    var csrfHeader = /*[[${_csrf.headerName}]]*/null;
+    $(document).ajaxSend(function (e, xhr, options){
+       xhr.setRequestHeader(csrfHeader, csrfToken);
+    });
+</script>
+<script  type="application/javascript">
+    $(function(){
+        function tagRequest(url,tagTitle){
+            $.ajax({
+                method : "POST",
+                url : "/settings/tags" + url,
+                dataType: "json",
+                autocomplete:{
+                    enabled: true,
+                    rightKey: true,
+                },
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({"tagTitle" : tagTitle})
+            }).done(function(data, status){
+                console.log("${data} and status is ${status}");
+            });
+        }
+
+        function onAdd(e){
+            tagRequest("/add", e.detail.data.value)
+        }
+        function onRemove(e){
+            tagRequest("/remove", e.detail.data.value)
+        }
+
+        var tagInput = document.querySelector("#tags");
+
+        var tagify = new Tagify(tagInput, {
+            pattern: /^.{0,20}$/,
+            dropdown: {
+                enabled: 1
+            }
+        });
+
+        tagify.on("add", onAdd);
+        tagify.on("remove", onRemove);
+
+        tagify.DOM.input.classList.add('form-control');
+        tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
+
+
+    });
+</script>
 
 </body>
 </html>

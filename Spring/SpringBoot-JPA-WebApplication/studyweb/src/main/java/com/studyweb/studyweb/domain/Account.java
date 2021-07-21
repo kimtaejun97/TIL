@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -48,6 +49,9 @@ public class Account {
     private boolean studyUpdatedByEmail;
     private boolean studyUpdatedByWeb;
     private LocalDateTime emailCheckTokenLastGeneration;
+
+    @ManyToMany
+    private Set<Tag> tags;
 
 
     public void generateEmailCheckToken() {
