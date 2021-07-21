@@ -1,10 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+
+<body class =bg-light>
+
+<th:block th:replace="fragments :: navFragment"/>
+
+<div class="container">
+    <div class="row mt-5 justify-content-center">
+        <div class="col-2 justify-content-center">
+            <div th:replace="fragments :: settings-menu (currentMenu='zones')"></div>
+        </div>
+        <div class="col-8">
+            <div class="row">
+                <h2>활동 지역</h2>
+            </div>
+            <div class = row>
+                <div class ="alert alert-info" role="alert">
+                    활동 지역을 선택하세요.
+                </div>
+                <input id="zones" type="text" name="zones" class = "tagify-outside" aria-describedby="zonesHelp" th:value="${#strings.listJoin(zones,',')}">
+            </div>
+        </div>
+    </div>
+</div>
+<div id ="whitelist" th:text="${whitelist}" hidden></div>
+
+<div th:replace="fragments :: footerFragment"></div>
+<script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
+<script th:replace="fragments :: csrf-header"></script>
+<script  type="application/javascript">
+    $(function(){
+        function tagRequest(url,zone){
+            $.ajax({
+                method : "POST",
+                url : "/settings/zones" + url,
+                dataType: "json",
+                autocomplete:{
+                    enabled: true,
+                    rightKey: true,
+                },
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({"zoneName" : zone})
+            }).done(function(data, status){
+                console.log("${data} and status is ${status}");
+            });
+        }
+
+        function onAdd(e){
+            tagRequest("/add", e.detail.data.value)
+            console.log(e.detail.data.value);
+        }
+        function onRemove(e){
+            tagRequest("/remove", e.detail.data.value)
+        }
+
+        var tagInput = document.querySelector("#zones");
+
+        var tagify = new Tagify(tagInput, {
+            pattern: /^.{0,20}$/,
+            whitelist: JSON.parse(document.querySelector("#whitelist").textContent),
+            dropdown: {
+                enabled: 1
+            }
+        });
+
+        tagify.on("add", onAdd);
+        tagify.on("remove", onRemove);
+
+        tagify.DOM.input.classList.add('form-control');
+        tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
+
+
+    });
+</script>
 
 </body>
 </html>

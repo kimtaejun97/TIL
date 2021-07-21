@@ -120,5 +120,13 @@
     <script src="/node_modules/jdenticon/dist/jdenticon.js"></script>
 </footer>
 
+<script th:fragment="csrf-header" type="application/javascript" th:inline="javascript">
+    var csrfToken = /*[[${_csrf.token}]]*/null;
+    var csrfHeader = /*[[${_csrf.headerName}]]*/null;
+    $(document).ajaxSend(function (e, xhr, options){
+        xhr.setRequestHeader(csrfHeader, csrfToken);
+    });
+</script>
+
 
 </html>
