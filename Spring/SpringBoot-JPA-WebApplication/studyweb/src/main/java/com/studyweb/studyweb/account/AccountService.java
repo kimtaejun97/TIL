@@ -1,8 +1,11 @@
 package com.studyweb.studyweb.account;
 
+import com.studyweb.studyweb.config.AppProperties;
 import com.studyweb.studyweb.domain.Account;
 import com.studyweb.studyweb.domain.Tag;
 import com.studyweb.studyweb.domain.Zone;
+import com.studyweb.studyweb.mail.EmailMessage;
+import com.studyweb.studyweb.mail.EmailService;
 import com.studyweb.studyweb.settings.form.Notification;
 import com.studyweb.studyweb.settings.form.Profile;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,9 +36,12 @@ public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JavaMailSender javaMailSender;
+    private final EmailService emailService;
 
     private final ModelMapper modelMapper;
+
+    private final TemplateEngine templateEngine;
+    private final AppProperties appProperties;
 
 
     public Account processNewAccount(SignUpForm signUpForm) {
@@ -50,15 +58,24 @@ public class AccountService implements UserDetailsService {
        return accountRepository.save(account);
     }
 
-    private void sendSignUpConfirmEmail(Account newAccount) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(newAccount.getEmail());
-        mailMessage.setSubject("스터디 웹 회원 인증");
-        //check-email-token 에서 token이 유효한지 확인.
-        mailMessage.setText("/check-email-token?token="+ newAccount.getEmailCheckToken()
-                + "&email=" + newAccount.getEmail());
+    private void sendSignUpConfirmEmail(Account account) {
+        Context context = new Context();
+        context.setVariable("nickName",account.getNickName() );
+        context.setVariable("link" ,"/check-email-token?token="+ account.getEmailCheckToken()
+                + "&email=" + account.getEmail());
+        context.setVariable("linkName","이메일 인증하기.");
+        context.setVariable("message","이메일 인증을 완료하려면 아래 링크를 클릭하세요.");
+        context.setVariable("host",appProperties.getHost());
 
-        javaMailSender.send(mailMessage);
+        String message = templateEngine.process("mail/simple-link", context);
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(account.getEmail())
+                .subject("스터디 웹 회원 인증")
+                .text(message)
+                .build();
+
+        emailService.send(emailMessage);
     }
 
     public void login(Account account) {
@@ -76,13 +93,8 @@ public class AccountService implements UserDetailsService {
         Account account = accountRepository.findByNickName(nickName);
         account.generateEmailCheckToken();
 
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setTo(account.getEmail());
-        simpleMailMessage.setSubject("스터디웹 회원 인증");
-        simpleMailMessage.setText("/check-email-token?token="+account.getEmailCheckToken()
-                +"&email="+account.getEmail());
+        sendSignUpConfirmEmail(account);
 
-        javaMailSender.send(simpleMailMessage);
     }
 
     @Transactional(readOnly = true)
@@ -129,16 +141,26 @@ public class AccountService implements UserDetailsService {
     }
 
     public void sendEmailLoginLink(Account account) {
+        Context context = new Context();
+        context.setVariable("nickName",account.getNickName() );
+        context.setVariable("link" ,"/login-by-email?token="
+                +account.getEmailCheckToken()
+                + "&email="+account.getEmail());
+        context.setVariable("linkName","이메일 로그인");
+        context.setVariable("message","이메일로 로그인 하려면 아래 링크를 클릭하세요.");
+        context.setVariable("host",appProperties.getHost());
+
+        String message = templateEngine.process("mail/simple-link", context);
+
+
         account.generateEmailCheckToken();
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(account.getEmail())
+                .subject("스터디 웹 이메일 로그인")
+                .text(message)
+                .build();
 
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setTo(account.getEmail());
-        simpleMailMessage.setSubject("스터디 웹 이메일 로그인 링크");
-        simpleMailMessage.setText("/login-by-email?token="
-                +account.getEmailCheckToken()+
-                "&email="+account.getEmail());
-
-        javaMailSender.send(simpleMailMessage);
+        emailService.send(emailMessage);
     }
 
     public void addTag(Account account, Tag tag) {

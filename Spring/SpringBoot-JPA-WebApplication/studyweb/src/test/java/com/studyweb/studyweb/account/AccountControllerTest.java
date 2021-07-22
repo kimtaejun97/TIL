@@ -1,6 +1,8 @@
 package com.studyweb.studyweb.account;
 
 import com.studyweb.studyweb.domain.Account;
+import com.studyweb.studyweb.mail.EmailMessage;
+import com.studyweb.studyweb.mail.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,7 @@ public class AccountControllerTest {
     private AccountRepository accountRepository;
 
     @MockBean
-    JavaMailSender javaMailSender;
+    EmailService emailService;
 
     @Autowired
     AccountService accountService;
@@ -81,7 +83,7 @@ public class AccountControllerTest {
         assertNotEquals(account.getPassword(), "12345678");
         assertNotNull(account.getEmailCheckToken());
         //send 메서드가 호출 되었는지.
-        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+        then(emailService).should().send(any(EmailMessage.class));
 
     }
 
@@ -178,7 +180,7 @@ public class AccountControllerTest {
 
 
         assertThat(prevToken).isNotEqualTo(newAccount.getEmailCheckToken());
-        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+        then(emailService).should().send(any(EmailMessage.class));
 
         mockMvc.perform(get("/check-email-token")
                 .param("token", newAccount.getEmailCheckToken())
