@@ -853,3 +853,85 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 - https://www.mailgun.com/ 
 - https://aws.amazon.com/ses/
 - https://gsuite.google.com
+
+
+# 📌 이메일로 HTML 전송
+*****
+
+```java
+public class HtmlEmailService implements EmailService{
+
+    private final JavaMailSender javaMailSender;
+
+    @Override
+    public void send(EmailMessage emailMessage) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+        try{
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,false,"UTF-8");
+            mimeMessageHelper.setTo(emailMessage.getTo());
+            mimeMessageHelper.setSubject(emailMessage.getSubject());
+            mimeMessageHelper.setText(emailMessage.getText(),true);
+
+            javaMailSender.send(mimeMessage);
+            log.info("sent email:{}",emailMessage.getText());
+
+        }catch (MessagingException e){
+            log.error("failed to send email : ",e);
+
+        }
+
+    }
+}
+```
+- MimeMessage를 생성하고, 이를 Helper로 감싼 후  TO, Subject,Text를 설정, text의 두번째 인자값은 html 여부.
+
+
+```java
+@Builder
+@Data
+public class EmailMessage {
+
+    private String to;
+    private String subject;
+    private String text;
+}
+```
+- Email data를 넣을 클래스를 생성하였고, 이를 send의 파라미터로 전달해준다.
+
+```java
+Context context = new Context();
+context.setVariable("nickName",account.getNickName() );
+context.setVariable("link" ,"/check-email-token?token="+ account.getEmailCheckToken()
+        + "&email=" + account.getEmail());
+context.setVariable("linkName","이메일 인증하기.");
+context.setVariable("message","이메일 인증을 완료하려면 아래 링크를 클릭하세요.");
+context.setVariable("host",appProperties.getHost());
+
+String message = templateEngine.process("mail/simple-link", context);
+
+EmailMessage emailMessage = EmailMessage.builder()
+        .to(account.getEmail())
+        .subject("스터디 웹 회원 인증")
+        .text(message)
+        .build();
+
+emailService.send(emailMessage);
+```
+- 템플릿 엔진을 사용하여 html 파일을 만들고, TemplateEngine.process("html", context)
+- context는 View에 전달하는 model과 같은 역할, 데이터를 전달해준다. thymeleaf의 Context
+
+```properties
+app.host = http://localhost:8080
+```
+```java
+@Component
+@Data
+@ConfigurationProperties("app")
+public class AppProperties {
+    String host;
+}
+
+```
+- host는 실행 환경에 따라 달라질 수 있기 때문에 따로 properties값으로 설정하여 넘겨준다.
+- 빈으로 주입받아 사용.
