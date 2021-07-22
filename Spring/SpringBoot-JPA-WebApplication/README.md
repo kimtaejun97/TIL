@@ -32,6 +32,12 @@
 - #### [패스워드 비교](#-패스워드-변경)
 - #### [체크박스 값 전달](#-체크박스-값-전달)
 - #### [Model Mapper](#-model-mapper)
+- #### [ajax 전송 csrf](#-ajax-전송-csrf)
+- #### [ManyToMany](#-manytomany)
+- #### [ObjectMapper](#-objectmapper)
+- #### [postgresql 셋팅](#-postgresql-셋팅)
+- #### [sql debug](#-sql-debug)
+- #### [SMTP 설정](#-smtp-설정)
 
 
 
@@ -724,7 +730,7 @@ passwordEncoder.matches(String rawPassword, String encodedPassword)
 - 똑같이 field로 받고 boolean 값으로 저장. 체크하면 true
 
 
-# 📌 Model-Mapper
+# 📌 Model Mapper
 *****
 - 객체의 프로퍼를 다른 객체의 프로퍼티로 매핑해주는 유틸리티 라이브러
 ```xml
@@ -760,7 +766,7 @@ public ModelMapper modelMapper(){
 - source 객체의 프로퍼티 값들을 destination 객체의 프로퍼티 값에 매핑시켜 값을 할당한다.
 - 2번과 같이 새로운 객체를 생성하여 할당도 가능.
 
-# 📌 관심 주제 등록 : ajax 전송시 csrf
+# 📌 ajax 전송 csrf
 ****
 ```javascript
 <script type="application/javascript" th:inline="javascript">
@@ -801,3 +807,49 @@ List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).colle
 model.addAttribute("whitelist", objectMapper.writeValueAsString(allTags));
 ```
 - String List를 Json으로 변환
+
+
+# 📌 postgresql 셋팅
+***
+```
+create database {name};
+create user {name} with encrypted password 'password';
+
+//권한 부
+grant all privileges on database {dbname} to {username};
+```
+
+# 📌 sql debug
+****
+
+```properties
+spring.jpa.properties.hibernate.format_sql=true
+logging.level.org.hibernate.SQL = DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder = TRACE
+```
+
+
+# 📌 SMTP 설정
+****
+- 구글 Gmail을 SMTP 서버로 사용하기.(일일 제한)
+  > https://support.google.com/mail/answer/185833성    
+  > App 패스워드 생성.
+```properties
+# mail 설정
+spring.mail.host = smtp.gmail.com
+spring.mail.port=587
+spring.mail.username =kimtaejun9705@gmail.com
+spring.mail.password = ntszbexsramcvvvs
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.timeout=5000
+spring.mail.properties.mail.smtp.starttls.enable=true
+```
+- spring boot 에서 해당 설정들을 가지고  JavaMailSender Bean 을 자동으로 등록 해준다.
+
+
+### 대체 서비스
+- https//mailchimp.com/
+- https://sendgrid.com/
+- https://www.mailgun.com/ 
+- https://aws.amazon.com/ses/
+- https://gsuite.google.com
