@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+<body class =bg-light>
+<th:block th:replace="fragments :: navFragment"/>
+
+<div class="container">
+    <div class="py-5 text-center">
+        <h2>스터디 개설</h2>
+    </div>
+    <div class="row justify-content-center">
+        <form class="needs-validation col-sm-6" th:action="@{/new-study}" th:object="${studyForm}" method="post" novalidate>
+            <div class="form-group">
+                <label for="path">스터디 URL</label>
+                <input id="path" type="text" th:field="*{path}" class="form-control"
+                       placeholder="Path" aria-describedby="pathHelp" required minlength="2" maxlength="20">
+                <small id="pathHelp" class="form-text text-muted">
+                    공백없이 문자와 숫자,특수기호 _,-로만 2자 이상 20자 이내로 입력하세요. 주소로 사용합니다.
+                </small>
+                <small class="invalid-feedback">URL을 확인하세요.</small>
+                <small class="form-text text-danger" th:if="${#fields.hasErrors('path')}" th:errors="*{path}">Path Error</small>
+            </div>
+
+            <div class="form-group">
+                <label for="title">스터디 이름</label>
+                <input id="title" type="text" th:field="*{title}" class="form-control"
+                       placeholder="Title" aria-describedby="titleHelp" required maxlength="50">
+                <small id="titleHelp" class="form-text text-muted">
+                    스터디 이름을 50자 이내로 입력하세요.
+                </small>
+                <small class="invalid-feedback">스터디 이름을 확인하세요.</small>
+                <small class="form-text text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Title Error</small>
+            </div>
+
+            <div class="form-group">
+                <label for="shortDescription">짧은 소개</label>
+                <textarea id="shortDescription" type="textarea" th:field="*{shortDescription}" class="form-control" placeholder="짧은 소개를 적어주세요."
+                          aria-describedby="shortDescriptionHelp" required  maxlength="100"></textarea>
+                <small id="shortDescriptionHelp" class="form-text text-muted">
+                       스터디 소개를 100자 이내로 입력하세요.
+                </small>
+                <small class="invalid-feedback">짧은 소개를 확인하세요.</small>
+                <small class="form-text text-danger" th:if="${#fields.hasErrors('shortDescription')}" th:errors="*{shortDescription}">Short Description Error</small>
+            </div>
+
+            <div class="form-group">
+                <label for="fullDescription">상세 소개</label>
+                <textarea id="fullDescription" type="textarea" th:field="*{fullDescription}" class="form-control"
+                          aria-describedby="fullDescriptionHelp" required  ></textarea>
+                <small id="fullDescriptionHelp" class="form-text text-muted">
+                    스터디의 상세 소개를 입력하세요.
+                </small>
+                <small class="invalid-feedback">상세 소개를 확인하세요.</small>
+                <small class="form-text text-danger" th:if="${#fields.hasErrors('fullDescription')}" th:errors="*{fullDescription}">Full Description Error</small>
+            </div>
+
+            <div class="form-group">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" type="submit"
+                            aria-describedby="submitHelp">개설하기</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script th:replace="fragments :: form-validation"></script>
+<div th:replace="fragments :: footerFragment"></div>
+<script src = "/node_modules/summernote/dist/summernote-bs4.js"></script>
+<script type="application/javascript">
+    $(function () {
+        $("#fullDescription").summernote({
+           fontName: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Noto Sans KR', 'Merriweather'],
+            placeholder: '스터디의 목표, 일정, 진행 방식, 모집 중인 스터디원 등 상세한 설명을 적어주세요.',
+            tabsize:2,
+            height: 300
+        });
+    })
+</script>
+</body>
+</html>

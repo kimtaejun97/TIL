@@ -117,6 +117,7 @@ input type email, password
 >   return "redirect:/";
 > }
 > ```
+> - Errors는 반드시 @Valid 객체 다음으로 와야함.
 
 - 커스텀 검증
 ```java
@@ -144,6 +145,13 @@ public void validate(Object o, Errors errors) {
 @InitBinder("signUpForm")
 public void initBinder(WebDataBinder webDataBinder){
     webDataBinder.addValidators(signUpFormValidator);
+}
+```
+
+```java
+sighUpFormValidator.validate(sighUpForm, errors);
+if(errors.hasError()){
+    
 }
 ```
 
@@ -305,7 +313,7 @@ ${#authentication.name} 로 이름 참조도 가능.
 > - WebJar는 라이브러리 업데이트가 느리고, 올라오지 않은 라이브러리도 흔하다.
 
 - ### 스프링 부트와 NPM
-> - src/main/resource/stati 이하에서는 정적 리소스로 제공(스프링 부트)
+> - src/main/resource/static 이하에서는 정적 리소스로 제공(스프링 부트)
 > - package.json에 프론트엔드 라이브러리를 제공
 > - static 디렉토리 아래에 package.json을 위치. -> 정적 리소스로 프론트엔드 라이브러리 사용.
 > > static 디렉토리로 이동.    
@@ -896,7 +904,7 @@ public class EmailMessage {
     private String subject;
     private String text;
 }
-```
+```s
 - Email data를 넣을 클래스를 생성하였고, 이를 send의 파라미터로 전달해준다.
 
 ```java
@@ -935,3 +943,26 @@ public class AppProperties {
 ```
 - host는 실행 환경에 따라 달라질 수 있기 때문에 따로 properties값으로 설정하여 넘겨준다.
 - 빈으로 주입받아 사용.
+
+
+# 📌 textarea에 에디터 추가하기
+- https://summernote.org/
+- 부트스트랩과 연동이 편함.
+```npm install summernote```
+  > css, js 추가
+
+```javascript
+<script type="application/javascript">
+    $(function () {
+        $("#fullDescription").summernote({
+           fontName: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Noto Sans KR', 'Merriweather'],
+            placeholder: '스터디의 목표, 일정, 진행 방식, 모집 중인 스터디원 등 상세한 설명을 적어주세요.',
+            tabsize:2,
+            height: 300
+        });
+    })
+</script>
+```
+- .summernote 하면 적용,  옵션 추가 가능.
+  
+![img_1.png](img_1.png)
