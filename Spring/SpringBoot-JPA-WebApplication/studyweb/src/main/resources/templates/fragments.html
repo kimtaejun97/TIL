@@ -136,7 +136,8 @@
 </script>
 
 <div th:fragment="study-banner" th:if="${study.useBanner}" class="row" id="study-logo">
-    <img th:src="${study.image}"  width="100%" height="150px"/>
+    <img th:if="${!#strings.isEmpty(study.image)}" th:src="${study.image}"  width="100%" height="150px"/>
+    <img th:if="${#strings.isEmpty(study.image)}" src="/images/default_banner.png"  width="100%" height="150px"/>
 </div>
 
 <div th:fragment="study-menu (studyMenu)" class="row px-3 justify-content-center bg-light">
@@ -285,6 +286,98 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+</script>
+
+
+<script  th:fragment="tagsFragment (baseUrl)" type="application/javascript">
+    $(function(){
+        function tagRequest(subUrl,tagTitle){
+            $.ajax({
+                method : "POST",
+                url : "[(${baseUrl})]" + subUrl,
+                dataType: "json",
+                autocomplete:{
+                    enabled: true,
+                    rightKey: true,
+                },
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({"tagTitle" : tagTitle})
+            }).done(function(data, status){
+                console.log("${data} and status is ${status}");
+            });
+        }
+
+        function onAdd(e){
+            tagRequest("/add", e.detail.data.value)
+        }
+        function onRemove(e){
+            tagRequest("/remove", e.detail.data.value)
+        }
+
+        var tagInput = document.querySelector("#tags");
+
+        var tagify = new Tagify(tagInput, {
+            pattern: /^.{0,20}$/,
+            whitelist: JSON.parse(document.querySelector("#whitelist").textContent),
+            dropdown: {
+                enabled: 1
+            }
+        });
+
+        tagify.on("add", onAdd);
+        tagify.on("remove", onRemove);
+
+        tagify.DOM.input.classList.add('form-control');
+        tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
+
+
+    });
+</script>
+
+<script th:fragment="zonesFragment (baseUrl)" type="application/javascript">
+    $(function(){
+        function tagRequest(url,zone){
+            $.ajax({
+                method : "POST",
+                url : "[(${baseUrl})]" + url,
+                dataType: "json",
+                autocomplete:{
+                    enabled: true,
+                    rightKey: true,
+                },
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({"zoneName" : zone})
+            }).done(function(data, status){
+                console.log("${data} and status is ${status}");
+            });
+        }
+
+        function onAdd(e){
+            tagRequest("/add", e.detail.data.value)
+            console.log(e.detail.data.value);
+        }
+        function onRemove(e){
+            tagRequest("/remove", e.detail.data.value)
+        }
+
+        var tagInput = document.querySelector("#zones");
+
+        var tagify = new Tagify(tagInput, {
+            pattern: /^.{0,20}$/,
+            whitelist: JSON.parse(document.querySelector("#whitelist").textContent),
+            dropdown: {
+                enabled: 1
+            }
+        });
+
+        tagify.on("add", onAdd);
+        tagify.on("remove", onRemove);
+
+        tagify.DOM.input.classList.add('form-control');
+        tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
+
+
+    });
 </script>
 
 

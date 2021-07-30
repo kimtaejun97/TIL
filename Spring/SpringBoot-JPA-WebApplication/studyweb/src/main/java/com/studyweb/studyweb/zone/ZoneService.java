@@ -39,4 +39,10 @@ public class ZoneService {
             zoneRepository.saveAll(zones);
         }
     }
+
+    public List<String> getAllZones() {
+        return zoneRepository.findAll().stream()
+                .map(Zone::toString)
+                .collect(Collectors.toList());
+    }
 }

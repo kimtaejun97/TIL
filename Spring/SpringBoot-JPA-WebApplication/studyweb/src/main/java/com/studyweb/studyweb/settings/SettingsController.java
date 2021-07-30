@@ -13,7 +13,9 @@ import com.studyweb.studyweb.settings.form.*;
 import com.studyweb.studyweb.settings.validator.NickNameValidator;
 import com.studyweb.studyweb.settings.validator.PasswordValidator;
 import com.studyweb.studyweb.tags.TagRepository;
+import com.studyweb.studyweb.tags.TagService;
 import com.studyweb.studyweb.zone.ZoneRepository;
+import com.studyweb.studyweb.zone.ZoneService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
@@ -45,6 +47,8 @@ public class SettingsController {
     private final ObjectMapper objectMapper;
 
     private final ZoneRepository zoneRepository;
+    private final ZoneService zoneService;
+    private final TagService tagService;
 
 
 
@@ -147,7 +151,7 @@ public class SettingsController {
 
         model.addAttribute("tags", tags.stream().map(Tag::getTitle).collect(Collectors.toList()));
 
-        List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+        List<String> allTags = tagService.getAllTagTitle();
         model.addAttribute("whitelist", objectMapper.writeValueAsString(allTags));
 
 
@@ -188,7 +192,7 @@ public class SettingsController {
         Set<Zone> zones = accountService.getZones(account);
         model.addAttribute("zones", zones.stream().map(Zone::toString).collect(Collectors.toList()));
 
-        List<String> allZones = zoneRepository.findAll().stream().map(Zone::toString).collect(Collectors.toList());
+        List<String> allZones = zoneService.getAllZones();
         model.addAttribute("whitelist",objectMapper.writeValueAsString(allZones));
 
         return "settings/zones";

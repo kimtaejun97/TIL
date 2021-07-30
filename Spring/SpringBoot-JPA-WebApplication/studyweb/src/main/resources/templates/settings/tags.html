@@ -30,50 +30,7 @@
 <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
 <script th:replace="fragments :: csrf-header"></script>
 
-<script  type="application/javascript">
-    $(function(){
-        function tagRequest(url,tagTitle){
-            $.ajax({
-                method : "POST",
-                url : "/settings/tags" + url,
-                dataType: "json",
-                autocomplete:{
-                    enabled: true,
-                    rightKey: true,
-                },
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({"tagTitle" : tagTitle})
-            }).done(function(data, status){
-                console.log("${data} and status is ${status}");
-            });
-        }
-
-        function onAdd(e){
-            tagRequest("/add", e.detail.data.value)
-        }
-        function onRemove(e){
-            tagRequest("/remove", e.detail.data.value)
-        }
-
-        var tagInput = document.querySelector("#tags");
-
-        var tagify = new Tagify(tagInput, {
-            pattern: /^.{0,20}$/,
-            whitelist: JSON.parse(document.querySelector("#whitelist").textContent),
-            dropdown: {
-                enabled: 1
-            }
-        });
-
-        tagify.on("add", onAdd);
-        tagify.on("remove", onRemove);
-
-        tagify.DOM.input.classList.add('form-control');
-        tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
-
-
-    });
-</script>
+<script th:replace="fragments :: tagsFragment (baseUrl='/settings/tags')"></script>
 
 </body>
 </html>

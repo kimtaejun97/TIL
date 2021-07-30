@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+
+<body>
+<nav th:replace="fragments :: navFragment"></nav>
+<div th:replace="fragments :: study-banner"></div>
+<div class="container">
+    <div th:replace="fragments :: study-info"></div>
+    <div th:replace="fragments :: study-menu(studyMenu='settings')"></div>
+    <div class="row mt-3 justify-content-center">
+        <div class="col-2">
+            <div th:replace="fragments.html :: study-settings-menu(currentMenu='tags')"></div>
+        </div>
+        <div class="col-8">
+            <div class="row">
+                <h2>스터디 주제</h2>
+            </div>
+            <div class = row>
+                <div class ="alert alert-info" role="alert">
+                    스터디에서 주로 다루는 주제를 등록하세요. 태그를 입력하고 (,) 또는 엔터를 입력하세요.
+                </div>
+                <input id="tags" type="text" name="tags" class = "tagify-outside" aria-describedby="tagHelp" th:value="${#strings.listJoin(tags,',')}">
+            </div>
+        </div>
+    </div>
+    <div id ="whitelist" th:text="${whitelist}" hidden></div>
+
+    <div th:replace="fragments :: footerFragment"></div>
+</div>
+<script th:replace="fragments :: tooltip"></script>
+<script th:replace="fragments :: form-validation"></script>
+
+<script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
+<script th:replace="fragments :: csrf-header"></script>
+<script th:replace="fragments :: tagsFragment (baseUrl='/study/' +${study.path}+'/settings/tags')"></script>
+</body>
+</html>
