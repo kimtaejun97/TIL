@@ -1,5 +1,6 @@
 package com.studyweb.studyweb.domain;
 
+import com.studyweb.studyweb.account.UserAccount;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,13 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+@NamedEntityGraph(name = "Study.withAll", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("zones"),
+        @NamedAttributeNode("managers"),
+        @NamedAttributeNode("members")
+})
 
 @Getter @Setter @AllArgsConstructor
 @NoArgsConstructor
@@ -60,5 +68,17 @@ public class Study {
 
     public void addManager(Account account) {
         managers.add(account);
+    }
+
+    public boolean isJoinable(UserAccount userAccount){
+        return this.isPublished() && isRecruiting() && !isMember(userAccount) && !isManager(userAccount);
+    }
+
+    public boolean isMember(UserAccount userAccount){
+        return this.members.contains(userAccount.getAccount());
+    }
+
+    public boolean isManager(UserAccount userAccount){
+        return this.managers.contains(userAccount.getAccount());
     }
 }

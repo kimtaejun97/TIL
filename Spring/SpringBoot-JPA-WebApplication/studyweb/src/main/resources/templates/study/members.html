@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+<body class =bg-light>
+
+<th:block th:replace="fragments :: navFragment"/>
+<div th:replace="fragments :: study-banner"></div>
+
+<div class="container">
+    <div th:replace="fragments :: study-info"></div>
+    <div th:replace="fragments :: study-menu (studyMenu='members')"></div>
+
+    <div th:replace="fragments :: member-list (members=${study.managers}, isManager=${true})"></div>
+    <div th:replace="fragments :: member-list (members=${study.members}, isManager=${false})"></div>
+
+    <div th:replace="fragments :: bannerFragment"></div>
+</div>
+<div th:replace="fragments :: footerFragment"></div>
+<script th:replace="fragments :: tooltip"></script>
+
+
+
+
+
+
+</body>
+</html>

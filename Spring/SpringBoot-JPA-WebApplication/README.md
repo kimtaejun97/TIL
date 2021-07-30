@@ -966,3 +966,68 @@ public class AppProperties {
 - .summernote 하면 적용,  옵션 추가 가능.
   
 ![img_1.png](img_1.png)
+
+
+# 📌 th:classappend
+****
+```html
+<div th:fragment="settingsFragment (currentMenu)">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" th:href="@{/settings/profile}" th:classappend="${currentMenu =='profile'}? active" role="tab"  >프로필</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link text-red" th:href="@{/settings/password}" th:classappend="${currentMenu =='password'}? active" role="tab">패스워드</a>
+        </li>
+    </ul>
+</div>
+```
+
+```java
+<div th:replace="fragment :: settingsFragment (currentMenu='profile')"/>
+```
+
+# 📌 tooltip
+****
+```html
+<span th:if="${!study.published}"
+      class="d-inline-block" tabindex="0" data-toggle="tooltip" data-placement="bottom"
+      title="스터디 공개 준비중">
+    <button class="btn btn-primary btn-sm" style="pointer-events: none;" type="button" disabled>DRAFT</button>
+</span>
+```
+
+```javascript
+<script type="application/javascript">
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+```
+- 엘리먼트.tooltip, title 속성의 값이 툴팁 메시지가 된다.
+
+# 📌EntityGraph
+****
+- 나중에 필요한 쿼리를 한번에 던져 쿼리의 수를 줄인다.
+- 작은 쿼리 여러개 -> 무거운 커리 한개. 많은 수의 요청에서 유리할 수 있다.
+
+```java
+@NamedEntityGraph(name = "Study.withAll", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("zones"),
+        @NamedAttributeNode("managers"),
+        @NamedAttributeNode("members")
+})
+```
+> Entity 클래스에 그래프 정의.
+
+
+```java
+@EntityGraph(value="Study.withAll", type = EntityGraph.EntityGraphType.LOAD)
+Study findByPath(String path);
+```
+> -  findByPath() 메서드가 호출 될 때 Study.withAll에 해당하는 릴레이션을 모두 조회한다.
+> - EntityGraphType.LOAD : 명시된 연관관계는 EAGER로, 나머지는 기본 설정( *ToOne->EAGER, *ToMany-> Lazy)에 따름.
+
+![img_2.png](img_2.png)   
+     ...

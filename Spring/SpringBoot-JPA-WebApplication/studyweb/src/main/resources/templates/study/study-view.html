@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+<body class =bg-light>
+
+<th:block th:replace="fragments :: navFragment"/>
+<div th:replace="fragments :: study-banner"></div>
+
+<div class="container">
+    <div th:replace="fragments :: study-info"></div>
+    <div th:replace="fragments :: study-menu (studyMenu='info')"></div>
+
+    <div class="row px-3 justify-content-center">
+        <div class="col-10 pt-3" th:utext="${study.fullDescription}"></div>
+    </div>
+
+    <div th:replace="fragments :: bannerFragment"></div>
+</div>
+<div th:replace="fragments :: footerFragment"></div>
+<script th:replace="fragments :: tooltip"></script>
+
+
+
+
+
+
+</body>
+</html>

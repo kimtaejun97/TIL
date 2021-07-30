@@ -1,5 +1,6 @@
 package com.studyweb.studyweb.domain;
 
+import com.studyweb.studyweb.account.UserAccount;
 import lombok.*;
 
 import javax.persistence.*;
@@ -78,4 +79,6 @@ public class Account {
         this.emailVerified =true;
         this.joinedAt = LocalDateTime.now();
     }
+
+
 }
