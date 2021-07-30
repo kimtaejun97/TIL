@@ -36,8 +36,15 @@
 - #### [ManyToMany](#-manytomany)
 - #### [ObjectMapper](#-objectmapper)
 - #### [postgresql 셋팅](#-postgresql-셋팅)
-- #### [sql debug](#-sql-debug)
+- #### [sql debug 설정](#-sql-debug)
 - #### [SMTP 설정](#-smtp-설정)
+- #### [이메일로 HTML 전송](#-이메일로-html-전송)
+- #### [textarea에 에디터 추가하기 : summernote](#-textarea에-에디터-추가하기)
+- #### [th:classappend](#-th-classappend)
+- #### [BootStrap:ToolTip](#-tooltip)
+- #### [EntityGraph](#-entitygraph)
+- #### [잘못된 접근 방지](#-잘못된-접근-방지)
+
 
 
 
@@ -987,7 +994,7 @@ public class AppProperties {
 <div th:replace="fragment :: settingsFragment (currentMenu='profile')"/>
 ```
 
-# 📌 tooltip
+# 📌 ToolTip
 ****
 ```html
 <span th:if="${!study.published}"
@@ -1005,8 +1012,9 @@ public class AppProperties {
 </script>
 ```
 - 엘리먼트.tooltip, title 속성의 값이 툴팁 메시지가 된다.
+![img_3.png](img_3.png)
 
-# 📌EntityGraph
+# 📌 EntityGraph
 ****
 - 나중에 필요한 쿼리를 한번에 던져 쿼리의 수를 줄인다.
 - 작은 쿼리 여러개 -> 무거운 커리 한개. 많은 수의 요청에서 유리할 수 있다.
@@ -1031,3 +1039,27 @@ Study findByPath(String path);
 
 ![img_2.png](img_2.png)   
      ...
+
+
+# 📌 잘못된 접근 방지
+***
+```java
+public Study getStudyToUpdate(Account account, String path) {
+    Study study = getStudy(path);
+    if(!study.getManagers().contains(account)){
+        throw new AccessDeniedException("해당 기능에 대한 권한이 없습니다.");
+    }
+
+    return study;
+}
+
+private Study getStudy(String path) {
+    Study study = studyRepository.findByPath(path);
+    if(study == null){
+        throw new IllegalArgumentException(path +"에 해당하는 스터디가 존재하지 않습니다.");
+    }
+
+    return study;
+}
+```
+-url로 권한이 없는 사용자가 접근하거나, 잘못된 Path로 접근하는 것을 처리.
