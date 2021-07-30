@@ -1,5 +1,6 @@
 package com.studyweb.studyweb.study;
 
+import com.studyweb.studyweb.account.AccountController;
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
 import com.studyweb.studyweb.domain.Study;
@@ -55,6 +56,39 @@ public class StudySettingsController {
 
     private String getPath(String path) {
         return URLEncoder.encode(path, StandardCharsets.UTF_8);
+    }
+
+    @GetMapping("/banner")
+    public String ViewBannerSetting(@CurrentUser Account account, @PathVariable String path, Model model){
+        Study study = studyService.getStudyToUpdate(account, path);
+        model.addAttribute(study);
+        return "study/settings/banner";
+    }
+
+    @PostMapping("/banner")
+    public String useBanner(@CurrentUser Account account, @PathVariable String path, RedirectAttributes attributes){
+        Study study = studyService.getStudyToUpdate(account, path);
+
+        boolean isUsebanner = studyService.setUsebanner(study);
+        if(isUsebanner){
+            attributes.addFlashAttribute("message","배너를 사용하도록 설정 하였습니다.");
+        }
+        else{
+            attributes.addFlashAttribute("message", "배너를 사용하지 않도록 설정 하였습니다.");
+        }
+
+        return "redirect:/study/" +getPath(path) + "/settings/banner";
+    }
+
+    @PostMapping("/bannerImage")
+    public String UpdateBannerImage(@CurrentUser Account account, @PathVariable String path, String bannerImage, RedirectAttributes attributes){
+        Study study = studyService.getStudyToUpdate(account, path);
+
+        studyService.UpdateBannerImage(study, bannerImage);
+        attributes.addFlashAttribute("message", "배너 이미지를 변경하였습니다.");
+
+        return "redirect:/study/" +getPath(path) + "/settings/banner";
+
     }
 }
 

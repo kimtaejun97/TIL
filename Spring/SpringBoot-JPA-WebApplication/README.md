@@ -727,6 +727,7 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
 ```
 - String 타입으로 이미지를 받을 수 있다.  HTML의 DataURL 이미지는 data:image로 시작
 - ``` if (!e.target.result.startsWith("data:image"))``` 처럼 이미지인지 확인 가능.
+- server.tomcat.max-http-form-post-size=5MB 와같이 설정하여 form으로 전송가능한 이미지 크기 변경.
 
 # 📌 패스워드 비교
 ****
