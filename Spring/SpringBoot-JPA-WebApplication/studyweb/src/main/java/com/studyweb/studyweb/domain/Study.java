@@ -8,6 +8,8 @@ import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +33,14 @@ import java.util.Set;
 
 @NamedEntityGraph(name = "Study.withManagers", attributeNodes = {
         @NamedAttributeNode("managers")
+})
+@NamedEntityGraph(name = "Study.withMembers", attributeNodes = {
+        @NamedAttributeNode("members")
+})
+
+@NamedEntityGraph(name = "Study.withTeams", attributeNodes = {
+        @NamedAttributeNode("managers"),
+        @NamedAttributeNode("members")
 })
 
 @Getter @Setter @AllArgsConstructor
@@ -79,6 +89,10 @@ public class Study {
     private boolean closed;
 
     private boolean useBanner;
+
+    public static String getPath(String path) {
+        return URLEncoder.encode(path, StandardCharsets.UTF_8);
+    }
 
     public void addManager(Account account) {
         managers.add(account);

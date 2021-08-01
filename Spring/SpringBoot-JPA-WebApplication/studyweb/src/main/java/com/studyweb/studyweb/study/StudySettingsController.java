@@ -70,7 +70,7 @@ public class StudySettingsController {
 
         studyService.updateStudyDescription(study, studyDescriptionForm);
         attributes.addFlashAttribute("message", "스터디 소개를 수정하였습니다.");
-        return "redirect:/study/" +getPath(path) + "/settings/description";
+        return "redirect:/study/" +Study.getPath(path) + "/settings/description";
 
     }
 
@@ -97,7 +97,7 @@ public class StudySettingsController {
             attributes.addFlashAttribute("message", "배너를 사용하지 않도록 설정 하였습니다.");
         }
 
-        return "redirect:/study/" +getPath(path) + "/settings/banner";
+        return "redirect:/study/" +Study.getPath(path) + "/settings/banner";
     }
 
     @PostMapping("/bannerImage")
@@ -107,7 +107,7 @@ public class StudySettingsController {
         studyService.UpdateBannerImage(study, bannerImage);
         attributes.addFlashAttribute("message", "배너 이미지를 변경하였습니다.");
 
-        return "redirect:/study/" +getPath(path) + "/settings/banner";
+        return "redirect:/study/" +Study.getPath(path) + "/settings/banner";
 
     }
 
@@ -196,7 +196,7 @@ public class StudySettingsController {
         studyService.studyPublish(study);
         attributes.addFlashAttribute("message","스터디를 공개 하였습니다.");
 
-        return "redirect:/study/"+getPath(path) +"/settings/study";
+        return "redirect:/study/"+Study.getPath(path) +"/settings/study";
 
     }
 
@@ -207,7 +207,7 @@ public class StudySettingsController {
         studyService.studyClose(study);
         attributes.addFlashAttribute("message", "스터디를 종료하였습니다. 데이터는 유지됩니다.");
 
-        return "redirect:/study/"+getPath(path) +"/settings/study";
+        return "redirect:/study/"+Study.getPath(path) +"/settings/study";
 
     }
 
@@ -217,7 +217,7 @@ public class StudySettingsController {
         String state = studyService.studyRecruiting(study);
         attributes.addFlashAttribute("message", state);
 
-        return "redirect:/study/"+getPath(path) +"/settings/study";
+        return "redirect:/study/"+Study.getPath(path) +"/settings/study";
 
     }
 
@@ -262,7 +262,7 @@ public class StudySettingsController {
         studyService.updateStudyTitle(study, newTitle);
         attributes.addFlashAttribute("message", "스터디 타이틀을 " + newTitle + " 로 변경하였습니다.");
 
-        return "redirect:/study/"+getPath(path) +"/settings/study";
+        return "redirect:/study/"+Study.getPath(path) +"/settings/study";
 
     }
 

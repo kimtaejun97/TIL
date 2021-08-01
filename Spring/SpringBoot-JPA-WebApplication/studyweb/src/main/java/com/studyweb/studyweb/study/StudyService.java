@@ -213,4 +213,25 @@ public class StudyService {
     public void updateStudyTitle(Study study, String newTitle) {
         study.setTitle(newTitle);
     }
+
+    public void joinStudy(Account account, String path) {
+        Study study = studyRepository.findStudyWithMembersByPath(path);
+
+        if(study.getMembers().contains(account) || study.getManagers().contains(account)){
+            throw new IllegalArgumentException("이미 가입된 회원 입니다.");
+        }
+
+        study.getMembers().add(account);
+    }
+
+    public void leaveStudy(Account account, String path) {
+        Study study = studyRepository.findStudyWithTeamsByPath(path);
+
+        if(!study.getMembers().contains(account) && !study.getManagers().contains(account)){
+            throw new IllegalArgumentException("가입되지 않은 회원 입니다.");
+        }
+
+        study.getManagers().remove(account);
+        study.getMembers().remove(account);
+    }
 }
