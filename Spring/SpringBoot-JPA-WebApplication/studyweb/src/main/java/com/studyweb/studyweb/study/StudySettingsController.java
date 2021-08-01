@@ -2,12 +2,9 @@ package com.studyweb.studyweb.study;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studyweb.studyweb.account.AccountController;
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
 import com.studyweb.studyweb.domain.Study;
-import com.studyweb.studyweb.domain.Tag;
-import com.studyweb.studyweb.domain.Zone;
 import com.studyweb.studyweb.settings.form.TagForm;
 import com.studyweb.studyweb.settings.form.ZoneForm;
 import com.studyweb.studyweb.study.form.StudyDescriptionForm;
@@ -26,13 +23,13 @@ import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RequestMapping("/study/{path}/settings")
 @Controller
 public class StudySettingsController {
+    public static final String SETTINGS_BASE_RETURN_STRING = "study/settings/";
+
 
     private final StudyService studyService;
     private final ModelMapper modelMapper;
@@ -46,7 +43,7 @@ public class StudySettingsController {
         model.addAttribute(study);
         model.addAttribute(modelMapper.map(study, StudyDescriptionForm.class));
 
-        return "study/settings/description";
+        return SETTINGS_BASE_RETURN_STRING + "description";
     }
 
 
@@ -57,7 +54,7 @@ public class StudySettingsController {
 
         if(errors.hasErrors()){
             model.addAttribute(study);
-            return "study/settings/description";
+            return SETTINGS_BASE_RETURN_STRING + "description";
         }
 
         studyService.updateStudyDescription(study, studyDescriptionForm);
@@ -74,7 +71,7 @@ public class StudySettingsController {
     public String ViewBannerSetting(@CurrentUser Account account, @PathVariable String path, Model model){
         Study study = studyService.getStudyToUpdate(account, path);
         model.addAttribute(study);
-        return "study/settings/banner";
+        return SETTINGS_BASE_RETURN_STRING + "banner";
     }
 
     @PostMapping("/banner")
@@ -114,7 +111,7 @@ public class StudySettingsController {
         List<String> allTagTitle = tagService.getAllTagTitle();
         model.addAttribute("whitelist", objectMapper.writeValueAsString(allTagTitle));
 
-        return "study/settings/tags";
+        return SETTINGS_BASE_RETURN_STRING + "tags";
     }
 
     @PostMapping("/tags/add")
@@ -147,7 +144,7 @@ public class StudySettingsController {
         List<String> allZones = zoneService.getAllZones();
         model.addAttribute("whitelist", objectMapper.writeValueAsString(allZones));
 
-        return "study/settings/zones";
+        return SETTINGS_BASE_RETURN_STRING + "zones";
     }
 
 
@@ -165,10 +162,50 @@ public class StudySettingsController {
     public @ResponseBody ResponseEntity removeStudyZones(@CurrentUser Account account, @PathVariable String path, @RequestBody ZoneForm zoneForm){
         Study study = studyService.getStudyToUpdateZones(account, path);
 
-
         ResponseEntity responseEntity = studyService.removeZone(study, zoneForm);
 
         return responseEntity;
+    }
+
+    @GetMapping("/study")
+    public String ViewStudySettings(@CurrentUser Account account, @PathVariable String path, Model model){
+        Study study = studyService.getStudyToUpdate(account, path);
+        model.addAttribute(study);
+
+        return SETTINGS_BASE_RETURN_STRING + "study";
+    }
+
+    @PostMapping("/study/publish")
+    public String publishStudy(@CurrentUser Account account, @PathVariable String path, RedirectAttributes attributes){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+
+        studyService.studyPublish(study);
+        attributes.addFlashAttribute("message","스터디를 공개 하였습니다.");
+
+        return "redirect:/study/"+getPath(path) +"/settings/study";
+
+    }
+
+    @PostMapping("/study/close")
+    public String closeStudy(@CurrentUser Account account, @PathVariable String path, RedirectAttributes attributes){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+
+        studyService.studyClose(study);
+        attributes.addFlashAttribute("message", "스터디를 종료하였습니다. 데이터는 유지됩니다.");
+
+        return "redirect:/study/"+getPath(path) +"/settings/study";
+
+    }
+
+    @PostMapping("/study/remove")
+    public String removeStudy(@CurrentUser Account account, @PathVariable String path, RedirectAttributes attributes){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+
+        studyService.studyRemove(study);
+        attributes.addFlashAttribute("message", "스터디를 제거하였습니다. 모든 데이터가 삭제됩니다.");
+
+        return "redirect:/";
+
     }
 }
 

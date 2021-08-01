@@ -16,6 +16,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +80,7 @@ public class StudyService {
     }
 
     public Study getStudyToUpdateTags(Account account, String path) {
-        Study study = studyRepository.findWithAccountTagsByPath(path);
+        Study study = studyRepository.findStudyWithTagsByPath(path);
         if(!study.getManagers().contains(account)){
             throw new AccessDeniedException("접근 권한이 없습니다.");
         }
@@ -114,7 +115,7 @@ public class StudyService {
     }
 
     public Study getStudyToUpdateZones(Account account, String path) {
-        Study study = studyRepository.findWithAccountZonesByPath(path);
+        Study study = studyRepository.findStudyWithZonesByPath(path);
         if(!study.getManagers().contains(account)){
             throw new AccessDeniedException("접근 권한이 없습니다.");
         }
@@ -150,5 +151,38 @@ public class StudyService {
         return study.getZones().stream()
                 .map(Zone::toString)
                 .collect(Collectors.toList());
+    }
+
+    public Study getStudyToUpdateWithManager(Account account, String path) {
+        Study study = studyRepository.findStudyWithManagersByPath(path);
+
+        if(!study.getManagers().contains(account)){
+            throw new AccessDeniedException("접근 권한이 없습니다.");
+        }
+        return study;
+    }
+
+    public void studyPublish(Study study) {
+        if(study.isPublished() || study.isClosed()){
+            throw new IllegalArgumentException(study.getTitle() + " 은 이미 공개중이거나 종료된 스터디 입니다.");
+        }
+
+        study.setPublished(true);
+        study.setPublishedDateTime(LocalDateTime.now());
+    }
+
+    public void studyClose(Study study) {
+        if(study.isClosed()){
+            throw new IllegalArgumentException(study.getTitle() + " 이미 종료된 스터디 입니다.");
+        }
+
+        study.setPublished(false);
+        study.setRecruiting(false);
+        study.setClosed(true);
+        study.setClosedDateTime(LocalDateTime.now());
+    }
+
+    public void studyRemove(Study study) {
+        studyRepository.delete(study);
     }
 }
