@@ -95,4 +95,12 @@ public class Study {
     public boolean isManager(UserAccount userAccount){
         return this.managers.contains(userAccount.getAccount());
     }
+
+    public boolean canChangeStateOfRecruiting() {
+        if(this.recruitingUpdateDateTime == null){
+            return true;
+        }
+
+        return this.recruitingUpdateDateTime.isBefore(LocalDateTime.now().minusHours(1));
+    }
 }

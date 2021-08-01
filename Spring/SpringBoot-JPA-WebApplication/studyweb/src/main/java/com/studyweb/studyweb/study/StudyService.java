@@ -173,7 +173,7 @@ public class StudyService {
 
     public void studyClose(Study study) {
         if(study.isClosed()){
-            throw new IllegalArgumentException(study.getTitle() + " 이미 종료된 스터디 입니다.");
+            throw new IllegalArgumentException(study.getTitle() + "은 이미 종료된 스터디 입니다.");
         }
 
         study.setPublished(false);
@@ -184,5 +184,21 @@ public class StudyService {
 
     public void studyRemove(Study study) {
         studyRepository.delete(study);
+    }
+
+    public String studyRecruiting(Study study) {
+
+        if(!study.canChangeStateOfRecruiting()){
+            return "아직 모집 상태를 변경할 수 없습니다.";
+        }
+        study.setRecruiting(!study.isRecruiting());
+        study.setRecruitingUpdateDateTime(LocalDateTime.now());
+
+        if(study.isRecruiting()){
+            return "팀원 모집을 시작 합니다. ";
+        }
+        else{
+            return "팀원 모집을 중단 합니다.";
+        }
     }
 }

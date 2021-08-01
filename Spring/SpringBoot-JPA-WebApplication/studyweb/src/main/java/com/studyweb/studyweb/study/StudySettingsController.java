@@ -207,5 +207,15 @@ public class StudySettingsController {
         return "redirect:/";
 
     }
+
+    @PostMapping("/study/recruiting")
+    public String recruiting(@CurrentUser Account account, @PathVariable String path, RedirectAttributes attributes){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+        String state = studyService.studyRecruiting(study);
+        attributes.addFlashAttribute("message", state);
+
+        return "redirect:/study/"+getPath(path) +"/settings/study";
+
+    }
 }
 

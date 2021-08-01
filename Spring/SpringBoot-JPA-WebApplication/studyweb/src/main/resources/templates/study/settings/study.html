@@ -49,7 +49,7 @@
 
                     <div clas="form-group">
                         <button class="btn btn-outline-primary" type="submit" th:if="${!study.recruiting}">팀원 모집 시작</button>
-                        <button class="btn btn-outline-primary" type="submit" th:if="${!study.recruiting}">팀원 모집 중단</button>
+                        <button class="btn btn-outline-primary" type="submit" th:if="${study.recruiting}"  th:classappend="${!study.canChangeStateOfRecruiting()}? disabled">팀원 모집 중단</button>
                     </div>
                 </form>
             </div>
