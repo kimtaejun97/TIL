@@ -182,7 +182,11 @@ public class StudyService {
         study.setClosedDateTime(LocalDateTime.now());
     }
 
-    public void studyRemove(Study study) {
+    public void studyRemove(Study study) throws IllegalAccessException {
+        if(!study.isRemovable()){
+            throw new IllegalAccessException("삭제 할 수 없는 스터디 입니다.");
+        }
+
         studyRepository.delete(study);
     }
 
@@ -200,5 +204,13 @@ public class StudyService {
         else{
             return "팀원 모집을 중단 합니다.";
         }
+    }
+
+    public void studyUpdatePath(Study study, String newPath) {
+        study.setPath(newPath);
+    }
+
+    public void updateStudyTitle(Study study, String newTitle) {
+        study.setTitle(newTitle);
     }
 }

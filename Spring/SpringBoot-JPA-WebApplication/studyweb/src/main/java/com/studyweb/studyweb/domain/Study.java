@@ -103,4 +103,8 @@ public class Study {
 
         return this.recruitingUpdateDateTime.isBefore(LocalDateTime.now().minusHours(1));
     }
+
+    public boolean isRemovable() {
+        return !this.published;
+    }
 }

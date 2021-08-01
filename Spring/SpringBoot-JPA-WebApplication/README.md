@@ -125,6 +125,8 @@ input type email, password
 > }
 > ```
 > - Errors는 반드시 @Valid 객체 다음으로 와야함.
+> - form객체를 다시 model에 추가하여 뷰를 보여줌.
+> 
 
 - 커스텀 검증
 ```java

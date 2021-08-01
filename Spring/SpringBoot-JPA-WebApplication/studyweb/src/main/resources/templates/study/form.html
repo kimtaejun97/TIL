@@ -18,7 +18,7 @@
                     공백없이 문자와 숫자,특수기호 _,-로만 2자 이상 20자 이내로 입력하세요. 주소로 사용합니다.
                 </small>
                 <small class="invalid-feedback">URL을 확인하세요.</small>
-                <small class="form-text text-danger" th:if="${#fields.hasErrors('path')}" th:errors="*{path}">Path Error</small>
+                <small class="form-text text-danger" th:if="${#fields.hasErrors('path')}"  th:errors="*{path}">Path Error</small>
             </div>
 
             <div class="form-group">
