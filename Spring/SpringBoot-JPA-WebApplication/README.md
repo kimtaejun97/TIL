@@ -1066,3 +1066,74 @@ private Study getStudy(String path) {
 }
 ```
 -url로 권한이 없는 사용자가 접근하거나, 잘못된 Path로 접근하는 것을 처리.
+
+# 📌 BootStrap:Modal
+***
+```html
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="leaveTitle" th:text="${event.title}"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p>모임 참가 신청을 취소하시겠습니까?</p>
+        <p><strong>확인</strong>하시면 본 참가 신청을 취소하고 다른 대기자에게 참석 기회를 줍니다.</p>
+        <p>감사합니다.</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+        <form th:action="@{'/study/' + ${study.path} + '/events/' + ${event.id} + '/disenroll'}" method="post">
+            <button class="btn btn-primary" type="submit" aria-describedby="submitHelp">확인</button>
+        </form>
+    </div>
+</div>
+```
+![img_4.png](img_4.png)
+# 📌 날짜 형식 라이브러리 : Moment.Js
+****
+```npm install moment --save```
+```javascript
+<div th:fragment="date-time">
+    <script src="/node_modules/moment/min/moment-with-locales.js"></script>
+    <script type="application/javascript">
+        $(function () {
+            moment.locale('ko');
+            $(".date-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLL'); // 워ㅓㄹ, 일, 년, 시간 ,오전|오후
+            });
+            $(".date").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LL');  // 월, 일, 년
+            });
+            $(".weekday").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('dddd'); // 요일
+            });
+            $(".time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LT'); // 시간 오전|오후
+            });
+            $(".calendar").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").calendar(); // 오늘 시간 오전|오후
+            });
+            $(".fromNow").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();  // 지금으로 부터 상대시간.
+            });
+            $(".date-weekday-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LLLL'); // 요일, 월, 일, 년 시간 오전|오후
+            });
+        })
+    </script>
+</div>
+```
+- 서버의 형식인 YYYY-MM-DD`T`hh:mm 을 포매팅해준다.
+- 상대 시간 ( 25분전 )도 가능.
+- https://momentjs.com/ 참조.
+
+
+# 📌 타임리프 : 객체의 타입 변환
+****
+```html
+<span th:if="${event.eventType == T(com.studyweb.studyweb.event.EventType).FCFS}">선착순</span>
+<span th:if="${event.eventType == T(com.studyweb.studyweb.event.EventType).CONFIRMATIVE}">관리자 확인</span>
+```
+-T(FQCN)

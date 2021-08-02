@@ -50,7 +50,7 @@ public class StudyService {
         return study;
     }
 
-    private Study getStudy(String path) {
+    public Study getStudy(String path) {
         Study study = studyRepository.findByPath(path);
         if(study == null){
             throw new IllegalArgumentException(path +"에 해당하는 스터디가 존재하지 않습니다.");
