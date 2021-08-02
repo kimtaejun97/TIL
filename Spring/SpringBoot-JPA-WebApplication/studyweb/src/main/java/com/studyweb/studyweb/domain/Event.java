@@ -10,6 +10,10 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NamedEntityGraph(name = "Event.withEnrollments", attributeNodes = {
+        @NamedAttributeNode("enrollments")
+})
+
 @Getter @Setter
 @Entity
 public class Event {
@@ -80,6 +84,10 @@ public class Event {
                 return true;
         }
         return false;
+    }
+
+    public String numberOfRemainSpots(){
+        return Integer.toString(this.limitOfEnrollments - (int)enrollments.stream().filter(Enrollment::isAccepted).count());
     }
 
 

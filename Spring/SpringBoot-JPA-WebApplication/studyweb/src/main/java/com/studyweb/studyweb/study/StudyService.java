@@ -1,9 +1,7 @@
 package com.studyweb.studyweb.study;
 
-import com.studyweb.studyweb.domain.Account;
-import com.studyweb.studyweb.domain.Study;
-import com.studyweb.studyweb.domain.Tag;
-import com.studyweb.studyweb.domain.Zone;
+import com.studyweb.studyweb.domain.*;
+import com.studyweb.studyweb.event.EventRepository;
 import com.studyweb.studyweb.settings.form.TagForm;
 import com.studyweb.studyweb.settings.form.ZoneForm;
 import com.studyweb.studyweb.study.form.StudyDescriptionForm;
@@ -29,6 +27,7 @@ public class StudyService {
     private final TagRepository tagRepository;
 
     private final ZoneRepository zoneRepository;
+    private final EventRepository eventRepository;
 
 
     public Study createNewStudy(Study study, Account account) {
@@ -233,5 +232,9 @@ public class StudyService {
 
         study.getManagers().remove(account);
         study.getMembers().remove(account);
+    }
+
+    public List<Event> getEvents(Study study) {
+        return eventRepository.findByStudyOrderByStartDateTime(study);
     }
 }

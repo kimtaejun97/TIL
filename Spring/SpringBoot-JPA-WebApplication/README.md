@@ -1113,7 +1113,7 @@ private Study getStudy(String path) {
                 return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('LT'); // 시간 오전|오후
             });
             $(".calendar").text(function(index, dateTime) {
-                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").calendar(); // 오늘 시간 오전|오후
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").calendar(); // 요 시간 오전|오후
             });
             $(".fromNow").text(function(index, dateTime) {
                 return moment(dateTime, "YYYY-MM-DD`T`hh:mm").fromNow();  // 지금으로 부터 상대시간.
@@ -1137,3 +1137,30 @@ private Study getStudy(String path) {
 <span th:if="${event.eventType == T(com.studyweb.studyweb.event.EventType).CONFIRMATIVE}">관리자 확인</span>
 ```
 -T(FQCN)
+
+# 📌 N+1 쿼리 문제
+****
+- 쿼리 1번으로 N건을 가져왔는데 관련 컬럼을 얻기위해 N번의 추가 쿼리를 수행하는 문제.
+- 성능상에 영향을 줄 수 있다.
+
+> ex) event 조회시, enrollments를 event당 한 번씩 조회하므로 N개의 이벤트를 조회하면 N번의 enrollments 쿼리가 발생한다.
+
+```java
+
+// Event는 enrollments를 가짐.
+@OneToMany(mappedBy = "event")
+private List<Enrollment> enrollments;
+```
+-> Event하나를 조회할 때마다 enrollments를 조회하는 쿼리가 발생.
+
+```java
+@NamedEntityGraph(name = "Event.withEnrollments", attributeNodes = {
+        @NamedAttributeNode("enrollments")
+})
+```
+
+```java
+@EntityGraph(value = "Event.withEnrollments", type= EntityGraph.EntityGraphType.LOAD)
+    List<Event> findByStudyOrderByStartDateTime(Study study);
+```
+- EntityGraph를 이용하여 Event들이 조회될 때 enrollments를 같이 가져오도록 한다.

@@ -3,6 +3,7 @@ package com.studyweb.studyweb.study;
 import com.studyweb.studyweb.account.AccountController;
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
+import com.studyweb.studyweb.domain.Event;
 import com.studyweb.studyweb.domain.Study;
 import com.studyweb.studyweb.study.form.StudyForm;
 import com.studyweb.studyweb.study.validator.StudyFormValidator;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -89,5 +93,30 @@ public class StudyController {
         studyService.leaveStudy(account,path);
 
         return "redirect:/study/"+Study.getPath(path);
+    }
+
+    @GetMapping("/study/{path}/events")
+    public String ViewEventList(@CurrentUser Account account, @PathVariable String path, Model model){
+        Study study = studyService.getStudy(path);
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        List<Event> events =  studyService.getEvents(study);
+        List<Event> openEvents = new ArrayList<>();
+        List<Event> closedEvents = new ArrayList<>();
+
+        events.forEach(e->{
+            if(e.getEndDateTime().isBefore(LocalDateTime.now())){
+                closedEvents.add(e);
+            }
+            else{
+                openEvents.add(e);
+            }
+        });
+
+        model.addAttribute("newEvents", openEvents);
+        model.addAttribute("oldEvents",closedEvents);
+
+        return "study/events";
     }
 }
