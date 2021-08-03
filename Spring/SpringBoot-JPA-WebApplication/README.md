@@ -1164,3 +1164,10 @@ private List<Enrollment> enrollments;
     List<Event> findByStudyOrderByStartDateTime(Study study);
 ```
 - EntityGraph를 이용하여 Event들이 조회될 때 enrollments를 같이 가져오도록 한다.
+
+# 📌 Form Delete Method
+***
+```properties
+spring.mvc.hiddenmethod.filter.enabled=true
+```
+-HTML <Form> 에서 Put, Delete 메소드를 사용한요청을 매핑 가능하게 해준다.

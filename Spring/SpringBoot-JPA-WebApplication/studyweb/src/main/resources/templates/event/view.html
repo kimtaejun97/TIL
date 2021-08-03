@@ -176,19 +176,17 @@
                    th:href="@{'/study/' + ${study.path} + '/events/' + ${event.id} + '/edit'}" >
                     모임 수정
                 </a> <br/>
-                <button class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#cancel">
+                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancel">
                     모임 취소
                 </button>
             </dd>
         </dl>
-        <div class="modal fade" id="cancel" tabindex="-1" role="dialog" aria-labelledby="cancelTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal fade" id="cancel" tabindex="-1" role="dialog" aria-labelledby="cancelTitle" >
+            <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="cancelTitle" th:text="${event.title}"></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p>모임을 취소 하시겠습니까?</p>
@@ -196,7 +194,7 @@
                         <p>감사합니다.</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                         <form th:action="@{'/study/' + ${study.path} + '/events/' + ${event.id}}" th:method="delete">
                             <button class="btn btn-primary" type="submit" aria-describedby="submitHelp">확인</button>
                         </form>
