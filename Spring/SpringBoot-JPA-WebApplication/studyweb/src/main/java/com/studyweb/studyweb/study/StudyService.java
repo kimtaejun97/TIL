@@ -234,7 +234,17 @@ public class StudyService {
         study.getMembers().remove(account);
     }
 
-    public List<Event> getEvents(Study study) {
+    public List<Event> getEventsByStudy(Study study) {
         return eventRepository.findByStudyOrderByStartDateTime(study);
+    }
+
+    public Study getStudyToUpdateWithTeam(Account account, String path) throws IllegalAccessException {
+        Study study = studyRepository.findStudyWithTeamsByPath(path);
+
+        if(!study.getManagers().contains(account)){
+            throw new IllegalAccessException("접근 권한이 없습니다.");
+        }
+
+        return study;
     }
 }

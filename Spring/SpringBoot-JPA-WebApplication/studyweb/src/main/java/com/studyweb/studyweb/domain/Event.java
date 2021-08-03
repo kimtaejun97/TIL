@@ -91,5 +91,7 @@ public class Event {
     }
 
 
-
+    public Integer numberOfAttendedUser() {
+        return (int)enrollments.stream().filter(Enrollment::isAccepted).count();
+    }
 }

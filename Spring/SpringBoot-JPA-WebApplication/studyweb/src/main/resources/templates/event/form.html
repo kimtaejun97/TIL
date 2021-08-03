@@ -8,11 +8,10 @@
 <div class="container">
     <div th:replace="fragments.html :: event-form (mode='new', action='/study/' + ${study.path} + '/new-event/')"></div>
 
-    <div th: th:replace="fragments :: bannerFragment"></div>
 </div>
 
-<div th:replace="fragments.html :: footer"></div>
-<script th:replace="fragments.html :: form-validation"></script>
-<script th:replace="fragments.html :: editor-script"></script>
+<div th:replace="fragments :: footerFragment"></div>
+<script th:replace="fragments :: form-validation"></script>
+<script th:replace="fragments :: editor-script"></script>
 </body>
 </html>

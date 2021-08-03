@@ -78,8 +78,9 @@
             </div>
         </div>
     </div>
-    <div th:replace="fragments.html :: footer"></div>
+    <div th:replace="fragments :: bannerFragment"></div>
 </div>
+<div th:replace="fragments.html :: footerFragment"></div>
 <script th:replace="fragments.html :: tooltip"></script>
 <script th:replace="fragments.html :: date-time"></script>
 </body>

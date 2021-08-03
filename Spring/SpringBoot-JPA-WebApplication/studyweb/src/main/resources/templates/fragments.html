@@ -422,7 +422,7 @@
                     <small id="limitOfEnrollmentsHelp" class="form-text text-muted">
                         최대 수용 가능한 모임 참석 인원을 설정하세요. 최소 2인 이상 모임이어야 합니다.
                     </small>
-                    <small class="invalid-feedback">모임 신청 마감 일시를 입력하세요.</small>
+                    <small class="invalid-feedback">모집 인원을 확인하세요. </small>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('limitOfEnrollments')}" th:errors="*{limitOfEnrollments}">Error</small>
                 </div>
                 <div class="form-group col-md-3">
@@ -472,6 +472,7 @@
             </div>
         </form>
     </div>
+    <div th:replace="fragments :: bannerFragment"></div>
 </div>
 
 

@@ -1,5 +1,6 @@
 package com.studyweb.studyweb.event.validator;
 
+import com.studyweb.studyweb.domain.Event;
 import com.studyweb.studyweb.event.form.EventForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ public class EventFormValidator implements Validator {
     public void validate(Object o, Errors errors) {
         EventForm eventForm = (EventForm) o;
 
+
         if(eventForm.getEndEnrollmentDateTime().isBefore(LocalDateTime.now())){
             errors.rejectValue("endEnrollmentDateTime", "wrong.datetime", "모임 접수 종료 일시를 정확히 입력하세요.");
         }
@@ -34,5 +36,12 @@ public class EventFormValidator implements Validator {
             errors.rejectValue("startDateTime", "wrong.datetime", "모임 시작 일시를 정확히 입력하세요.");
         }
 
+
+    }
+
+    public void validateUpdateForm(EventForm eventForm,Event event, Errors errors) {
+        if(eventForm.getLimitOfEnrollments() < event.numberOfAttendedUser()){
+            errors.rejectValue("limitOfEnrollments","wrong.limitOfEnrollments","현재 등록된 사용자보다 적은수로 모집인원을 변경할 수 없습니다.");
+        }
     }
 }

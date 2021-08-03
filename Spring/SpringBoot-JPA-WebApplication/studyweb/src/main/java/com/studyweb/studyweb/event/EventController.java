@@ -31,7 +31,7 @@ public class EventController {
     private final EventRepository eventRepository;
 
     @InitBinder("eventForm")
-    public void EventFormInitBineder(WebDataBinder webDataBinder){
+    public void EventFormInitBinder(WebDataBinder webDataBinder){
         webDataBinder.addValidators(eventFormValidator);
     }
 
@@ -69,6 +69,41 @@ public class EventController {
 
         return"/event/view";
 
+    }
+
+    @GetMapping("/events/{eventId}/edit")
+    public String eventEditForm(@CurrentUser Account account, @PathVariable String path,@PathVariable Long eventId ,Model model){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+        Event event = eventService.getEventById(eventId);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+        model.addAttribute(event);
+        model.addAttribute(modelMapper.map(event, EventForm.class));
+
+        return "/event/update-form";
+    }
+
+    @PostMapping("/events/{eventId}/edit")
+    public String eventEditSubmit(@CurrentUser Account account, @PathVariable String path,@PathVariable Long eventId, Model model,
+                                  @Valid EventForm eventForm, Errors errors){
+
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+        Event event = eventService.getEventById(eventId);
+        eventForm.setEventType(event.getEventType());
+
+        eventFormValidator.validateUpdateForm(eventForm, event, errors);
+
+        if(errors.hasErrors()){
+            model.addAttribute(account);
+            model.addAttribute(study);
+            model.addAttribute(event);
+
+            return "/event/update-form";
+        }
+        eventService.updateEvent(event, eventForm);
+
+        return "redirect:/study/"+study.getPath(path)+"/events/"+event.getId();
     }
 
 }

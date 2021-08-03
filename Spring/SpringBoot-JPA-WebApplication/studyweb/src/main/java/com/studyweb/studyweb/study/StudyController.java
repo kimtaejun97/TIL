@@ -1,10 +1,12 @@
 package com.studyweb.studyweb.study;
 
-import com.studyweb.studyweb.account.AccountController;
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
 import com.studyweb.studyweb.domain.Event;
 import com.studyweb.studyweb.domain.Study;
+import com.studyweb.studyweb.event.EventRepository;
+import com.studyweb.studyweb.event.EventService;
+import com.studyweb.studyweb.event.form.EventForm;
 import com.studyweb.studyweb.study.form.StudyForm;
 import com.studyweb.studyweb.study.validator.StudyFormValidator;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class StudyController {
     private final ModelMapper modelMapper;
     private final StudyFormValidator studyFormValidator;
     private final StudyRepository studyRepository;
+    private final EventService eventService;
 
     @InitBinder("studyForm")
     public void studyFormInitBinder(WebDataBinder webDataBinder) {
@@ -101,7 +104,7 @@ public class StudyController {
         model.addAttribute(account);
         model.addAttribute(study);
 
-        List<Event> events =  studyService.getEvents(study);
+        List<Event> events =  studyService.getEventsByStudy(study);
         List<Event> openEvents = new ArrayList<>();
         List<Event> closedEvents = new ArrayList<>();
 
@@ -119,4 +122,6 @@ public class StudyController {
 
         return "study/events";
     }
+
+
 }
