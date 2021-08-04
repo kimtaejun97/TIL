@@ -51,9 +51,7 @@ public class StudyService {
 
     public Study getStudy(String path) {
         Study study = studyRepository.findByPath(path);
-        if(study == null){
-            throw new IllegalArgumentException(path +"에 해당하는 스터디가 존재하지 않습니다.");
-        }
+        checkExistingStudy(path, study);
 
         return study;
     }
@@ -247,14 +245,22 @@ public class StudyService {
         return study;
     }
 
-    public Study getStudyWithTeam(Account account, String path) {
-        Study study = studyRepository.findStudyWithTeamsByPath(path);
+    public Study getStudyOnly(Account account, String path) {
+        Study study = studyRepository.findStudyOnlyByPath(path);
+
+        checkExistingStudy(path, study);
 
         if(!isStudyUser(account, study)){
             throw new IllegalArgumentException("가입되지 않은 회원 입니다.");
         }
 
         return study;
+    }
+
+    private void checkExistingStudy(String path, Study study) {
+        if(study == null){
+            throw new IllegalArgumentException(path +"에 해당하는 스터디가 존재하지 않습니다.");
+        }
     }
 
     private boolean isStudyUser(Account account, Study study){

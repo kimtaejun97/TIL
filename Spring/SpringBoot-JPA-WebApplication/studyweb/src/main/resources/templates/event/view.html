@@ -126,10 +126,14 @@
                             </form>
                         </td>
                         <td th:if="${study.isManager(#authentication.principal)}">
-                            <a th:if="${enroll.accepted && !enroll.attended}" href="#" class="text-decoration-none"
-                               th:href="@{'/study/' + ${study.path} + '/events/' + ${event.id} + '/enrollments/' + ${enroll.id} + '/checkin'}">체크인</a>
-                            <a th:if="${enroll.accepted && enroll.attended}" href="#" class="text-decoration-none"
-                               th:href="@{'/study/' + ${study.path} + '/events/' + ${event.id} + '/enrollments/' + ${enroll.id} + '/cancel-checkin'}">체크인 취소</a>
+                            <form th:if="${enroll.accepted && !enroll.attended}" action="#"
+                               th:action="@{'/study/' + ${study.path} + '/events/' + ${event.id} + '/enrollments/' + ${enroll.id} + '/checkin'}" method="post">
+                                <button class="btn btn-link text-decoration-none" type="submit">체크인</button>
+                            </form>
+                            <form th:if="${enroll.accepted && enroll.attended}" action="#"
+                               th:action="@{'/study/' + ${study.path} + '/events/' + ${event.id} + '/enrollments/' + ${enroll.id} + '/cancel-checkin'}" method="post">
+                                <button class="btn btn-link text-decoration-none" type="submit">체크인 취소</button>
+                            </form>
                         </td>
                     </tr>
                     </tbody>

@@ -102,7 +102,6 @@ public class EventController {
             return "/event/update-form";
         }
         eventService.updateEvent(event, eventForm);
-        eventService.updateAcceptUser(event);
 
 
 
@@ -119,7 +118,7 @@ public class EventController {
 
     @PostMapping("/events/{eventId}/enroll")
     public String Enroll(@CurrentUser Account account , @PathVariable String path, @PathVariable Long eventId) throws IllegalAccessException {
-        Study study = studyService.getStudyWithTeam(account, path);
+        Study study = studyService.getStudyOnly(account, path);
         Event event = eventService.getEventById(eventId);
 
         eventService.enroll(account, event);
@@ -129,12 +128,11 @@ public class EventController {
 
     @PostMapping("/events/{eventId}/disenroll")
     public String disEnroll(@CurrentUser Account account , @PathVariable String path, @PathVariable Long eventId){
-        Study study = studyService.getStudyWithTeam(account, path);
+        Study study = studyService.getStudyOnly(account, path);
         Event event = eventService.getEventById(eventId);
         Enrollment enrollment = event.getEnrollmentByAccount(account);
 
         eventService.disEnroll(event,enrollment);
-        eventService.updateAcceptUser(event);
 
 
         return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
@@ -142,14 +140,12 @@ public class EventController {
     }
 
     @PostMapping("/events/{eventId}/enrollments/{enrollId}/accept")
-    public String acceptUser(@CurrentUser Account account, @PathVariable String path, @PathVariable Long eventId, @PathVariable Long enrollId){
+    public String acceptUser(@CurrentUser Account account, @PathVariable String path, @PathVariable("eventId") Event event, @PathVariable("enrollId") Enrollment enrollment){
         Study study = studyService.getStudyToUpdateWithManager(account, path);
-        Event event = eventService.getEventById(eventId);
-        Enrollment enrollment = enrollmentRepository.findById(enrollId).orElseThrow();
 
         eventService.acceptUser(event, enrollment);
 
-        return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
+        return "redirect:/study/"+study.getPath(path) + "/events/"+event.getId();
 
     }
 
@@ -160,11 +156,38 @@ public class EventController {
         Enrollment enrollment = enrollmentRepository.findById(enrollId).orElseThrow();
 
         eventService.rejectUser(event, enrollment);
-        eventService.updateAcceptUser(event);
 
 
         return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
 
     }
+
+    @PostMapping("/events/{eventId}/enrollments/{enrollId}/checkin")
+    public String checkin(@CurrentUser Account account, @PathVariable String path, @PathVariable Long eventId, @PathVariable Long enrollId){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+        Event event = eventService.getEventById(eventId);
+        Enrollment enrollment = enrollmentRepository.findById(enrollId).orElseThrow();
+
+        eventService.checkin(event, enrollment);
+
+
+        return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
+
+    }
+
+    @PostMapping("/events/{eventId}/enrollments/{enrollId}/cancel-checkin")
+    public String checkinCancel(@CurrentUser Account account, @PathVariable String path, @PathVariable Long eventId, @PathVariable Long enrollId){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+        Event event = eventService.getEventById(eventId);
+        Enrollment enrollment = enrollmentRepository.findById(enrollId).orElseThrow();
+
+        eventService.cancelCheckin(event, enrollment);
+
+
+        return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
+
+    }
+
+
 
 }

@@ -1171,3 +1171,31 @@ private List<Enrollment> enrollments;
 spring.mvc.hiddenmethod.filter.enabled=true
 ```
 -HTML Form 에서 Put, Delete 메소드를 사용한요청을 매핑 가능하게 해준다.
+
+
+# 📌 @PathVariable 값으로 Repository에서 조회.
+
+- 기존 코드 
+```java 
+@PostMapping("/events/{eventId}/enrollments/{enrollId}/accept")
+public String acceptUser(@PathVariable Long eventId, @PathVariable Long enrollId){
+    Event event = eventService.getEventById(eventId);
+    Enrollment enrollment = enrollmentRepository.findById(enrollId).orElseThrow();
+    
+        eventService.acceptUser(event, enrollment);
+
+
+    return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
+}
+```
+
+- 개선 후
+```java
+@PostMapping("/events/{eventId}/enrollments/{enrollId}/accept")
+public String acceptUser(@PathVariable("eventId") Event event, @PathVariable("enrollId") Enrollment enrollment){
+
+    eventService.acceptUser(event, enrollment);
+
+    return "redirect:/study/"+study.getPath(path) + "/events/"+event.getId();
+}
+```

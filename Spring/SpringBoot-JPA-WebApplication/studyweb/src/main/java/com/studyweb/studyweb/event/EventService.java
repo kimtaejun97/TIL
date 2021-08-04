@@ -45,31 +45,32 @@ public class EventService {
 
     public void updateEvent(Event event, EventForm eventForm) {
         modelMapper.map(eventForm, event);
+        updateAcceptUser(event);
+
     }
 
     public void enroll(Account account, Event event) {
-        Enrollment enrollment = Enrollment.builder()
-                .accepted(false)
-                .account(account)
-                .attended(false)
-                .enrolledAt(LocalDateTime.now())
-                .event(event)
-                .build();
+        if(!enrollmentRepository.existsByEventAndAccount(event,account)){
+            Enrollment enrollment = Enrollment.builder()
+                    .accepted(false)
+                    .account(account)
+                    .attended(false)
+                    .enrolledAt(LocalDateTime.now())
+                    .build();
 
-        if(event.numberOfRemainSpots()!=0 && event.getEventType().equals(EventType.FCFS)){
-            enrollment.setAccepted(true);
+            if(event.numberOfRemainSpots()!=0 && event.getEventType().equals(EventType.FCFS)){
+                enrollment.setAccepted(true);
+            }
+
+            event.addEnrollment(enrollment);
+            enrollmentRepository.save(enrollment);
         }
-
-        enrollmentRepository.save(enrollment);
-
 
     }
 
     public void acceptUser(Event event, Enrollment enrollment) {
 
-        if(!event.getEventType().equals(EventType.CONFIRMATIVE)){
-            throw new IllegalArgumentException("모임이 관리자 확인 방식이 아닙니다. ");
-        }
+        checkConfirmativeEventType(event);
 
         if(!event.canAccept(enrollment)){
             throw new IllegalArgumentException("이미 모임 정원이 가득 찼거나, 이미 참석된 유저 입니다.");
@@ -82,19 +83,32 @@ public class EventService {
     public void rejectUser(Event event, Enrollment enrollment) {
 
         if(!event.canReject(enrollment)){
-            throw new IllegalArgumentException("모임에 참석하지 않은 유저 입니다.");
+            throw new IllegalArgumentException("모임에 참석하지 않은 유저이거나, 관리자 확인 방식의 모임이 아닙니다.");
+        }
+        checkConfirmativeEventType(event);
+
+        enrollment.setAccepted(false);
+
+
+    }
+
+    private void checkConfirmativeEventType(Event event) {
+        if(!event.getEventType().equals(EventType.CONFIRMATIVE)){
+            throw new IllegalArgumentException("모임이 관리자 확인 방식이 아닙니다. ");
+
+        }
+    }
+
+    public void disEnroll(Event event, Enrollment enrollment) {
+
+        if(enrollment.isAttended()){
+            throw new IllegalArgumentException("이미 출석 처리 되어 참석을 취소할 수 없습니다.");
         }
 
         enrollmentRepository.delete(enrollment);
         event.getEnrollments().remove(enrollment);
 
-    }
-
-    public void disEnroll(Event event, Enrollment enrollment) {
-
-        enrollmentRepository.delete(enrollment);
-        event.getEnrollments().remove(enrollment);
-
+        updateAcceptUser(event);
 
     }
 
@@ -113,6 +127,34 @@ public class EventService {
                     enrollments.remove(0).setAccepted(true);
                 }
             }
+        }
+    }
+
+    public void checkin(Event event, Enrollment enrollment) {
+
+        checkAccepted(event, enrollment);
+        checkAttendedFlag(enrollment, false);
+
+        enrollment.setAttended(true);
+    }
+
+    public void cancelCheckin(Event event, Enrollment enrollment) {
+
+        checkAccepted(event, enrollment);
+        checkAttendedFlag(enrollment, true);
+
+        enrollment.setAttended(false);
+    }
+
+    private void checkAttendedFlag(Enrollment enrollment, boolean flag) {
+        if(enrollment.isAttended() != flag){
+            throw new IllegalArgumentException("변경하려는 상태와 출석 상태가 같습니다.");
+        }
+    }
+
+    private void checkAccepted(Event event, Enrollment enrollment) {
+        if(!event.isAccepted(enrollment)){
+            throw new IllegalArgumentException("모임에 참가 확정되지 않은 사용자 입니다.");
         }
     }
 }

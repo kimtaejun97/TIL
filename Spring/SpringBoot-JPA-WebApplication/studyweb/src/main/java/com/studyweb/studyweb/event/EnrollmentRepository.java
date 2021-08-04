@@ -14,4 +14,5 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     List<Enrollment> findByEventAndAccepted(Event event, boolean b);
 
+    boolean existsByEventAndAccount(Event event, Account account);
 }

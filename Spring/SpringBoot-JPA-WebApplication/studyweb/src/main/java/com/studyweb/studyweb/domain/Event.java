@@ -54,11 +54,13 @@ public class Event {
     private EventType eventType;
 
     public boolean isEnrollableFor(UserAccount userAccount){
-        return !isClosed() && (study.isMember(userAccount) || study.isManager(userAccount)) && !isEnrolled(userAccount);
+        return !isClosed() && !isEnrolled(userAccount)
+                && (study.isMember(userAccount) || study.isManager(userAccount))
+                && !isAttended(userAccount);
     }
 
     public boolean isDisenrollableFor(UserAccount userAccount){
-        return !isClosed() && isEnrolled(userAccount);
+        return !isClosed() && isEnrolled(userAccount) && !isAttended(userAccount);
 
     }
 
@@ -96,14 +98,14 @@ public class Event {
     }
 
     public boolean canAccept(Enrollment enrollment){
-        if(this.numberOfRemainSpots() !=0 && !enrollment.isAccepted()){
+        if(this.numberOfRemainSpots() !=0 && !enrollment.isAccepted() && this.eventType.equals(EventType.CONFIRMATIVE)){
             return true;
         }
         return false;
     }
 
     public boolean canReject(Enrollment enrollment) {
-        if(enrollment.isAccepted()){
+        if(enrollment.isAccepted() && this.eventType.equals(EventType.CONFIRMATIVE)){
             return true;
         }
         return false;
@@ -117,5 +119,14 @@ public class Event {
 
         throw new IllegalArgumentException("해당 모임에 참가 신청을 하지 않았습니다.");
 
+    }
+
+    public void addEnrollment(Enrollment enrollment) {
+        this.enrollments.add(enrollment);
+        enrollment.setEvent(this);
+    }
+
+    public boolean isAccepted(Enrollment enrollment) {
+        return this.getEnrollments().contains(enrollment) && enrollment.isAccepted();
     }
 }
