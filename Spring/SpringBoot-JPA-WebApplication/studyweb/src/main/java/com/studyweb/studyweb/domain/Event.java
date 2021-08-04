@@ -47,7 +47,7 @@ public class Event {
 
     private Integer limitOfEnrollments;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE)
     private List<Enrollment> enrollments;
 
     @Enumerated(EnumType.STRING)
@@ -86,12 +86,36 @@ public class Event {
         return false;
     }
 
-    public String numberOfRemainSpots(){
-        return Integer.toString(this.limitOfEnrollments - (int)enrollments.stream().filter(Enrollment::isAccepted).count());
+    public Integer numberOfRemainSpots(){
+        return this.limitOfEnrollments - (int)enrollments.stream().filter(Enrollment::isAccepted).count();
     }
 
 
-    public Integer numberOfAttendedUser() {
+    public Integer numberOfAcceptedUser() {
         return (int)enrollments.stream().filter(Enrollment::isAccepted).count();
+    }
+
+    public boolean canAccept(Enrollment enrollment){
+        if(this.numberOfRemainSpots() !=0 && !enrollment.isAccepted()){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean canReject(Enrollment enrollment) {
+        if(enrollment.isAccepted()){
+            return true;
+        }
+        return false;
+    }
+
+    public Enrollment getEnrollmentByAccount(Account account) {
+        for(Enrollment e :enrollments){
+            if(e.getAccount().equals(account))
+                return e;
+        }
+
+        throw new IllegalArgumentException("해당 모임에 참가 신청을 하지 않았습니다.");
+
     }
 }

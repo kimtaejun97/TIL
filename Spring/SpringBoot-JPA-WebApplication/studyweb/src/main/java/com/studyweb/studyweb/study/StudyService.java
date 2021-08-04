@@ -216,22 +216,21 @@ public class StudyService {
     public void joinStudy(Account account, String path) {
         Study study = studyRepository.findStudyWithMembersByPath(path);
 
-        if(study.getMembers().contains(account) || study.getManagers().contains(account)){
+        if(isStudyUser(account, study)){
             throw new IllegalArgumentException("이미 가입된 회원 입니다.");
         }
 
         study.getMembers().add(account);
     }
 
-    public void leaveStudy(Account account, String path) {
-        Study study = studyRepository.findStudyWithTeamsByPath(path);
+    public void leaveStudy(Account account, String path) { Study study = studyRepository.findStudyWithTeamsByPath(path);
 
-        if(!study.getMembers().contains(account) && !study.getManagers().contains(account)){
-            throw new IllegalArgumentException("가입되지 않은 회원 입니다.");
-        }
+       if(!isStudyUser(account, study)){
+           throw new IllegalArgumentException("가입되지 않은 회원 입니다.");
+       }
 
-        study.getManagers().remove(account);
-        study.getMembers().remove(account);
+       study.getManagers().remove(account);
+       study.getMembers().remove(account);
     }
 
     public List<Event> getEventsByStudy(Study study) {
@@ -246,5 +245,24 @@ public class StudyService {
         }
 
         return study;
+    }
+
+    public Study getStudyWithTeam(Account account, String path) {
+        Study study = studyRepository.findStudyWithTeamsByPath(path);
+
+        if(!isStudyUser(account, study)){
+            throw new IllegalArgumentException("가입되지 않은 회원 입니다.");
+        }
+
+        return study;
+    }
+
+    private boolean isStudyUser(Account account, Study study){
+        if(study.getMembers().contains(account) || study.getManagers().contains(account)){
+            return true;
+        }
+        return false;
+
+
     }
 }

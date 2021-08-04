@@ -1170,4 +1170,4 @@ private List<Enrollment> enrollments;
 ```properties
 spring.mvc.hiddenmethod.filter.enabled=true
 ```
--HTML <Form> 에서 Put, Delete 메소드를 사용한요청을 매핑 가능하게 해준다.
+-HTML Form 에서 Put, Delete 메소드를 사용한요청을 매핑 가능하게 해준다.

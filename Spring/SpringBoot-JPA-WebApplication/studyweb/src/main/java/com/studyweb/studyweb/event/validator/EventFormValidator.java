@@ -40,7 +40,7 @@ public class EventFormValidator implements Validator {
     }
 
     public void validateUpdateForm(EventForm eventForm,Event event, Errors errors) {
-        if(eventForm.getLimitOfEnrollments() < event.numberOfAttendedUser()){
+        if(eventForm.getLimitOfEnrollments() < event.numberOfAcceptedUser()){
             errors.rejectValue("limitOfEnrollments","wrong.limitOfEnrollments","현재 등록된 사용자보다 적은수로 모집인원을 변경할 수 없습니다.");
         }
     }

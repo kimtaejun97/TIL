@@ -2,12 +2,12 @@ package com.studyweb.studyweb.event;
 
 import com.studyweb.studyweb.account.CurrentUser;
 import com.studyweb.studyweb.domain.Account;
+import com.studyweb.studyweb.domain.Enrollment;
 import com.studyweb.studyweb.domain.Event;
 import com.studyweb.studyweb.domain.Study;
 import com.studyweb.studyweb.event.form.EventForm;
 import com.studyweb.studyweb.event.validator.EventFormValidator;
 import com.studyweb.studyweb.study.StudyService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
@@ -16,7 +16,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.Column;
 import javax.validation.Valid;
 
 @RequiredArgsConstructor
@@ -29,6 +28,7 @@ public class EventController {
     private final ModelMapper modelMapper;
     private final EventFormValidator eventFormValidator;
     private final EventRepository eventRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @InitBinder("eventForm")
     public void EventFormInitBinder(WebDataBinder webDataBinder){
@@ -102,6 +102,9 @@ public class EventController {
             return "/event/update-form";
         }
         eventService.updateEvent(event, eventForm);
+        eventService.updateAcceptUser(event);
+
+
 
         return "redirect:/study/"+study.getPath(path)+"/events/"+event.getId();
     }
@@ -112,6 +115,56 @@ public class EventController {
         eventRepository.delete(eventRepository.findById(eventId).orElseThrow());
 
         return "redirect:/study/"+study.getPath(path)+"/events";
+    }
+
+    @PostMapping("/events/{eventId}/enroll")
+    public String Enroll(@CurrentUser Account account , @PathVariable String path, @PathVariable Long eventId) throws IllegalAccessException {
+        Study study = studyService.getStudyWithTeam(account, path);
+        Event event = eventService.getEventById(eventId);
+
+        eventService.enroll(account, event);
+
+        return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
+    }
+
+    @PostMapping("/events/{eventId}/disenroll")
+    public String disEnroll(@CurrentUser Account account , @PathVariable String path, @PathVariable Long eventId){
+        Study study = studyService.getStudyWithTeam(account, path);
+        Event event = eventService.getEventById(eventId);
+        Enrollment enrollment = event.getEnrollmentByAccount(account);
+
+        eventService.disEnroll(event,enrollment);
+        eventService.updateAcceptUser(event);
+
+
+        return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
+
+    }
+
+    @PostMapping("/events/{eventId}/enrollments/{enrollId}/accept")
+    public String acceptUser(@CurrentUser Account account, @PathVariable String path, @PathVariable Long eventId, @PathVariable Long enrollId){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+        Event event = eventService.getEventById(eventId);
+        Enrollment enrollment = enrollmentRepository.findById(enrollId).orElseThrow();
+
+        eventService.acceptUser(event, enrollment);
+
+        return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
+
+    }
+
+    @PostMapping("/events/{eventId}/enrollments/{enrollId}/reject")
+    public String rejectUser(@CurrentUser Account account, @PathVariable String path, @PathVariable Long eventId, @PathVariable Long enrollId){
+        Study study = studyService.getStudyToUpdateWithManager(account, path);
+        Event event = eventService.getEventById(eventId);
+        Enrollment enrollment = enrollmentRepository.findById(enrollId).orElseThrow();
+
+        eventService.rejectUser(event, enrollment);
+        eventService.updateAcceptUser(event);
+
+
+        return "redirect:/study/"+study.getPath(path) + "/events/"+eventId;
+
     }
 
 }
