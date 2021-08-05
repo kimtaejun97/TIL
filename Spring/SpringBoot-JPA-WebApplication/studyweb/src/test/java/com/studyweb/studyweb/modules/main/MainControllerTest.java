@@ -1,5 +1,7 @@
 package com.studyweb.studyweb.modules.main;
 
+import com.studyweb.studyweb.infra.AbstractContainerBaseTest;
+import com.studyweb.studyweb.infra.MockMvcTest;
 import com.studyweb.studyweb.modules.account.AccountRepository;
 import com.studyweb.studyweb.modules.account.AccountService;
 import com.studyweb.studyweb.modules.account.form.SignUpForm;
@@ -21,9 +23,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class MainControllerTest {
+@MockMvcTest
+
+class MainControllerTest  extends AbstractContainerBaseTest {
 
     @Autowired
     MockMvc mockMvc;

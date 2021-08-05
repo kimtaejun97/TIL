@@ -1,6 +1,8 @@
 package com.studyweb.studyweb.modules.settings;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.studyweb.studyweb.infra.AbstractContainerBaseTest;
+import com.studyweb.studyweb.infra.MockMvcTest;
 import com.studyweb.studyweb.modules.account.WithAccount;
 import com.studyweb.studyweb.modules.account.AccountRepository;
 import com.studyweb.studyweb.modules.account.AccountService;
@@ -27,35 +29,28 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@Transactional
-@SpringBootTest
-@AutoConfigureMockMvc
-class SettingsControllerTest {
+@MockMvcTest
+class SettingsControllerTest extends AbstractContainerBaseTest {
 
     @Autowired
     MockMvc mockMvc;
-
     @Autowired
     AccountRepository accountRepository;
-
     @Autowired
     PasswordEncoder passwordEncoder;
-
     @Autowired
     ObjectMapper objectMapper;
-
     @Autowired
     TagRepository tagRepository;
-
     @Autowired
     AccountService accountService;
+
+
 
     @AfterEach
     void cleanup(){
         accountRepository.deleteAll();
     }
-
-
 
     @WithAccount("bigave")
     @DisplayName("프로필 수정하기 - 입력 값 정상")

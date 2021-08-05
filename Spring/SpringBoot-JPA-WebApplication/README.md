@@ -1266,3 +1266,23 @@ public class PackageDependencyTests {
 }
 ```
 - 테스트를 실행하면 위반되는 곳을 로그로 출력해 준다. 잘못된 참조를 하고 있는 부분을 수정.
+
+# 📌 test DB 설정 : TestContainers
+*****
+- 테스트용 DB를 따로 운영하는 것은 번거롭다.
+> TestContainers를 사용하여 구성.
+```xml
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>1.13.0</version>
+    <scope>test</scope>
+</dependency>
+
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>1.13.0</version>
+    <scope>test</scope>
+</dependency>
+```
