@@ -1174,6 +1174,7 @@ spring.mvc.hiddenmethod.filter.enabled=true
 
 
 # 📌 @PathVariable 값으로 Repository에서 조회.
+****
 
 - 기존 코드 
 ```java 
@@ -1199,3 +1200,69 @@ public String acceptUser(@PathVariable("eventId") Event event, @PathVariable("en
     return "redirect:/study/"+study.getPath(path) + "/events/"+event.getId();
 }
 ```
+
+
+# 📌 패키지 구조 정리
+****
+
+### - 아키텍쳐 테스트 유틸리
+```xml
+<dependency>
+    <groupId>com.tngtech.archunit</groupId>
+    <artifactId>archunit-junit5</artifactId>
+    <version>0.13.1</version>
+    <scope>test</scope>
+</dependency>
+```
+
+```java
+package com.studyweb.studyweb;
+
+import com.studyweb.studyweb.modules.account.Account;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
+
+@AnalyzeClasses(packagesOf = StudywebApplication.class)
+public class PackageDependencyTests {
+
+    private static final String STUDY = "..modules.study..";
+    private static final String EVENT = "..modules.event..";
+    private static final String ACCOUNT = "..modules.account..";
+    private static final String TAG = "..modules.zone..";
+    private static final String ZONE = "..modules.tag..";
+
+    // Modules 패키지는 Modules 패키지에서만 참조.
+    @ArchTest
+    ArchRule modulesRule = classes().that().resideInAnyPackage("com.studyweb.studyweb.modules..")
+            .should().onlyBeAccessed().byClassesThat()
+            .resideInAnyPackage("com.studyweb.studyweb.modules..");
+    
+    // Study 패키지는 Study, Event 패키지에서만 참조.
+    @ArchTest
+    ArchRule studyPackageRule = classes().that().resideInAPackage(STUDY)
+            .should().onlyBeAccessed().byClassesThat()
+            .resideInAnyPackage(STUDY,EVENT);
+
+    // Account 패키지는 Account,Tag,Zone 패키지를 참조
+    @ArchTest
+    ArchRule accountPackageRule = classes().that().resideInAPackage(ACCOUNT)
+            .should().accessClassesThat()
+            .resideInAnyPackage(ACCOUNT, TAG, ZONE);
+
+    //Event 패키지는 Account,Study, Event 패키지를 참조.
+    @ArchTest
+    ArchRule eventPackageRule = classes().that().resideInAPackage(EVENT)
+            .should().accessClassesThat()
+            .resideInAnyPackage(ACCOUNT, STUDY, EVENT);
+
+    // 순환참조가 없어야 함.
+    @ArchTest
+    ArchRule cycleCheck = slices().matching("com.studyweb.studyweb.modules.(*)..")
+            .should().beFreeOfCycles();
+}
+```
+- 테스트를 실행하면 위반되는 곳을 로그로 출력해 준다. 잘못된 참조를 하고 있는 부분을 수정.
