@@ -1,6 +1,5 @@
 package com.studyweb.studyweb.modules.main;
 
-import com.studyweb.studyweb.infra.AbstractContainerBaseTest;
 import com.studyweb.studyweb.infra.MockMvcTest;
 import com.studyweb.studyweb.modules.account.AccountRepository;
 import com.studyweb.studyweb.modules.account.AccountService;
@@ -24,8 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @MockMvcTest
-
-class MainControllerTest  extends AbstractContainerBaseTest {
+class MainControllerTest{
 
     @Autowired
     MockMvc mockMvc;

@@ -1,6 +1,5 @@
 package com.studyweb.studyweb.modules.account;
 
-import com.studyweb.studyweb.infra.AbstractContainerBaseTest;
 import com.studyweb.studyweb.infra.MockMvcTest;
 import com.studyweb.studyweb.infra.mail.EmailMessage;
 import com.studyweb.studyweb.infra.mail.EmailService;
@@ -11,11 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.PostgreSQLContainerProvider;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -30,8 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @MockMvcTest
-@Testcontainers
-public class AccountControllerTest extends AbstractContainerBaseTest{
+public class AccountControllerTest{
 
     @Autowired
     private MockMvc mockMvc;

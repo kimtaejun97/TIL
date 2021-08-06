@@ -3,10 +3,12 @@ package com.studyweb.studyweb.modules.study;
 import com.studyweb.studyweb.modules.account.CurrentUser;
 import com.studyweb.studyweb.modules.account.Account;
 import com.studyweb.studyweb.modules.event.Event;
+import com.studyweb.studyweb.modules.study.event.StudyCreatedEvent;
 import com.studyweb.studyweb.modules.study.form.StudyForm;
 import com.studyweb.studyweb.modules.study.validator.StudyFormValidator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -32,6 +34,8 @@ public class StudyController {
     private final ModelMapper modelMapper;
     private final StudyFormValidator studyFormValidator;
     private final StudyRepository studyRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
 
     @InitBinder("studyForm")
     public void studyFormInitBinder(WebDataBinder webDataBinder) {
@@ -55,8 +59,9 @@ public class StudyController {
             model.addAttribute(account);
             return "study/form";
         }
-
         Study study =  studyService.createNewStudy(modelMapper.map(studyForm, Study.class), account);
+        applicationEventPublisher.publishEvent(new StudyCreatedEvent(study));
+
         return "redirect:/study/" + URLEncoder.encode(study.getPath(), StandardCharsets.UTF_8);
     }
 

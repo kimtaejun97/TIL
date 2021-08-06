@@ -11,6 +11,7 @@ import com.studyweb.studyweb.modules.zone.Zone;
 import com.studyweb.studyweb.modules.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,6 @@
 package com.studyweb.studyweb.modules.settings;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studyweb.studyweb.infra.AbstractContainerBaseTest;
 import com.studyweb.studyweb.infra.MockMvcTest;
 import com.studyweb.studyweb.modules.account.WithAccount;
 import com.studyweb.studyweb.modules.account.AccountRepository;
@@ -30,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @MockMvcTest
-class SettingsControllerTest extends AbstractContainerBaseTest {
+class SettingsControllerTest {
 
     @Autowired
     MockMvc mockMvc;

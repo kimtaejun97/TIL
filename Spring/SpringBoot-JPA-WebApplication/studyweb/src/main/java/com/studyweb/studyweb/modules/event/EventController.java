@@ -60,7 +60,7 @@ public class EventController {
 
         return "redirect:/study/"+study.getPath(path)+ "/events/"+event.getId();
     }
-    @GetMapping("/study/{path}/events")
+    @GetMapping("/events")
     public String ViewEventList(@CurrentUser Account account, @PathVariable String path, Model model){
         Study study = studyService.getStudy(path);
         model.addAttribute(account);

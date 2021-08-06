@@ -1286,3 +1286,73 @@ public class PackageDependencyTests {
     <scope>test</scope>
 </dependency>
 ```
+
+
+# 📌 비동기 EventListener
+****
+```java
+private final ApplicationEventPublisher applicationEventPublisher;
+
+applicationEventPublisher.publishEvent(new StudyCreatedEvent(study));
+```
+- 이벤트를 applicationEventPublisher에 등록.
+
+```java
+@Getter
+public class StudyCreatedEvent {
+    private Study study;
+    public StudyCreatedEvent(Study study) {
+        this.study = study;
+    }
+}
+```
+
+```java
+@Async
+@Slf4j
+@Transactional(readOnly = true)
+@Component
+public class StudyEventHandler {
+
+    @EventListener
+    public void handleStudyCreatedEvent(StudyCreatedEvent studyCreatedEvent){
+        log.info(studyCreatedEvent.getStudy().getTitle() + " is created.");
+        //TODO 이메일, 알림 처리
+    }
+}
+```
+- EventListener에서 처리 Event 객체를 받아 처리.
+- 비동기로 처리하기 위해 @Async 사용.
+- 예외가 발생해도 main은 그대로 실행 됨.
+- 성능에 영향을 주지 않도록 하기 위해.
+
+```java
+@Configuration
+@EnableAsync
+public class AsyncConfig implements AsyncConfigurer {
+
+    @Override
+    public Executor getAsyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        int corePoolSize = Runtime.getRuntime().availableProcessors();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(corePoolSize * 2);
+        executor.setQueueCapacity(50);
+        executor.setKeepAliveSeconds(60);
+        executor.setThreadNamePrefix("AsyncExcutor-");
+        executor.initialize();
+
+
+
+        return executor;
+    }
+}
+```
+- AsyncConfigurer의 Executor를 구현하여 풀 사이즈, 큐 사이즈 세팅
+
+> - setCorePoolSize() -- 사용할 코어 사이즈 설정.    
+> - setQueueCapacity() : 코어 사이즈 만큼 쓰레드가 생성 되었을 때 대기열의 크기. 기본값은 int max
+> - setMaxPoolSize() : 대기열이 모두 가득 찼을 때 추가로 생성될 수 있는 쓰레드의 맥스 코어 사이즈.
+> - setKeepAliveSeconds() : 코어 사이즈를 넘어 생성된 쓰레드를 회수하는 시간.
+> - setThreadNamePrefix() : 쓰레드 이름.
+
