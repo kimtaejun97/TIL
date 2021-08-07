@@ -24,7 +24,7 @@ public class Notification {
     private String message;
 
     @Column(nullable = false)
-    private boolean Checked;
+    private boolean checked;
 
     @ManyToOne
     private Account account;

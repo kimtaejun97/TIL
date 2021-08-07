@@ -49,8 +49,11 @@
                     <a class="nav-link" href="#" th:href="@{/sign-up}">회원 가입</a>
                 </li>
                 <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link" href="#" th:href="@{/notifications}">
-                        <i class="fa fa-bell-o"> </i>
+                    <a class="nav-link position-relative bg-transparent" href="#" th:href="@{/notifications}">
+                        <i th:if="${!hasNotification}" class="fa fa-bell-o"> </i>
+                        <span class = text-info><i th:if="${hasNotification}" class="fa fa-bell"></i></span>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              th:if="${hasNotification}" th:text="${numberOfNotification}"></span>
                     </a>
                 </li>
                 <li class="nav-item " sec:authorize="isAuthenticated()">
@@ -341,11 +344,12 @@
                 method : "POST",
                 url : "[(${baseUrl})]" + url,
                 dataType: "json",
+                contentType: "application/json; charset=utf-8",
+
                 autocomplete:{
                     enabled: true,
                     rightKey: true,
                 },
-                contentType: "application/json; charset=utf-8",
                 data: JSON.stringify({"zoneName" : zone})
             }).done(function(data, status){
                 console.log("${data} and status is ${status}");
@@ -505,6 +509,22 @@
         })
     </script>
 </div>
+
+<ul th:fragment="notification-list (notifications)" class="list-group list-group-flush">
+    <a href="#" th:href="@{${noti.link}}" th:each="noti: ${notifications}" id ="notification-item"
+       class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+            <small class="text-muted" th:text="${noti.title}">Noti title</small>
+            <small class="fromNow text-muted" th:text="${noti.createdLocalDateTime}">3 days ago</small>
+        </div>
+        <p th:text="${noti.message}" class="text-left mb-0 mt-1">message</p>
+        <form action="#" th:if="${!noti.checked}" th:action="@{'/notifications/checked/' + ${noti.id}}" method="post">
+            <button class="btn btn-outline-success" type="submit">확인</button>
+        </form>
+    </a>
+
+
+</ul>
 
 
 </html>
