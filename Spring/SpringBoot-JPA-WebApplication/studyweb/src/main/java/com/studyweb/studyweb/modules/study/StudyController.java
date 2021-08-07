@@ -60,8 +60,6 @@ public class StudyController {
             return "study/form";
         }
         Study study =  studyService.createNewStudy(modelMapper.map(studyForm, Study.class), account);
-        applicationEventPublisher.publishEvent(new StudyCreatedEvent(study));
-
         return "redirect:/study/" + URLEncoder.encode(study.getPath(), StandardCharsets.UTF_8);
     }
 

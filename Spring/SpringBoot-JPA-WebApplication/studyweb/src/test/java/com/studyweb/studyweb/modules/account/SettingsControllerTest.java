@@ -1,4 +1,4 @@
-package com.studyweb.studyweb.modules.settings;
+package com.studyweb.studyweb.modules.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyweb.studyweb.infra.MockMvcTest;
@@ -68,7 +68,7 @@ class SettingsControllerTest {
     }
 
     @WithAccount("bigave")
-    @DisplayName("프로필 수정하기 - 입력 값 에러 : 너 긴 데이터")
+    @DisplayName("프로필 수정하기 - 입력 값 에러 : 너무 긴 데이터")
     @Test
     void updateProfile_with_wrong_data() throws Exception{
         mockMvc.perform(post("/settings/profile")

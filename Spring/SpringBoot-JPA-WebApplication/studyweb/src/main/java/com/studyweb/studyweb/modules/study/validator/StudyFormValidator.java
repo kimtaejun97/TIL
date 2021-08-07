@@ -23,7 +23,7 @@ public class StudyFormValidator implements Validator {
         StudyForm studyForm = (StudyForm) o;
 
         if(studyRepository.existsByPath(studyForm.getPath())){
-            errors.rejectValue("newPath", "invalid.path","이미 존재하는 URL 입니다.");
+            errors.rejectValue("path", "invalid.path","이미 존재하는 URL 입니다.");
         }
 
     }

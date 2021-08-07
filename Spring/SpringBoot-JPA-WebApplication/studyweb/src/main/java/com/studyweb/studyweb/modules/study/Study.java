@@ -45,6 +45,11 @@ import java.util.Set;
         @NamedAttributeNode("members")
 })
 
+@NamedEntityGraph(name = "Study.withTagsAndZones", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("zones")
+})
+
 @Getter @Setter @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -94,6 +99,9 @@ public class Study {
 
     public static String getPath(String path) {
         return URLEncoder.encode(path, StandardCharsets.UTF_8);
+    }
+    public String getEncodedPath(){
+        return URLEncoder.encode(this.path, StandardCharsets.UTF_8);
     }
 
     public void addManager(Account account) {

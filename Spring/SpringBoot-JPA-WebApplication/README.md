@@ -1356,3 +1356,93 @@ public class AsyncConfig implements AsyncConfigurer {
 > - setKeepAliveSeconds() : 코어 사이즈를 넘어 생성된 쓰레드를 회수하는 시간.
 > - setThreadNamePrefix() : 쓰레드 이름.
 
+# 📌 QeuryDSL
+***
+- 타입 세이프 하게 JPA 쿼리를 작성할 수 있게 해준다.
+
+
+```xml
+<dependency>
+    <groupId>com.querydsl</groupId>
+    <artifactId>querydsl-jpa</artifactId>
+</dependency>
+```
+```xml
+<plugin>
+    <groupId>com.mysema.maven</groupId>
+    <artifactId>apt-maven-plugin</artifactId>
+    <version>1.1.3</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>process</goal>
+            </goals>
+            <configuration>
+                <outputDirectory>target/generated-sources/java</outputDirectory>
+                <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+            </configuration>
+        </execution>
+    </executions>
+    <dependencies>
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-apt</artifactId>
+            <version>4.2.2</version>
+        </dependency>
+    </dependencies>
+</plugin>
+```
+> - QEntity를 만들어줘야 하지만 플러그인을 사용하면 자동으로 만들어준다.
+> - 플러그인 추가 후 Compile
+
+
+##  1. QuerydslPredicateExecutor<T> 상속
+```java
+extends QuerydslPredicateExecutor<Account>
+```
+- QuerydslPredicateExecutor를 상속 받아 해당 메소드들을 사용 한다.
+```java
+public interface QuerydslPredicateExecutor<T> {
+    Optional<T> findOne(Predicate var1);
+    Iterable<T> findAll(Predicate var1);
+    Iterable<T> findAll(Predicate var1, Sort var2);
+    Iterable<T> findAll(Predicate var1, OrderSpecifier<?>... var2);
+    Iterable<T> findAll(OrderSpecifier<?>... var1);
+    Page<T> findAll(Predicate var1, Pageable var2);
+    long count(Predicate var1);
+    boolean exists(Predicate var1);
+}
+```
+
+## 2. Predicate 생성.
+```java
+public class AccountPredicate {
+
+    public static Predicate findByTagsAndZones(Set<Tag> tags, Set<Zone> zones){
+        QAccount account = QAccount.account;
+        return account.tags.any().in(tags).and(account.zones.any().in(zones));
+    }
+}
+```
+- Java 코드로 타입 세이프한 쿼리를 작성할 수 있다.
+- any() : 한개 이상.
+- in() : 포함.
+
+
+3. 사용 예시
+```java
+//detached 상태에서는 tags와 zones를 가져올 수 없기 때문에 persist 상태로 만들어주기 위해 다시 조회
+Study study =  studyRepository.findStudyWithTagsAndZonesByPath(studyCreatedEvent.getStudy().getPath());
+
+//Iterable<T> findAll(Predicate var1)
+Iterable<Account> accounts = accountRepository.findAll(AccountPredicate.findByTagsAndZones(study.getTags(), study.getZones()));
+
+accounts.forEach(a ->{
+    if(a.isStudyCreatedByEmail()){
+        sendStudyCreatedNotificationEmail(study, a);
+    }
+    if(a.isStudyCreatedByWeb()){
+        saveCreatedStudyNotification(study, a);
+    }
+});
+```

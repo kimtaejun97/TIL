@@ -4,6 +4,7 @@ import com.studyweb.studyweb.modules.account.Account;
 import com.studyweb.studyweb.modules.event.EventRepository;
 import com.studyweb.studyweb.modules.account.form.TagForm;
 import com.studyweb.studyweb.modules.account.form.ZoneForm;
+import com.studyweb.studyweb.modules.study.event.StudyCreatedEvent;
 import com.studyweb.studyweb.modules.study.form.StudyDescriptionForm;
 import com.studyweb.studyweb.modules.tags.Tag;
 import com.studyweb.studyweb.modules.tags.TagRepository;
@@ -30,6 +31,7 @@ public class StudyService {
     private final TagRepository tagRepository;
 
     private final ZoneRepository zoneRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
 
     public Study createNewStudy(Study study, Account account) {
@@ -168,6 +170,9 @@ public class StudyService {
 
         study.setPublished(true);
         study.setPublishedDateTime(LocalDateTime.now());
+        applicationEventPublisher.publishEvent(new StudyCreatedEvent(study));
+
+
     }
 
     public void studyClose(Study study) {
