@@ -133,7 +133,8 @@ public class EventController {
     public String CancelEvent(@CurrentUser Account account, @PathVariable String path,@PathVariable("eventId") Event event){
 
         Study study = studyService.getStudyToUpdateWithManager(account, path);
-        eventRepository.delete(event);
+
+        eventService.CancelEvent(event);
 
         return "redirect:/study/"+study.getPath(path)+"/events";
     }

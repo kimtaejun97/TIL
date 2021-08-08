@@ -8,6 +8,7 @@ import com.studyweb.studyweb.modules.account.AccountPredicate;
 import com.studyweb.studyweb.modules.account.AccountRepository;
 import com.studyweb.studyweb.modules.notification.Notification;
 import com.studyweb.studyweb.modules.notification.NotificationRepository;
+import com.studyweb.studyweb.modules.notification.NotificationService;
 import com.studyweb.studyweb.modules.notification.NotificationType;
 import com.studyweb.studyweb.modules.study.Study;
 import com.studyweb.studyweb.modules.study.StudyRepository;
@@ -20,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Async
@@ -32,9 +36,7 @@ public class StudyEventHandler {
 
     private final StudyRepository studyRepository;
     private final AccountRepository accountRepository;
-    private final EmailService emailService;
-    private final TemplateEngine templateEngine;
-    private final AppProperties appProperties;
+    private final NotificationService notificationService;
 
     private final NotificationRepository notificationRepository;
 
@@ -48,45 +50,35 @@ public class StudyEventHandler {
 
         accounts.forEach(a ->{
             if(a.isStudyCreatedByEmail()){
-                sendStudyCreatedNotificationEmail(study, a);
+                notificationService.sendNotificationEmail(study, a, studyCreatedEvent.getMessage(), "스터디 웹 :: "+ study.getTitle()+" 스터디 생성 알림.");
             }
             if(a.isStudyCreatedByWeb()){
-                saveCreatedStudyNotification(study, a);
+                notificationService.saveNotification(study, a, studyCreatedEvent.getMessage(), NotificationType.STUDY_CREATED);
             }
         });
+    }
 
+    @EventListener
+    public void hadleStudyUpdateEvent(StudyUpdateEvent studyUpdateEvent){
+        Study study = studyRepository.findStudyWithTeamsByPath(studyUpdateEvent.getStudy().getPath());
+
+        List<Account> accounts = new ArrayList<>();
+
+        accounts.addAll(study.getManagers());
+        accounts.addAll(study.getMembers());
+
+        accounts.stream()
+                .forEach(account -> {
+                    if (account.isStudyUpdatedByEmail()) {
+                        notificationService.sendNotificationEmail(study,account,studyUpdateEvent.getMessage(), "스터디 웹: "+study.getTitle()+"에 새로운 소식이 있습니다.");
+                    }
+
+                    if (account.isStudyUpdatedByWeb()){
+                        notificationService.saveNotification(study,account,studyUpdateEvent.getMessage(),NotificationType.STUDY_UPDATED);
+
+                    }
+                });
 
     }
 
-    private void saveCreatedStudyNotification(Study study, Account a) {
-        Notification notification = new Notification();
-        notification.setNotificationType(NotificationType.STUDY_CREATED);
-        notification.setAccount(a);
-        notification.setChecked(false);
-        notification.setCreatedLocalDateTime(LocalDateTime.now());
-        notification.setTitle(study.getTitle());
-        notification.setLink("/study/"+ study.getEncodedPath());
-        notification.setMessage("관심 태그로 설정해둔 스터디가 개설 되었습니다.");
-
-        notificationRepository.save(notification);
-    }
-
-    private void sendStudyCreatedNotificationEmail(Study study, Account a) {
-        Context context = new Context();
-        context.setVariable("nickName", a.getNickName());
-        context.setVariable("message", "관심 태그로 설정해둔 스터디가 개설 되었습니다.");
-        context.setVariable("host", appProperties.getHost());
-        context.setVariable("link", "/study/"+ study.getEncodedPath());
-        context.setVariable("linkName", study.getTitle());
-
-        String message = templateEngine.process("mail/simple-link", context);
-
-        EmailMessage emailMessage = EmailMessage.builder()
-                .subject("스터디 웹 :: "+ study.getTitle()+" 스터디 생성 알림.")
-                .to(a.getEmail())
-                .text(message)
-                .build();
-
-        emailService.send(emailMessage);
-    }
 }

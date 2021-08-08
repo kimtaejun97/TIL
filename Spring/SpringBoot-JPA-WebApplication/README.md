@@ -1030,7 +1030,7 @@ public class AppProperties {
         @NamedAttributeNode("members")
 })
 ```
-> Entity 클래스에 그래프 정의.
+> Entity 클래스에 그래프 이름 정의.
 
 
 ```java
@@ -1042,6 +1042,12 @@ Study findByPath(String path);
 
 ![img_2.png](img_2.png)   
      ...
+
+- ### 엔티티 그래프 이름을 정의하지 않고 사용.
+```java
+@EntityGraph(attributePaths = {"managers", "members"})
+Study findStudyWithTeamsByPath(String path);
+```
 
 
 # 📌 잘못된 접근 방지

@@ -17,7 +17,7 @@ import java.security.Principal;
 
 @RequiredArgsConstructor
 @Component
-public class NotificationHandlerIntercepter implements HandlerInterceptor {
+public class NotificationHandlerInterceptor implements HandlerInterceptor {
 
     private final NotificationRepository notificationRepository;
 

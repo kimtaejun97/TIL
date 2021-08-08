@@ -1,10 +1,13 @@
 package com.studyweb.studyweb.modules.event;
 
 import com.studyweb.studyweb.modules.account.Account;
+import com.studyweb.studyweb.modules.event.event.EventEnrollmentEvent;
+import com.studyweb.studyweb.modules.event.event.EventCreatedEvent;
 import com.studyweb.studyweb.modules.study.Study;
 import com.studyweb.studyweb.modules.event.form.EventForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
     private final EnrollmentRepository enrollmentRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public Event createEvent(Study study, Event event, Account account) {
         event.setStudy(study);
@@ -29,6 +33,9 @@ public class EventService {
 
         Event newEvent = eventRepository.save(event);
 
+        applicationEventPublisher.publishEvent(new EventCreatedEvent(event, "새로운 모임이 등록 되었습니다."));
+
+
         return newEvent;
     }
 
@@ -36,6 +43,9 @@ public class EventService {
     public void updateEvent(Event event, EventForm eventForm) {
         modelMapper.map(eventForm, event);
         updateAcceptUser(event);
+
+        applicationEventPublisher.publishEvent(new EventCreatedEvent(event, event.getTitle()+" 모임 정보가 변경 되었습니다."));
+
 
     }
 
@@ -48,8 +58,9 @@ public class EventService {
                     .enrolledAt(LocalDateTime.now())
                     .build();
 
-            if(event.canAccept(enrollment)){
+            if(event.numberOfRemainSpots()>0 && event.getEventType().equals(EventType.FCFS)){
                 enrollment.setAccepted(true);
+                applicationEventPublisher.publishEvent(new EventEnrollmentEvent(enrollment, "모임의 참가 신청이 수락되었습니다."));
             }
 
             event.addEnrollment(enrollment);
@@ -65,6 +76,8 @@ public class EventService {
         }
 
         enrollment.setAccepted(true);
+        applicationEventPublisher.publishEvent(new EventEnrollmentEvent(enrollment, " 모임 참가 신청이 수락 되었습니다."));
+
     }
 
     public void rejectUser(Event event, Enrollment enrollment) {
@@ -74,6 +87,9 @@ public class EventService {
         }
 
         enrollment.setAccepted(false);
+
+        applicationEventPublisher.publishEvent(new EventEnrollmentEvent(enrollment, " 모임 참가 신청이 거절 되었습니다."));
+
 
 
     }
@@ -145,5 +161,13 @@ public class EventService {
         if(!event.isAccepted(enrollment)){
             throw new IllegalArgumentException("모임에 참가 확정되지 않은 사용자 입니다.");
         }
+    }
+
+    public void CancelEvent(Event event) {
+        applicationEventPublisher.publishEvent(new EventCreatedEvent(event, event.getTitle()+ "모임이 취소 되었습니다."));
+
+        eventRepository.delete(event);
+
+
     }
 }

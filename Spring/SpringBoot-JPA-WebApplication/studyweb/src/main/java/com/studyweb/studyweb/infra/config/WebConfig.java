@@ -1,10 +1,9 @@
 package com.studyweb.studyweb.infra.config;
 
-import com.studyweb.studyweb.modules.notification.NotificationHandlerIntercepter;
+import com.studyweb.studyweb.modules.notification.NotificationHandlerInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.StaticResourceLocation;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final NotificationHandlerIntercepter notificationHandlerIntercepter;
+    private final NotificationHandlerInterceptor notificationHandlerInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -25,7 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .collect(Collectors.toList());
         staticResources.add("/code_modules/**");
 
-        registry.addInterceptor(notificationHandlerIntercepter)
+        registry.addInterceptor(notificationHandlerInterceptor)
                 .excludePathPatterns(staticResources);
 
     }

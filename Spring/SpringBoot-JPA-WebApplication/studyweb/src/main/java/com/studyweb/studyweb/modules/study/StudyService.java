@@ -5,6 +5,7 @@ import com.studyweb.studyweb.modules.event.EventRepository;
 import com.studyweb.studyweb.modules.account.form.TagForm;
 import com.studyweb.studyweb.modules.account.form.ZoneForm;
 import com.studyweb.studyweb.modules.study.event.StudyCreatedEvent;
+import com.studyweb.studyweb.modules.study.event.StudyUpdateEvent;
 import com.studyweb.studyweb.modules.study.form.StudyDescriptionForm;
 import com.studyweb.studyweb.modules.tags.Tag;
 import com.studyweb.studyweb.modules.tags.TagRepository;
@@ -62,6 +63,8 @@ public class StudyService {
 
     public void updateStudyDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
         modelMapper.map(studyDescriptionForm, study);
+
+        applicationEventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디의 소개가 변경되었습니다."));
     }
 
     public boolean setUsebanner(Study study) {
@@ -170,7 +173,7 @@ public class StudyService {
 
         study.setPublished(true);
         study.setPublishedDateTime(LocalDateTime.now());
-        applicationEventPublisher.publishEvent(new StudyCreatedEvent(study));
+        applicationEventPublisher.publishEvent(new StudyCreatedEvent(study, "관심설정 해둔 스터디가 새로 공개 되었습니다."));
 
 
     }
@@ -184,6 +187,11 @@ public class StudyService {
         study.setRecruiting(false);
         study.setClosed(true);
         study.setClosedDateTime(LocalDateTime.now());
+
+        applicationEventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디가 종료 되었습니다."));
+
+
+
     }
 
     public void studyRemove(Study study) throws IllegalAccessException {
@@ -202,12 +210,17 @@ public class StudyService {
         study.setRecruiting(!study.isRecruiting());
         study.setRecruitingUpdateDateTime(LocalDateTime.now());
 
+
+
         if(study.isRecruiting()){
+            applicationEventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디 팀원 모집을 시작 합니다."));
             return "팀원 모집을 시작 합니다. ";
         }
         else{
+            applicationEventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디 팀원 모집을 중단 합니다."));
             return "팀원 모집을 중단 합니다.";
         }
+
     }
 
     public void studyUpdatePath(Study study, String newPath) {
