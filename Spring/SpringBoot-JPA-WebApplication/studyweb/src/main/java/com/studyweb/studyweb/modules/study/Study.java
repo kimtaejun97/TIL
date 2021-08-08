@@ -131,4 +131,5 @@ public class Study {
     public boolean isRemovable() {
         return !this.published;
     }
+
 }

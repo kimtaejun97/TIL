@@ -25,7 +25,6 @@ public class NotificationHandlerInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-
         if(modelAndView !=null && !isRedirectview(modelAndView) && authentication.getPrincipal() != null && authentication.getPrincipal() instanceof UserAccount){
             Account account = ((UserAccount) authentication.getPrincipal()).getAccount();
             Long count = notificationRepository.countNotificationByAccountAndChecked(account, false);

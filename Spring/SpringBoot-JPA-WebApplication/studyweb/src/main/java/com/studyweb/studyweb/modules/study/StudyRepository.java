@@ -2,10 +2,11 @@ package com.studyweb.studyweb.modules.study;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
-public interface StudyRepository extends JpaRepository<Study, Long> {
+public interface StudyRepository extends JpaRepository<Study, Long>, StudyRepositoryExtension, QuerydslPredicateExecutor<Study> {
     boolean existsByPath(String path);
 
     @EntityGraph(value="Study.withAll", type = EntityGraph.EntityGraphType.LOAD)

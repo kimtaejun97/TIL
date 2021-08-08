@@ -1420,7 +1420,7 @@ public interface QuerydslPredicateExecutor<T> {
 }
 ```
 
-## 2. Predicate 생성.
+###  Predicate 생성.
 ```java
 public class AccountPredicate {
 
@@ -1452,3 +1452,74 @@ accounts.forEach(a ->{
     }
 });
 ```
+
+## 2. extends QuerydslRepositorySupport
+```java
+@Transactional(readOnly = true)
+public interface StudyRepositoryExtension {
+    List<Study> findByKeyword(String keyword);
+}
+
+```
+- Repository의 확장 인터페이스를 생성하고, 메소드를 정의한다.
+- 원래의 Repository에서 이를 상속한다.
+
+### RepositoryExtensionImpl
+```java
+public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport implements StudyRepositoryExtension{
+    
+    public StudyRepositoryExtensionImpl() {
+        super(Study.class);
+    }
+
+    @Override
+    public List<Study> findByKeyword(String keyword) {
+        QStudy study = QStudy.study;
+        JPQLQuery<Study> findStudyByKeywordQuery = from(study).where(study.published.isTrue()
+                .and(study.title.containsIgnoreCase(keyword))
+                .or(study.zones.any().localNameOfCity.containsIgnoreCase(keyword))
+                .or(study.tags.any().title.containsIgnoreCase(keyword)))
+                .leftJoin(study.tags, QTag.tag).fetchJoin()
+                .leftJoin(study.zones, QZone.zone).fetchJoin()
+                .leftJoin(study.members, QAccount.account).fetchJoin()
+                .distinct();
+
+        return findStudyByKeywordQuery.fetch();
+
+    }
+}
+```
+- Qeury를 생성하고 fetch를 반환.
+- 코드의 예시는 keyword를 통한 스터디 타이틀, 태그, 지역에서의 검색이다.
+- N+1 Select 문제를 해결하기 위해 left 조인을 하고, fetch를 미리 불러오기 위해 fetchJoin을 했다.
+
+# 📌 Handler Interceptor
+****
+- Event의 처리 전(pre), 처리 후(post), view를 불러온 후(afterCompletion) 수행할 일 지정.
+
+```java
+@RequiredArgsConstructor
+@Component
+public class NotificationHandlerInterceptor implements HandlerInterceptor {
+
+    private final NotificationRepository notificationRepository;
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+
+        if(modelAndView !=null && !isRedirectview(modelAndView) && authentication.getPrincipal() != null && authentication.getPrincipal() instanceof UserAccount){
+            Account account = ((UserAccount) authentication.getPrincipal()).getAccount();
+            Long count = notificationRepository.countNotificationByAccountAndChecked(account, false);
+
+            modelAndView.addObject("hasNotification", count>0);
+            modelAndView.addObject("numberOfNotification", count);
+
+
+        }
+
+    }
+```
+- HandlerInterceptor 의 메소드를 구현하여 작동한다.
+- Request, Response, Handler, Model, View를 조작할 수 있다.
