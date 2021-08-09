@@ -96,7 +96,12 @@ public class StudyController {
         return "redirect:/study/"+Study.getPath(path);
     }
 
-
+//    @GetMapping("/study/testData")
+//    public String generateTestData(@CurrentUser Account account){
+//        studyService.generateTestStudies(account);
+//
+//        return "redirect:/";
+//    }
 
 
 }

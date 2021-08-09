@@ -7,6 +7,10 @@ import com.studyweb.studyweb.modules.study.StudyRepository;
 import com.studyweb.studyweb.modules.study.StudyRepositoryExtensionImpl;
 import com.studyweb.studyweb.modules.study.StudyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,14 +39,16 @@ public class MainController {
         return "login";
     }
 
-    @GetMapping("/search/study")
-    public String studySearch(String keyword, Model model){
+    @GetMapping("/search/study") //pageable : size, page, sort
+    public String studySearch(@PageableDefault(size = 9, page = 0, sort ="memberCount", direction = Sort.Direction.DESC) Pageable pageable, String keyword, Model model){
 
 //        Iterable<Study> studyList =  studyService.getStudyByKeyword(keyword);
-        List<Study> studyList = studyRepository.findByKeyword(keyword);
+        Page<Study> studyList = studyRepository.findByKeyword(keyword, pageable);
 
         model.addAttribute("keyword", keyword);
-        model.addAttribute("studyList", studyList);
+        model.addAttribute("studyPage", studyList);
+        model.addAttribute("sortProperty", pageable.getSort().toString());
+        model.addAttribute("order", pageable.getSort().toString().split(": ")[1]);
 
         return "search-view";
     }

@@ -4,10 +4,7 @@ import com.studyweb.studyweb.modules.account.Account;
 import com.studyweb.studyweb.modules.account.UserAccount;
 import com.studyweb.studyweb.modules.tags.Tag;
 import com.studyweb.studyweb.modules.zone.Zone;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.net.URLEncoder;
@@ -51,7 +48,7 @@ import java.util.Set;
 })
 
 @Getter @Setter @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor @Builder
 @Entity
 public class Study {
 
@@ -97,6 +94,9 @@ public class Study {
 
     private boolean useBanner;
 
+    @Column(nullable = true)
+    private int memberCount;
+
     public static String getPath(String path) {
         return URLEncoder.encode(path, StandardCharsets.UTF_8);
     }
@@ -131,5 +131,6 @@ public class Study {
     public boolean isRemovable() {
         return !this.published;
     }
+
 
 }

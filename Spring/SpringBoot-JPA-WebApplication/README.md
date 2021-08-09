@@ -1523,3 +1523,130 @@ public class NotificationHandlerInterceptor implements HandlerInterceptor {
 ```
 - HandlerInterceptor 의 메소드를 구현하여 작동한다.
 - Request, Response, Handler, Model, View를 조작할 수 있다.
+
+# 📌 페이징
+****
+```java
+ @Override
+public Page<Study> findByKeyword(String keyword, Pageable pageable) {
+    QStudy study = QStudy.study;
+    JPQLQuery<Study> findStudyByKeywordQuery = from(study).where(study.published.isTrue()
+            .and(study.title.containsIgnoreCase(keyword))
+            .or(study.zones.any().localNameOfCity.containsIgnoreCase(keyword))
+            .or(study.tags.any().title.containsIgnoreCase(keyword)))
+            .leftJoin(study.tags, QTag.tag).fetchJoin()
+            .leftJoin(study.zones, QZone.zone).fetchJoin()
+            .leftJoin(study.members, QAccount.account).fetchJoin()
+            .distinct();
+
+    JPQLQuery<Study> pageableQuery = getQuerydsl().applyPagination(pageable, findStudyByKeywordQuery);
+    QueryResults<Study> fetchResults = pageableQuery.fetchResults();
+
+    // 결과 , pageable, 결과 수(여기서는 Study의 수)
+    return new PageImpl<>(fetchResults.getResults(), pageable, fetchResults.getTotal());
+    
+```
+
+```java
+@GetMapping("/search/study") //pageable : size, page, sort
+    public String studySearch(@PageableDefault(size = 9, page = 0, sort ="memberCount", direction = Sort.Direction.DESC) Pageable pageable, String keyword, Model model){
+
+        Page<Study> studyList = studyRepository.findByKeyword(keyword, pageable);
+
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("studyPage", studyList);
+        model.addAttribute("sortProperty", pageable.getSort().toString()); // memberCount: DESC
+        model.addAttribute("order", pageable.getSort().toString().split(": ")[1]); // DESC 
+
+        return "search-view";
+    }
+```
+- default size는 20, class의 property를 sort 기준으로 정함.
+
+- ### 부트 스트랩의 pagination
+```html
+<div class="row justify-content-center">
+    <div class="col-sm-10">
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${!studyPage.hasPrevious()}? disabled">
+                    <a th:href="@{'/search/study?keyword=' + ${keyword} + '&sort=' + ${sortProperty.split(':')[0]} + ','+${order}+'&page=' + ${studyPage.getNumber() - 1}}"
+                       class="page-link" tabindex="-1" aria-disabled="true">
+                        Previous
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${i == studyPage.getNumber()}? active"
+                    th:each="i: ${#numbers.sequence(0, studyPage.getTotalPages() - 1)}">
+                    <a th:href="@{'/search/study?keyword=' + ${keyword} + '&sort=' + ${sortProperty.split(':')[0]} + ','+${order}+'&page=' + ${i}}"
+                       class="page-link" href="#" th:text="${i + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${!studyPage.hasNext()}? disabled">
+                    <a th:href="@{'/search/study?keyword=' + ${keyword} + '&sort=' + ${sortProperty.split(':')[0]} + ','+${order}+'&page=' + ${studyPage.getNumber() + 1}}"
+                       class="page-link">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+```
+
+
+```html
+<a class="dropdown-item" th:classappend="${#strings.contains(sortProperty, 'memberCount')}? active"
+   th:href="@{'/search/study?sort=memberCount,DESC&keyword=' + ${keyword}+'&page='+ ${studyPage.getNumber()}}">
+    멤버수
+</a>
+```
+- sort 의 value 로 sort property 와 order 를 넘겨줄 수 있고, page의 값으로 page number 를 넘겨줄 수 있다.     
+-Page.getNumber()  or  Page.pageable.getNumber() : 현재 페이지
+  
+
+# 📌 Mark.js
+***
+- 특정 텍스트 하이라이팅
+```npm install mark.js --save```
+  
+```javascript
+<script src="/node_modules/mark.js/dist/jquery.mark.js"></script>
+<script type="application/javascript">
+    $(function(){
+        var mark = function() {
+            // Read the keyword
+            var keyword = $("#keyword").text();
+
+            // Determine selected options
+            var options = {
+                "each": function(element) {
+                    setTimeout(function() {
+                        $(element).addClass("animate");
+                    }, 150);
+                }
+            };
+
+            // Mark the keyword inside the context
+            $(".context").unmark({
+                done: function() {
+                    $(".context").mark(keyword, options);
+                }
+            });
+        };
+
+        mark();
+    });
+</script>
+```
+- 색과 같은 style 값은 css에서 변경 가능하다.
+```css
+ mark {
+    color:red;
+    transition: all .5s;
+}
+
+mark.animate {
+    color: #000;
+    background-color:skyblue;
+
+}
+```

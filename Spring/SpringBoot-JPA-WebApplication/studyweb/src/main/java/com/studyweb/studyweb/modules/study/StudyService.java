@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -240,6 +241,7 @@ public class StudyService {
         }
 
         study.getMembers().add(account);
+        study.setMemberCount(study.getMembers().size());
     }
 
     public void leaveStudy(Account account, String path) { Study study = studyRepository.findStudyWithTeamsByPath(path);
@@ -295,4 +297,28 @@ public class StudyService {
 
 
     }
+
+//    public void generateTestStudies(Account account) {
+//
+//        for(int i=0; i<30; i++){
+//            Study study = Study.builder()
+//                    .fullDescription("test Data")
+//                    .shortDescription("test Data")
+//                    .title("test Spring"+i)
+//                    .published(true)
+//                    .publishedDateTime(LocalDateTime.now())
+//                    .path("testSpring"+i)
+//                    .tags(new HashSet<>())
+//                    .managers(new HashSet<>())
+//                    .build();
+//
+//            Study newStudy = createNewStudy(study, account);
+//            Tag jpa = tagRepository.findByTitle("spring");
+//            newStudy.getTags().add(jpa);
+//            newStudy.getManagers().add(account);
+//
+//        }
+//    }
+
+//    }
 }
