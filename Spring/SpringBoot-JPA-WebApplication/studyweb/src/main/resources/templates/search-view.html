@@ -13,64 +13,32 @@
         <span th:text="${studyPage.getTotalElements()}"></span>개
         찾았습니다.
     </p>
-    <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-        >정렬 방법
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" th:classappend="${#strings.contains(sortProperty, 'memberCount')}? active"
-               th:href="@{'/search/study?sort=memberCount,DESC&keyword=' + ${keyword}+'&page='+ ${studyPage.getNumber()}}">
-                멤버수
-            </a>
-            <a class="dropdown-item" th:classappend="${#strings.contains(sortProperty, 'publishedDateTime: DESC')}? active"
-               th:href="@{'/search/study?sort=publishedDateTime,DESC&keyword=' + ${keyword}+'&page='+ ${studyPage.getNumber()}}">
-                최신순
-            </a>
-            <a class="dropdown-item" th:classappend="${#strings.contains(sortProperty, 'publishedDateTime: ASC')}? active"
-               th:href="@{'/search/study?sort=publishedDateTime,ASC&keyword=' + ${keyword}+'&page='+ ${studyPage.getNumber()}}">
-                오래된 순
-            </a>
-
-        </div>
-    </div>
 
 
+    <div class="row justify-content-center ">
+        <div class="dropdown text-center">
+            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+            >정렬 방법
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" th:classappend="${#strings.contains(sortProperty, 'memberCount')}? active"
+                   th:href="@{'/search/study?sort=memberCount,DESC&keyword=' + ${keyword}+'&page='+ ${studyPage.getNumber()}}">
+                    멤버수
+                </a>
+                <a class="dropdown-item" th:classappend="${#strings.contains(sortProperty, 'publishedDateTime: DESC')}? active"
+                   th:href="@{'/search/study?sort=publishedDateTime,DESC&keyword=' + ${keyword}+'&page='+ ${studyPage.getNumber()}}">
+                    최신순
+                </a>
+                <a class="dropdown-item" th:classappend="${#strings.contains(sortProperty, 'publishedDateTime: ASC')}? active"
+                   th:href="@{'/search/study?sort=publishedDateTime,ASC&keyword=' + ${keyword}+'&page='+ ${studyPage.getNumber()}}">
+                    오래된 순
+                </a>
 
-    <div th:fragment="study-list (studyList)" class="col-sm-12">
-        <div class="row">
-            <div class="col-md-4" th:each="study: ${studyPage}">
-                <div class="card mb-4 shadow-sm">
-                    <img th:if="${study.image} !=null" th:src="${study.image}" class="card-img-top" th:alt="${study.title}" >
-                    <img th:if="${study.image} ==null" src="/images/default_banner.png" class="card-img-top" th:alt="${study.title}" >
-                    <div class="card-body">
-                        <a th:href="@{'/study/' + ${study.path}}" class="text-decoration-none">
-                            <h5 class="card-title context" th:text="${study.title}"></h5>
-                        </a>
-                        <p class="card-text" th:text="${study.shortDescription}">Short description</p>
-                        <p class="card-text context">
-                                <span th:each="tag: ${study.tags}" class="font-weight-light text-monospace badge badge-pill badge-info mr-3">
-                                    <a th:href="@{'/search/tag/' + ${tag.title}}" class="text-decoration-none text-muted">
-                                        <i class="fa fa-tag"></i> <span th:text="${tag.title}">Tag</span>
-                                    </a>
-                                </span>
-                            <span th:each="zone: ${study.zones}" class="font-weight-light text-monospace badge badge-primary mr-3">
-                                    <a th:href="@{'/search/zone/' + ${zone.id}}" class="text-decoration-none text-muted">
-                                        <i class="fa fa-globe"></i> <span th:text="${zone.localNameOfCity}" class="text-muted">City</span>
-                                    </a>
-                                </span>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                <i class="fa fa-user-circle"></i>
-                                <span th:text="${study.members.size()}"></span>명
-                            </small>
-                            <small class="text-muted date" th:text="${study.publishedDateTime}">9 mins</small>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
+        <div th:replace="fragments :: study-list (studyPage = ${studyPage}) "></div>
     </div>
+
     <div class="row justify-content-center">
         <div class="col-sm-10">
             <nav>

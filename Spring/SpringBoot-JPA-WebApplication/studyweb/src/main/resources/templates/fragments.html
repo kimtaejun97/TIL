@@ -21,7 +21,6 @@
             padding: 0;
             margin: 0;
         }
-
         mark {
             color:red;
             transition: all .5s;
@@ -536,9 +535,9 @@
 
 
 </ul>
-<div th:fragment="study-list (studyList)" class="col-sm-12">
-    <div class="row">
-        <div class="col-md-4" th:each="study: ${studyList}">
+<div th:fragment="study-list (studyPage)" class="col-sm-10">
+    <div class="row ">
+        <div class="col-md-4" th:each="study: ${studyPage}">
             <div class="card mb-4 shadow-sm">
                 <img th:if="${study.image} !=null" th:src="${study.image}" class="card-img-top" th:alt="${study.title}" >
                 <img th:if="${study.image} ==null" src="/images/default_banner.png" class="card-img-top" th:alt="${study.title}" >
@@ -549,20 +548,20 @@
                     <p class="card-text" th:text="${study.shortDescription}">Short description</p>
                     <p class="card-text context">
                                 <span th:each="tag: ${study.tags}" class="font-weight-light text-monospace badge badge-pill badge-info mr-3">
-                                    <a th:href="@{'/search/tag/' + ${tag.title}}" class="text-decoration-none text-white">
+                                    <a th:href="@{'/search/tag/' + ${tag.title}}" class="text-decoration-none text-muted">
                                         <i class="fa fa-tag"></i> <span th:text="${tag.title}">Tag</span>
                                     </a>
                                 </span>
                         <span th:each="zone: ${study.zones}" class="font-weight-light text-monospace badge badge-primary mr-3">
-                                    <a th:href="@{'/search/zone/' + ${zone.id}}" class="text-decoration-none text-white">
-                                        <i class="fa fa-globe"></i> <span th:text="${zone.localNameOfCity}" class="text-white">City</span>
+                                    <a th:href="@{'/search/zone/' + ${zone.id}}" class="text-decoration-none text-muted">
+                                        <i class="fa fa-globe"></i> <span th:text="${zone.localNameOfCity}" class="text-muted">City</span>
                                     </a>
                                 </span>
                     </p>
                     <div class="d-flex justify-content-between align-items-center">
                         <small class="text-muted">
                             <i class="fa fa-user-circle"></i>
-                            <span th:text="${study.memberCount()}"></span>명
+                            <span th:text="${study.members.size()}"></span>명
                         </small>
                         <small class="text-muted date" th:text="${study.publishedDateTime}">9 mins</small>
                     </div>

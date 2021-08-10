@@ -8,9 +8,28 @@
     가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인 하세요.</a>
 </div>
 
-Home
+<div class="container">
+    <div class="row">
+        <div class="m-3 text-center">
+            <h5>스터디 웹</h5>
+            <small class="text-muted">
+                태그와 지역 기반으로 스터디를 찾고 참여 하세요.<br>
+                스터디 모임 관리 기능을 제공합니다.
+            </small><br>
+            <a href="#" class="btn btn-primary" th:href="@{/sign-up}">회원 가입</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div th:replace="fragments :: study-list (studyPage = ${studyList})"></div>
+    </div>
+    <div th:replace="fragments :: bannerFragment"></div>
+</div>
+
+
 
 <div th:replace="fragments :: footerFragment"></div>
+<div th:replace="fragments :: date-time"></div>
 
 </body>
 </html>

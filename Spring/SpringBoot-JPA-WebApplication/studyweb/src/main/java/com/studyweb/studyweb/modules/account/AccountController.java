@@ -24,14 +24,14 @@ public class AccountController {
     public void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(signUpFormValidator);
     }
-
     @GetMapping("/sign-up")
     public String signUp(Model model) {
         model.addAttribute(new SignUpForm());
         return "account/sign-up";
+
     }
 
-    @PostMapping("/sign-up")
+   @PostMapping("/sign-up")
     public String signUpSubmit(@Valid SignUpForm signUpForm, Errors errors) {
         if (errors.hasErrors()) {
             return "account/sign-up";

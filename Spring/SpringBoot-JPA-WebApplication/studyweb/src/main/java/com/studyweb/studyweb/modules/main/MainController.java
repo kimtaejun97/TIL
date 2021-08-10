@@ -4,7 +4,6 @@ import com.studyweb.studyweb.modules.account.CurrentUser;
 import com.studyweb.studyweb.modules.account.Account;
 import com.studyweb.studyweb.modules.study.Study;
 import com.studyweb.studyweb.modules.study.StudyRepository;
-import com.studyweb.studyweb.modules.study.StudyRepositoryExtensionImpl;
 import com.studyweb.studyweb.modules.study.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,7 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+
 import java.util.List;
 @RequiredArgsConstructor
 @Controller
@@ -29,6 +28,8 @@ public class MainController {
         if(account != null){
             model.addAttribute(account);
         }
+        List<Study> studies = studyRepository.findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(true, false);
+        model.addAttribute("studyList",studies);
 
         return "index";
 
@@ -49,6 +50,7 @@ public class MainController {
         model.addAttribute("studyPage", studyList);
         model.addAttribute("sortProperty", pageable.getSort().toString());
         model.addAttribute("order", pageable.getSort().toString().split(": ")[1]);
+
 
         return "search-view";
     }
