@@ -7,8 +7,8 @@
 <div class ="alert alert-warning" role="alert" th:if="${account != null && !account.emailVerified}" >
     가입을 완료하려면 <a href="#" th:href="@{/check-email}" class="alert-link">계정 인증 이메일을 확인 하세요.</a>
 </div>
-
-<div class="container">
+<!--비 로그인 -->
+<div class="container" th th:if="${account == null}">
     <div class="row">
         <div class="m-3 text-center">
             <h5>스터디 웹</h5>
@@ -24,6 +24,102 @@
         <div th:replace="fragments :: study-list (studyPage = ${studyList})"></div>
     </div>
     <div th:replace="fragments :: bannerFragment"></div>
+</div>
+
+<!-- 로그인 -->
+<div class="container" th:if="${account != null}">
+    <div class="row">
+        <div class="col-2 mb-3">
+            <div class="row m-2">
+                <span class="text-muted m-2">관심 스터디 주제</span>
+                <ul class="list-group" th:each="tag : ${tags}">
+                        <a class="list-group-item " ><i class="fa fa-tag"></i> <span th:text="${tag.title}"></span></a>
+                </ul>
+            </div>
+            <div class="row m-2">
+                <span class="text-muted m-2">주요 활동 지역</span>
+                <ul class="list-group" th:each="zone : ${zones}">
+                        <a class="list-group-item" ><i class="fa fa-globe"></i> <span th:text="${zone.localNameOfCity}"></span></a>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-7">
+            <div class="row m-3">
+                <span class="text-muted m-2">참석할 모임</span>
+
+                <div class="col-sm-5" th:each="event : ${eventList}">
+                    <div class="card">
+
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${event.title}"></h5>
+                            <h6 class="card-subtitle mb-2 text-muted" th:text="${event.description}"></h6>
+                            <p class="card-text"><i class="fa fa-calendar"></i> <span class="fromNow" th:text="${event.startDateTime}"></span></p>
+                            <a href="#" class="card-link" th:href="@{'/study/' + ${event.study} +'/events/'+ ${event.id}}">모임 조회</a>
+                            <a href="#" class="card-link" th:href="@{'/study/' + ${event.study}}">스터디 조회</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-3">
+                <span class="text-muted m-2">주요 활동 지역의 관심 주제 스터디</span>
+                <div class="col-sm-4" th:each="interestStudy : ${interestStudyList}">
+                    <div class="card mb-4 shadow-sm">
+                        <img th:if="${interestStudy.image} !=null" th:src="${interestStudy.image}" class="card-img-top" th:alt="${interestStudy.title}" >
+                        <img th:if="${interestStudy.image} ==null" src="/images/default_banner.png" class="card-img-top" th:alt="${interestStudy.title}" >
+                        <div class="card-body">
+                            <a th:href="@{'/study/' + ${interestStudy.path}}" class="text-decoration-none">
+                                <h5 class="card-title context" th:text="${interestStudy.title}"></h5>
+                            </a>
+                            <p class="card-text" th:text="${interestStudy.shortDescription}">Short description</p>
+                            <p class="card-text context">
+                            <span th:each="tag: ${interestStudy.tags}" class="font-weight-light text-monospace badge badge-pill badge-info mr-3">
+                                <a th:href="@{'/search/tag/' + ${tag.title}}" class="text-decoration-none text-muted">
+                                    <i class="fa fa-tag"></i> <span th:text="${tag.title}">Tag</span>
+                                </a>
+                            </span>
+                                <span th:each="zone: ${interestStudy.zones}" class="font-weight-light text-monospace badge badge-primary mr-3">
+                                <a th:href="@{'/search/zone/' + ${zone.id}}" class="text-decoration-none text-muted">
+                                    <i class="fa fa-globe"></i> <span th:text="${zone.localNameOfCity}" class="text-muted">City</span>
+                                </a>
+                            </span>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fa fa-user-circle"></i>
+                                    <span th:text="${interestStudy.memberCount}"></span>명
+                                </small>
+                                <small class="text-muted date" th:text="${interestStudy.publishedDateTime}">9 mins</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-3">
+            <div class="row">
+                <span class="text-muted m-2">관리중인 스터디</span>
+                <ul class="list-group" th:each="study : ${adminStudyList}">
+                        <a  class="list-group-item"><i class="fa fa-book"></i> <span th:text="${study.title}"></span></a>
+                </ul>
+            </div>
+            <div class="row">
+                <span class="text-muted m-2">참여중인 스터디</span>
+                <ul class="list-group" th:each="study : ${enrollmentStudyList}">
+                        <a class="list-group-item" ><i class="fa fa-book"></i> <span th:text="${study.title}"></span></a>
+
+                </ul>
+            </div>
+
+
+        </div>
+    </div>
+
+
 </div>
 
 

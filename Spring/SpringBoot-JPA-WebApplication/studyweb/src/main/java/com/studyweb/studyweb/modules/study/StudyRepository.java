@@ -1,5 +1,6 @@
 package com.studyweb.studyweb.modules.study;
 
+import com.studyweb.studyweb.modules.account.Account;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -37,4 +38,6 @@ public interface StudyRepository extends JpaRepository<Study, Long>, StudyReposi
 
     @EntityGraph(value="Study.withAll", type = EntityGraph.EntityGraphType.LOAD)
     List<Study> findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(boolean published, boolean closed);
+
+    List<Study> findFirst5ByMembersContainingAndClosedOrderByPublishedDateTimeAsc(Account user, boolean b);
 }

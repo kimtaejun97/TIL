@@ -1049,7 +1049,26 @@ Study findByPath(String path);
 Study findStudyWithTeamsByPath(String path);
 ```
 
+- ### Subgraphs
+```java
 
+@NamedEntityGraph(
+        name = "Enrollment.withEventAndStudy",
+        attributeNodes = {
+                @NamedAttributeNode(value = "event", subgraph = "study")
+        },
+        subgraphs = @NamedSubgraph(name = "study", attributeNodes = @NamedAttributeNode("study"))
+
+)
+```
+- 엔티티가 참조하는 엔티티의 필드를 가져올 수 있다.
+- Enrollment.event.study
+
+```java
+@EntityGraph(attributePaths = {"event", "event.study"})
+Study findStudyWithTeamsByPath(String path);
+```
+- 한번만 사용할 것이라면, 마찬가지로 이름을 지정하지 않고 적용할 수도 있다.
 # 📌 잘못된 접근 방지
 ***
 ```java

@@ -1,6 +1,11 @@
 package com.studyweb.studyweb.modules.study;
 
 import com.querydsl.core.types.Predicate;
+import com.studyweb.studyweb.modules.tags.Tag;
+import com.studyweb.studyweb.modules.zone.Zone;
+import org.springframework.data.domain.Sort;
+
+import java.util.Set;
 
 public class StudyPredicate {
 
@@ -12,4 +17,6 @@ public class StudyPredicate {
                         .or(study.tags.any().title.containsIgnoreCase(keyword))
                         .or(study.title.containsIgnoreCase(keyword)));
     }
+
+
 }
