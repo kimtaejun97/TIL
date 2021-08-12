@@ -79,3 +79,66 @@
 - Peer 간 통신을 위해 STUN, TURN 과 같은 기술로 최적의 라우팅 경로를 찾아내는 기술.
 
 
+
+
+Google Code Labs : https://github.com/googlecodelabs/webrtc-web 
+## 📌 웹캠, 마이크 접근
+```javascript
+
+const mediaStreamConstraints = {
+    video: true,
+    audio : false,
+};
+
+const localVideo = document.querySelector('#localVideo');
+
+function gotLocalMediaStream(mediaStream) {
+  localVideo.srcObject = mediaStream;
+}
+
+function handleLocalMediaStreamError(error) {
+  console.log('navigator.getUserMedia error: ', error);
+}
+
+navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
+    .then(gotLocalMediaStream).catch(handleLocalMediaStreamError);
+```
+- local stream을 비디오 태그의 src로 넣는다.
+
+
+
+## 📌 데이터 전송. RTCPeerConnection, DataChannelSend
+```javascript
+// 1
+window.localConnection = localConnection =
+        new RTCPeerConnection(servers, pcConstraint);
+sendChannel = localConnection.createDataChannel('sendDataChannel',
+    dataConstraint);
+
+localConnection.onicecandidate = iceCallback1;
+
+// 2
+function iceCallback1(event) {
+    if (event.candidate) {
+        remoteConnection.addIceCandidate(
+            event.candidate
+        ).then(
+            onAddIceCandidateSuccess,
+            onAddIceCandidateError
+        );
+    }
+// 3
+remoteConnection.onicecandidate = iceCallback2;
+}
+```
+ 1. local peer connection, create data channel
+ 2. remoteConnection에 local Candidate 추가.
+ 3. localConnection에도 remote Candidate 추가
+ 
+```javascript
+ var data = dataChannelSend.value;
+    sendChannel.send(data);
+```
+- WebSocket 처럼 send를 이용하여 데이터 전송.
+![img_2.png](img_2.png)
+
