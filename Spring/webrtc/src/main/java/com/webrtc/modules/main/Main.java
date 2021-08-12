@@ -1,4 +1,4 @@
-package com.webrtc.modules;
+package com.webrtc.modules.main;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

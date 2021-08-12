@@ -78,6 +78,9 @@
 - ### ICE : Interactive Connectivity Establishment
 - Peer 간 통신을 위해 STUN, TURN 과 같은 기술로 최적의 라우팅 경로를 찾아내는 기술.
 
+- ### Signaling
+
+
 
 
 
