@@ -44,6 +44,25 @@
 - #### [BootStrap:ToolTip](#-tooltip)
 - #### [EntityGraph](#-entitygraph)
 - #### [잘못된 접근 방지](#-잘못된-접근-방지)
+- #### [BootStrap : Modal](#-bootstrap---modal)
+- #### [날짜 형식 라이브러리 : Moment.Js](#-날짜-형식-라이브러리---moment-js)
+- #### [타임리프 : 객체의 타입 변환](#-타임리프---객체의-타입-변환)
+- #### [N+1 쿼리 문제](#-n-1-쿼리-문제)
+- #### [Form Delete Method](#-form-delete-method)
+- #### [@PathVariable Repository 조회](#--pathvariable-repository-조회)
+- #### [패키지 구조 정리](#-패키지-구조-정리)
+- #### [test DB 설정 : TestContainers](#-test-db-설정---testcontainers)
+- #### [비동기 EventListener](#-비동기-eventlistener)
+- #### [QeuryDSL](#-qeurydsl)
+- #### [Handler Interceptor](#-handler-interceptor)
+- #### [페이징](#-페이징)
+- #### [Mark.js](#-mark-js)
+
+
+
+
+
+
 
 
 
@@ -1189,6 +1208,8 @@ private List<Enrollment> enrollments;
     List<Event> findByStudyOrderByStartDateTime(Study study);
 ```
 - EntityGraph를 이용하여 Event들이 조회될 때 enrollments를 같이 가져오도록 한다.
+
+### leftjoin 으로도 해결할 수 있다.  
 
 # 📌 Form Delete Method
 ***
