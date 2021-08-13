@@ -28,12 +28,81 @@
 - 미지원되는 브라우저가 존재하기 때문에 보통 지원하는 브라우저에서는 WebSocket을 사용하고, 이외에는 Long Pooling방식이 적용되도록 한다.
 
 
-
 ## 📌 Spring Boot의 WebSocket
 ****
+- spring-boot-starter-websocket
 - Fallback 메서드에 SockJS 사용. (브라우저 미지원 등)
 - STOMP(Simple Text Oriented Messaging Protocol) : 데이터 교환 및 형식 지정하는 메시징 프로토콜
     > 특정 클라이언트에게만 메시지를 전송하는 등의 역할.
+
+```java
+@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // WebSocket을 사용할 수 없는 경우 FallBack 옵션 활성화.
+        registry.addEndpoint("/ws").withSockJS();
+    }
+    
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+
+        //message handling methods로 라우팅 (Controller)
+        registry.setApplicationDestinationPrefixes("/app");
+
+        //간단한 인메모리 기반. message broker로 라우팅. (send 목적지)
+        registry.enableSimpleBroker("/topic");
+    }
+}
+```
+
+```java
+@MessageMapping("/hello")
+@SendTo("/topic/greetings")
+public Greeting greeting(HelloMessage message){
+    return new Greeting("Hello " + HtmlUtils.htmlEscape(message.getName()) +"!");
+}
+```
+- "/app/hello"로 보내진 데이터 수신.
+- "/topic/greetings"로  Greeting 객체 전달.
+
+```javascript
+function connect() {
+    var socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        setConnected(true);
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/topic/greetings', function (greeting) {
+            showGreeting(JSON.parse(greeting.body).content);
+        });
+    });
+}
+
+function disconnect() {
+    if (stompClient !== null) {
+        stompClient.disconnect();
+    }
+}
+```
+- config에서 SockJs의 엔드포인트로 소켓 생성.
+- subscribe() : '/topic/greetings' 로 브로드케스트 되는 메시지 수신
+
+```javascript
+function sendName() {
+    stompClient.send("/app/hello", {}, JSON.stringify({'name': $("#name").val()}));
+}
+```
+- "/app/hello" 로 메시지 전송. JSON 타입.
+
+```javascript
+function showGreeting(message) {
+    $("#greetings").append("<tr><td>" + message + "</td></tr>");
+}
+```
+- 수신한 데이터를 가지고 HTML Element 생성
+
 
 # 🧐 다자간 데이터 전송
 *****
