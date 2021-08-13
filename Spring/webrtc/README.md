@@ -148,7 +148,13 @@ function showGreeting(message) {
 - Peer 간 통신을 위해 STUN, TURN 과 같은 기술로 최적의 라우팅 경로를 찾아내는 기술.
 
 - ### Signaling
-
+> - 통신 조정 프로세스
+> - WebRTC 에서 'call'을 초기화하기 위해서 필요한 정보교환을 위해 필요.
+- 통신을 열고 닫는데 사용되는 세션 컨트롤 메세지
+- 에러 메세지
+- 코덱이나 코덱 설정, 대역폭, 미디어 타입 같은 미디어 메타데이터.
+- 보안 연결을 수립하기 위해 사용되는 키 데이터.
+- 호스트의 IP 주소와 포트와 같은 네트워크 데이터.
 
 
 
@@ -214,3 +220,176 @@ remoteConnection.onicecandidate = iceCallback2;
 - WebSocket 처럼 send를 이용하여 데이터 전송.
 ![img_2.png](img_2.png)
 
+
+
+# 🧐 WebRTC With Spring
+***
+## 1. Signal Server
+ 
+- ### WebSocketConfig
+```java
+@Configuration
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
+
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(new SignalHandler(), "/signal")
+                .setAllowedOriginPatterns("*");
+    }
+}
+```
+
+- ### Handler
+```java
+@Slf4j
+@Component
+public class SignalHandler extends TextWebSocketHandler {
+
+    List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
+
+    // send 발생.
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+
+        for (WebSocketSession webSocketSession : sessions) {
+            if (webSocketSession.isOpen() && !session.getId().equals(webSocketSession.getId())) {
+                webSocketSession.sendMessage(message);
+            }
+        }
+    }
+    
+    // 클라이언트 접속시 발생
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        sessions.add(session);
+    }
+
+    // 클라이언트 접속종료시 발생
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        sessions.remove(session);
+    }
+}
+```
+- Session 정보   
+![img.png](img.png)
+
+- Message Payload    
+![img_1.png](img_1.png)    
+  🖍 SDP : Session Description Protocol, 클라이언트 간의 메타데이터에 동의에 사용.
+
+## 2. Client
+
+### 📌연결 과정
+***
+```java
+var conn = new WebSocket('ws://localhost:8080/signal');
+conn.onopen = function() {
+    console.log("Connected to the signaling server");
+    initialize();
+
+};
+```
+- connection 생성
+```javascript
+function initialize() {
+
+    // STUN, TURN 구성 전달.
+    var configuration = null;
+    peerConnection = new RTCPeerConnection(configuration);
+    // Setup ice handling
+
+    peerConnection.onicecandidate = function(event) {
+        if (event.candidate) {
+            send({
+                event : "candidate",
+                data : event.candidate
+            });
+
+        }
+
+    };
+    
+    // creating data channel
+    dataChannel = peerConnection.createDataChannel("dataChannel", {
+        reliable : true
+    });
+
+    dataChannel.onerror = function(error) {
+        console.log("Error occured on datachannel:", error);
+    };
+
+    // when we receive a message from the other peer, printing it on the console
+    dataChannel.onmessage = function(event) {
+        console.log("message:", event.data);
+    };
+
+    dataChannel.onclose = function() {
+        console.log("data channel is closed");
+    };
+
+    peerConnection.ondatachannel = function (event) {
+        dataChannel = event.channel;
+    };
+
+}
+
+function send(message) {
+    conn.send(JSON.stringify(message));
+}
+```
+- RTCPeerConnection를 생성하고 ice 발생 이벤트 리스너 등록.
+- dataChannel 생성, 이벤트 리스너 등록.
+  
+```javascript
+function handleOffer(offer) {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+    // create and send an answer to an offer
+    peerConnection.createAnswer(function(answer) {
+        peerConnection.setLocalDescription(answer);
+        send({
+            event : "answer",
+            data : answer
+        });
+    }, function(error) {
+        alert("Error creating an answer");
+    });
+
+};
+```
+```javascript
+function handleCandidate(candidate) {
+    peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+};
+```
+- 새로운 클라이언트가 offer 를 보내면 서버에서 클라이언트들에게 offer 를 전달하고,
+  클라이언트는 전달받은 offer 를 remoteDescription에 등록, 이 때 onicecandidate 발생. candidate message 주고받음.
+- offer 를 받은 클라이언트들은 answer을 보냄.
+
+```javascript
+function handleAnswer(answer) {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    console.log("connection established successfully!!");
+};
+```
+- 새로운 클라이언트는 answer를 수신하고 이를 RemoteDescription에 설정.
+
+### 📌 데이터 전송
+> 위의 과정으로 peer간 연결이 완료됨.
+
+```javascript
+function sendMessage() {
+    dataChannel.send(input.value);
+    input.value = "";
+}
+```
+- dataChannel.send()를 이용해 데이터 전송.
+
+```javascript
+dataChannel.onmessage = function(event) {
+    console.log("message:", event.data);
+};
+```
+-init에 설정해둔 onmessage 이벤트 리스너.

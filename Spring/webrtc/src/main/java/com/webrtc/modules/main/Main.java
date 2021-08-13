@@ -12,4 +12,9 @@ public class Main {
     public String index(){
         return "index";
     }
+
+    @GetMapping("/video")
+    public String videoStream(){
+        return "video";
+    }
 }

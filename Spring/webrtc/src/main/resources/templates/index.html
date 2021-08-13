@@ -1,55 +1,77 @@
-<!DOCTYPE html>
 <html>
+
 <head>
-    <title>Hello WebSocket</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
-    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="/node_modules/stomp-websocket/lib/stomp.min.js"></script>
-    <script src="/js/app.js"></script>
+    <title>WebRTC demo</title>
+    <!--Bootstrap only for styling-->
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <!--Bootstrap only for styling-->
 </head>
+<style>
+    .container {
+        background: rgb(148, 144, 144);
+        margin: 50px auto;
+        max-width: 80%;
+        text-align: center;
+        padding: 2%;
+    }
+
+    button {
+        margin: 1em;
+    }
+
+    input {
+        margin-top: 1em;
+    }
+
+    .footer {
+        background: rgb(148, 144, 144);
+        text-align: center;
+        padding: 2%;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+    }
+</style>
+
 <body>
-<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
-    enabled. Please enable
-    Javascript and reload this page!</h2></noscript>
+
+<div class="container">
+    <h1>WebRTC With Spring</h1>
 
 
-<div id="main-content" class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <form class="form-inline">
-                <div class="form-group">
-                    <label for="connect">WebSocket connection:</label>
-                    <button id="connect" class="btn btn-default" type="submit">Connect</button>
-                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
-                    </button>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6">
-            <form class="form-inline">
-                <div class="form-group">
-                    <label for="name">What is your name?</label>
-                    <input type="text" id="name" class="form-control" placeholder="Your name here...">
-                </div>
-                <button id="send" class="btn btn-default" type="submit">Send</button>
-            </form>
-        </div>
+    <!--WebRTC related code-->
+    <button type="button" class="btn btn-primary" onclick='createOffer()'>Create
+        Offer</button>
+    <input id="messageInput" type="text" class="form-control"
+           placeholder="message">
+    <button type="button" class="btn btn-primary" onclick='sendMessage()'>SEND</button>
+    <!--WebRTC related code-->
+
+    <div id = messageGrid>
+
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <table id="conversation" class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Greetings</th>
-                </tr>
-                </thead>
-                <tbody id="greetings">
-                </tbody>
-            </table>
+
+
+</div>
+<div class = "container">
+    <div class = "row">
+        <div id="videoGrid" class="col-5">
+            <video id="localVideo" autoplay playsinline></video>
         </div>
     </div>
 </div>
+
+
+
+
+
+<script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script src="/js/client.js"></script>
 </body>
+
 </html>
