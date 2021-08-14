@@ -1,6 +1,7 @@
 package com.webrtc.modules.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.webrtc.modules.room.Room;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @RequiredArgsConstructor
@@ -23,24 +22,54 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 public class SignalHandler extends TextWebSocketHandler {
 
-
     private final ObjectMapper objectMapper;
+    private Map<String, Room> rooms = new HashMap<>();
 
     List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-    Set<WebSocketSession> client = new HashSet<>();
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws Exception {
+        Message message = objectMapper.readValue(textMessage.getPayload(), Message.class);
+        String peerId = message.getPeerId();
+        String streamId = message.getStreamId();
 
-        for (WebSocketSession webSocketSession : sessions) {
-            if (webSocketSession.isOpen() && !session.getId().equals(webSocketSession.getId())) {
-                webSocketSession.sendMessage(textMessage);
-            }
+        switch (message.getType()){
+            case "join" :
+                Room room = rooms.get(message.getRoomId());
+                if(room == null){
+                    log.info("Create Room! " + message.getRoomId());
+                    room = new Room();
+                    room.setRoomId(message.getRoomId());
+                    room.getClient().put(message.getUserSessionId(), session);
+                    rooms.put(message.getRoomId(), room);
+                }
+                else{
+                    log.info("Join Room! " + message.getRoomId());
+                    room.getClient().put(message.getUserSessionId(), session);
+                }
+                for(WebSocketSession client : room.getClient().values()){
+                    if(!client.getId().equals(session.getId())){
+                        message.setType("user-connected");
+                        TextMessage connectedMessage = new TextMessage(objectMapper.writeValueAsString(message));
+
+                        client.sendMessage(connectedMessage);
+                        log.info("send User Connected Message");
+                    }
+                }
+                break;
         }
     }
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        log.info("connect : " + session.getId());
         sessions.add(session);
+        Message message = new Message();
+        message.setType("connect");
+        message.setUserSessionId(session.getId());
+
+        TextMessage textMessage = new TextMessage(objectMapper.writeValueAsString(message));
+        session.sendMessage(textMessage);
+
     }
 
     @Override

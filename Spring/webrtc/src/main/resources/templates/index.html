@@ -12,7 +12,7 @@
     .container {
         background: rgb(148, 144, 144);
         margin: 50px auto;
-        max-width: 80%;
+        max-width: 100%;
         text-align: center;
         padding: 2%;
     }
@@ -41,37 +41,35 @@
     <h1>WebRTC With Spring</h1>
 
 
-    <!--WebRTC related code-->
-    <button type="button" class="btn btn-primary" onclick='createOffer()'>Create
-        Offer</button>
-    <input id="messageInput" type="text" class="form-control"
-           placeholder="message">
-    <button type="button" class="btn btn-primary" onclick='sendMessage()'>SEND</button>
-    <!--WebRTC related code-->
+<!--    <button type="button" class="btn btn-primary" onclick='createOffer()'>Create Offer</button>-->
+<!--    <input id="messageInput" type="text" class="form-control"-->
+<!--           placeholder="message">-->
+<!--    <button type="button" class="btn btn-primary" onclick='sendMessage()'>SEND</button>-->
 
-    <div id = messageGrid>
+<!--    <div id = messageGrid>-->
 
+<!--    </div>-->
+
+    <div class = "container">
+            <div id="videoGrid">
+                <video class = "col-4" id="localVideo" autoplay playsinline></video>
+            </div>
     </div>
 
-
-</div>
-<div class = "container">
-    <div class = "row">
-        <div id="videoGrid" class="col-5">
-            <video id="localVideo" autoplay playsinline></video>
-        </div>
-    </div>
 </div>
 
 
 
 
 
-<script
-        src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script
         src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-<script src="/js/client.js"></script>
+<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+<!--<script src="/js/peerjs.min.js.map"></script>-->
+<script src="/js/peer.js"></script>
 </body>
+
 
 </html>

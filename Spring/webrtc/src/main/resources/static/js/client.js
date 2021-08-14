@@ -15,10 +15,6 @@ conn.onopen = function() {
     initialize();
 };
 
-
-
-
-
 conn.onmessage = function(msg) {
     console.log("Got message", msg.data);
     var content = JSON.parse(msg.data);
@@ -65,11 +61,19 @@ function initialize() {
         audio: true,
     }).then((mediaStream)=>{
         localStream = mediaStream;
-        localVideo.srcObject = mediaStream
+        // localVideo.srcObject = mediaStream
         peerConnection.addStream(mediaStream);
 
     });
 
+    peerConnection.onaddstream = function (event) {
+        let newVideo = document.createElement('video');
+        newVideo.setAttribute("autoplay", "playsinline")
+        newVideo.srcObject = event.stream;
+
+        videoGrid.append(newVideo);
+
+    }
     // Setup ice handling
 
     peerConnection.onicecandidate = function (event) {
@@ -82,17 +86,6 @@ function initialize() {
         }
 
     };
-
-
-
-    peerConnection.onaddstream = function (event) {
-        let newVideo = document.createElement('video');
-        newVideo.setAttribute("autoplay", "playsinline")
-        newVideo.srcObject = event.stream;
-
-        videoGrid.append(newVideo);
-
-    }
 
 
     // creating data channel
