@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: headerFragment"></head>
+<body class =bg-light>
+
+<div class="container">
+    <div class="py-5 text-center">
+        <h2>스터디 웹</h2>
+        <p class = "text-muted">Error : 잘못된 요청 입니다</p>
+        <a class= "btn btn-primary " href="#" th:href="@{/}" >홈 화면으로 가기</a>
+    </div>
+
+</div>
+<div th:replace="fragments :: footerFragment"></div>
+</body>
+</html>

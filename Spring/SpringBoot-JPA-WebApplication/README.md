@@ -1690,3 +1690,33 @@ mark.animate {
 
 }
 ```
+
+
+# 📌 Exception Handler
+****
+- ../template/error/ 404.html or 5xx.html 과 같이 에러페이지 설정 가능.
+- ../template/error.html로 설정 가능.
+
+- ### Handler
+```java
+@Slf4j
+@ControllerAdvice
+public class ExceptionAdvice {
+
+    @ExceptionHandler
+    public String handleRuntimeException(@CurrentUser Account account, HttpServletRequest req, RuntimeException e){
+        if(account != null){
+            log.info("{} Requested {}", account.getNickName(), req.getRequestURI());
+        }
+        else{
+            log.info("Requested {}",  req.getRequestURI());
+        }
+        log.error("Bad Request : ", e);
+
+        return "error";
+
+    }
+}
+```
+- 요청을 보낸 사람과 요청의 URI 를 로깅.
+- error 레벨로 Exception 로깅.
