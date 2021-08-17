@@ -443,6 +443,29 @@ public class MyEventHandler  {
 > 기본적으로는 Synchronized 이지만 @EnableAsync 와 @Async를 이용하여 각각 다른 쓰레드에서 비동기적으로 처리할 수 있다.    
 ![img_12.png](img/img_12.png)
 
+```java
+@Configuration
+@EnableAsync
+public class AsyncConfig implements AsyncConfigurer {
+
+    @Override
+    public Executor getAsyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        int corePoolSize = Runtime.getRuntime().availableProcessors();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(corePoolSize * 2);
+        executor.setQueueCapacity(50);
+        executor.setKeepAliveSeconds(60);
+        executor.setThreadNamePrefix("AsyncExcutor-");
+        executor.initialize();
+
+
+
+        return executor;
+    }
+}
+```
+- AsyncConfigurer 를 구현하여 ThreadPool 설정 가능. 
 
 ### :: 스프링이 제공하는 기본 이벤트
 
@@ -473,12 +496,9 @@ public void handle(ContextClosedEvent event){
 
 
 ## :: 리소스 읽어오기.
-### 1. 파일 시스템에서 읽어오기.
-   
+### 1. 파일 시스템에서 읽어오기. 
 ### 2. 클래스 패스에서 읽어오기.
-   
 ### 3. URL로 읽어오기.
-   
 ### 4. 상대/절대 경로로 읽어오기.
 
 
@@ -495,6 +515,7 @@ public void run(ApplicationArguments args) throws Exception {
     System.out.println(Files.readString(Path.of(resource.getURI())));
 }
 ```
+
 
 
 # 📌 Resource 추상화
@@ -524,15 +545,15 @@ public void run(ApplicationArguments args) throws Exception {
 
 ```java
 @Autowired
-    ApplicationContext resourceLoader;
+ApplicationContext resourceLoader;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        Resource resource =  resourceLoader.getResource("classpath:test.txt");
-        System.out.println(resource.getClass());
+@Override
+public void run(ApplicationArguments args) throws Exception {
+    Resource resource =  resourceLoader.getResource("classpath:test.txt");
+    System.out.println(resource.getClass());
 
-        System.out.println(resourceLoader.getClass());
-    }
+    System.out.println(resourceLoader.getClass());
+}
 ```
 ![img_14.png](img/img_14.png)
 
@@ -541,6 +562,26 @@ public void run(ApplicationArguments args) throws Exception {
     - 'classpath:'를 지우면 ServletContextResource가 되고, 애플리케이션의 루트에서 context path를 찾게 된다.
     하지만 스프링 부트가 띄워주는 내장 톰켓 context path가 지정되어 있지 않기 때문에 resource를 찾을 수 없다.
 
+- ### resource를 이용한 데이터 초기화.
+```java
+@PostConstruct
+public void initZoneData() throws IOException {
+    if (zoneRepository.count() == 0){
+        Resource resource = new ClassPathResource("zones_kr.csv");
+        List<Zone> zones = Files.readAllLines(resource.getFile().toPath(), StandardCharsets.UTF_8).stream()
+                .map(line -> {
+                    String[] split = line.split(",");
+                    return Zone.builder()
+                            .city(split[0])
+                            .localNameOfCity(split[1])
+                            .province(split[2])
+                            .build();
+                }).collect(Collectors.toList());
+
+        zoneRepository.saveAll(zones);
+    }
+}
+```
 
 # 📌 Validation
 ******
@@ -579,6 +620,9 @@ public class EventValidator implements Validator {
     - validate : title이 Empty 거나 공백이면 notempty에러, notempty.title과 같이 쓸 수 있지만 아래 이미지와 같이 모든 에러코드를 담아주기 때문에 생략.
     3번째 인자는 Default error code
     - ValidationUtils를 사용하지 않고 errors.reject를 사용할 수도 있다.
+```java
+errors.rejectValue("nickname","invalid.nickname", "이미 사용중인 닉네임 입니다.");
+```
 ![img_15.png](img/img_15.png)
 
 ```java
@@ -601,6 +645,13 @@ public void run(ApplicationArguments args) throws Exception {
     });
 }
 ```
+```java
+@InitBinder("validationClassCamelCase")
+public void initBinder(WebDataBinder webDataBinder){
+        webDataBinder.addValidators(validator);
+}
+```
+- InitBinder 를 사용할수도 있다.
 
 ### 2. 어노테이션 기반
 
