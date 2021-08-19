@@ -61,6 +61,7 @@
 - #### [페이징](#-페이징)
 - #### [Mark.js](#-markjs)
 - #### [Exception Handler](#-exception-handler)
+- #### [배포시 고려할 점](#-배포시-고려할-점)
 
 
 
@@ -88,6 +89,7 @@ th:field="*{password}"
 model.addAttribute(new SignUpForm());
 ```
 - #### attribute name을 생략하면 객체의 카멜 케이스로 이름이 지정된다. ex)signUpForm
+- #### List와 같은 Collection에서 name을 지정하지 않을경우 size가 0일 때 null로 넘어가므로 주의.
 
 
 - ## 제약 검증 기능.
@@ -123,7 +125,7 @@ input type email, password
 </script>
 ```
 > form.checkValidity 에서 html에서 선언한 검증 체크. 유효하지 않을 경우 class ="invalid-feedback"에 해당하는 값 출력.
-
+> th:errors 에는 서버에서 검증한 해당 필드에 대한 에러가 담김.
 
 # 📌 폼 서브밋 검증
 ***
@@ -142,14 +144,14 @@ input type email, password
 > @PostMapping("/sign-up")
 > public String signUpSubmit(@Valid SignUpForm signUpForm, Errors errors){
 >   if(errors.hasErrors()){
->   return "account/sign-up";
+>       return "account/sign-up";
 > }
 >   return "redirect:/";
 > }
 > ```
-> - Errors는 반드시 @Valid 객체 다음으로 와야함.
-> - form객체를 다시 model에 추가하여 뷰를 보여줌.
-> 
+> - Errors 는 반드시 @Valid 객체 다음으로 와야함.
+> - 에러가 있을 때 form 객체를 자동으로 model에 추가하여 돌려줌. (입력값 포함)
+>
 
 - 커스텀 검증
 ```java
@@ -172,6 +174,7 @@ public void validate(Object o, Errors errors) {
 }
 ```
 
+1. @InitBinder를 이용한 Validator 등록.
 ```java
 //객체의 카멜케이스.
 @InitBinder("signUpForm")
@@ -180,12 +183,14 @@ public void initBinder(WebDataBinder webDataBinder){
 }
 ```
 
+2. 메서드에 errors와 검증 객체를 넘겨 error 받아오기
 ```java
-sighUpFormValidator.validate(sighUpForm, errors);
+sighUpFormValidator.validate(signUpForm, errors);
 if(errors.hasError()){
-    
+    ...
 }
 ```
+- validate 뿐만 아니라 새로운 메서드를 생성하여 같은 방식으로 검증 가능.
 
 # 📌 회원 가입 처리
 ****
@@ -254,7 +259,7 @@ JavaMailSender javaMailSender;
 # 📌 패스워드 인코딩
 ****
 > - 스프링 시큐리티에서 권장하는 PasswordEncoder는 bycrypt 해시 알고리즘을 사용.
-> - 솔트(salt) : 해커가 이미 여러개의 해싱 알고리즘을 사용하여 저장해놓고, 해시값에서 비밀번호를 추론할 수 있기 때문에 이를 방지. 
+> - 솔트(salt) : 해커가 이미 여러개의 해싱 알고리즘을 사용하여 저장해놓고, 해시값에서 비밀번호를 추론할 수 있기 때문에 이를 방지하기 위해 고안. 
 > > hash(12345678) -> aaaabbbb    
 > > hash(12344567+salt)-> aacabaebb    
 > > hash(12344567+salt)-> cafcabaekkb
@@ -321,6 +326,7 @@ public void login(Account account) {
 ```
 
 # 📌 인증 상태에 따른 View
+***
 ```html
 <dependency>
     <groupId>org.thymeleaf.extras</groupId>
@@ -341,6 +347,7 @@ ${#authentication.name} 로 이름 참조도 가능.
 
 
 # 📌 프론트엔드 라이브러리 설정
+***
 > - Web Jar , NPM
 > - WebJar는 라이브러리 업데이트가 느리고, 올라오지 않은 라이브러리도 흔하다.
 
@@ -539,10 +546,13 @@ public UserDetails loadUserByUsername(String emailOrNickName) throws UsernameNot
 
 }
 ```
+- UserDetailsService의 loadUserByUsername을 구현.
+- User를 상속한 UserAccoun를 반환.
+
 ```java
 private Account account;
 
-    public UserAccount(Account account) {
+    public UserAccount(Account account) extends User{
         super(account.getNickName(), account.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER")));
         this.account =account;
     }
@@ -608,8 +618,7 @@ public PersistentTokenRepository tokenRepository(){
 
         }
 ```
-- userDetailsService와 TokenRepository를 넘겨줌.
-- JdbcTokenRepositoryImpl에서 만드는 테이블 엔티티를 매핑 시켜준다.
+- userDetailsService와 TokenRepository를 넘겨줌. 여기서는 UserDetilasService를 구현한 AccountService를 넘겨 주었다.
 
 ```java
 @Getter @Setter
@@ -631,6 +640,8 @@ public class PersistentLogins {
     private LocalDateTime lastUsed;
 }
 ```
+- JdbcTokenRepositoryImpl에서 만드는 테이블 엔티티를 매핑 시켜준다.
+- JdbcTokenRepositoryImpl class 에서 확인할 수 있다.
 
 # 📌 profileView
 ****
@@ -752,7 +763,7 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
 ```
 - String 타입으로 이미지를 받을 수 있다.  HTML의 DataURL 이미지는 data:image로 시작
 - ``` if (!e.target.result.startsWith("data:image"))``` 처럼 이미지인지 확인 가능.
-- server.tomcat.max-http-form-post-size=5MB 와같이 설정하여 form으로 전송가능한 이미지 크기 변경.
+- server.tomcat.max-http-form-post-size=5MB 와같이 설정하여 form으로 전송가능한 이미지 크기 변경가능.
 
 # 📌 패스워드 비교
 ****
@@ -818,7 +829,7 @@ public ModelMapper modelMapper(){
     });
 </script>
 ```
-- 헤더에 cssrf 토큰 추가.
+- 헤더에 csrf 토큰 추가.
 
 # 📌 ManyToMany
 ****
@@ -847,7 +858,10 @@ private ObjectMapper objectMapper;
 List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
 model.addAttribute("whitelist", objectMapper.writeValueAsString(allTags));
 ```
-- String List를 Json으로 변환
+- String List를 String Json으로 변환
+- readTree : String -> JsonNode
+- readValue : Json -> Object, Json -> Map
+- 등 많은 메소드 지원.
 
 
 # 📌 postgresql 셋팅
@@ -909,7 +923,7 @@ public class HtmlEmailService implements EmailService{
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         try{
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,false,"UTF-8");
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,true,"UTF-8");
             mimeMessageHelper.setTo(emailMessage.getTo());
             mimeMessageHelper.setSubject(emailMessage.getSubject());
             mimeMessageHelper.setText(emailMessage.getText(),true);
@@ -937,7 +951,8 @@ public class EmailMessage {
     private String subject;
     private String text;
 }
-```s
+```
+
 - Email data를 넣을 클래스를 생성하였고, 이를 send의 파라미터로 전달해준다.
 
 ```java
@@ -1212,8 +1227,7 @@ private List<Enrollment> enrollments;
     List<Event> findByStudyOrderByStartDateTime(Study study);
 ```
 - EntityGraph를 이용하여 Event들이 조회될 때 enrollments를 같이 가져오도록 한다.
-
-### leftjoin 으로도 해결할 수 있다.  
+- #### [leftjoin](#-페이징) 으로도 해결할 수 있다.  
 
 # 📌 Form Delete Method
 ***
@@ -1533,6 +1547,7 @@ public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport impl
     }
 }
 ```
+- 클래스명은 {extensionInterface}Impl 형식.
 - Qeury를 생성하고 fetch를 반환.
 - 코드의 예시는 keyword를 통한 스터디 타이틀, 태그, 지역에서의 검색이다.
 - N+1 Select 문제를 해결하기 위해 left 조인을 하고, fetch를 미리 불러오기 위해 fetchJoin을 했다.
@@ -1592,7 +1607,7 @@ public Page<Study> findByKeyword(String keyword, Pageable pageable) {
 ```
 
 ```java
-@GetMapping("/search/study") //pageable : size, page, sort
+@GetMapping("/search/study") //pageable : size, page start Index, sort 기준
     public String studySearch(@PageableDefault(size = 9, page = 0, sort ="memberCount", direction = Sort.Direction.DESC) Pageable pageable, String keyword, Model model){
 
         Page<Study> studyList = studyRepository.findByKeyword(keyword, pageable);
@@ -1636,15 +1651,15 @@ public Page<Study> findByKeyword(String keyword, Pageable pageable) {
 </div>
 ```
 
-
 ```html
 <a class="dropdown-item" th:classappend="${#strings.contains(sortProperty, 'memberCount')}? active"
    th:href="@{'/search/study?sort=memberCount,DESC&keyword=' + ${keyword}+'&page='+ ${studyPage.getNumber()}}">
     멤버수
 </a>
 ```
+- sortProperty(pageable.getSort) 의 형식은 property: Order
 - sort 의 value 로 sort property 와 order 를 넘겨줄 수 있고, page의 값으로 page number 를 넘겨줄 수 있다.     
--Page.getNumber()  or  Page.pageable.getNumber() : 현재 페이지
+- Page.getNumber()  or  Page.pageable.getNumber() => 현재 페이지
   
 
 # 📌 Mark.js
