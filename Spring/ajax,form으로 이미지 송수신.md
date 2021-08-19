@@ -7,7 +7,7 @@
     <button type="button" class="btn btn-success" id="btn-upload">파일 업로드</button>
 </form>
 ````
-:: 간단하게 파일의 추가와 업로드 버튼을 구현, file imput의 속성을 multiple을 주면 여러개의 파일도 업로드 가능하다.
+:: 간단하게 파일의 추가와 업로드 버튼을 구현, file input의 속성을 multiple을 주면 여러개의 파일도 업로드 가능하다.
 
 ### Ajax
 ````javascript
