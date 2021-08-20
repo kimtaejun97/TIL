@@ -24,3 +24,18 @@ OS name: "mac os x", version: "10.16", arch: "x86_64", family: "mac"
 와 같이 출력되었고, 여기서 자바의버전은 15.0.2임을 확인 할 수 있었다.
 그러나 프로젝트 자바 버전은 11 이었고, 이를 15로 변경해주고 다시 실행 하자 정상적으로 실행 되었다.
 
+
+## 📌 Failed to connect to service endpoint
+***
+> - EC2 환경이 아닌곳에서 spring-cloud-starter-awsd의존성 주입시 발생.
+
+- 프로젝트 vm option
+``` 
+-Dcom.amazonaws.sdk.disableEc2Metadata=true
+```
+
+
+- application.properties 에 
+```
+logging.level.com.amazonaws.util.EC2MetadataUtils: error
+```
