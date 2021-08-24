@@ -92,3 +92,83 @@
 {App}.class.getClassLoader();
 {App}.class.getClassLoader().getPerent();
 ```
+
+
+
+## 📌 테스트 코드 커버리지
+### - JaCoCo Plugin
+
+> - 바이크 코드에 마크를 통해 얼마나 실행 되었는지를 측정.
+
+- ### Gradle 설정.
+```java
+plugins {
+    id 'jacoco'
+}
+
+jacoco {
+    // JaCoCo 버전
+    toolVersion = '0.8.5'
+}
+```
+```java
+jacocoTestReport {
+    reports {
+        html.enabled true
+        csv.enabled true
+        xml.enabled false
+    }
+    finalizedBy('jacocoTestCoverageVerification')
+}
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS'
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.1
+            }
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.1
+            }
+            excludes = ["*.LikeHeartController", "*.AccountService"]
+            includes = ["*.*Service", "*.*Controller"]
+        }
+
+    }
+}
+```
+- excludes, includes를 이용하여 체크하고 싶은 패키지, 클래스를 설정.
+- 패키지.클래스이름의 형식을 가짐. 와일드카드 *사용.
+
+> - element : 커버리지의 체크 기준
+> > BUNDLE(default), PACKAGE, CLASS, SOURCEFILE, METHOD
+> - counter : 검사 단위
+> > -  LINE : 빈 줄을 제외한 코드 라인 수
+> > - BRANCH : if, switch 등 조건 분기 수
+> > - CLASS, METHOD
+> > -  INSTRUCTION(Java 바이트코드 명령 수)
+> > - COMPLEXITY(복잡도 계산)
+> - value : 커버리지율 표기
+> > - TOTALCOUNT : 전체 수
+> > - MISSEDCOUNT, COVERDCOUNT 
+> > - MISSEDRATIO, COVEREDRATIO(default) : 0~1사이의 숫자로 비율을 표기.
+> - minimum : 최소 도달해야하는 커버리지율, 도달하지 못하면 빌드 실패.
+```java
+test {
+    useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
+}
+```
+
+- Test > jacocoTestReport > jacocoTEstCoverageVerification 순서로 실행되어야 함.
+- finalizedBy를 이용하여 끝난 후 다음 task가 실행될 수 있도록 설정.
+
+![img_2.png](img_2.png)
+
