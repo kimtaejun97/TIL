@@ -172,3 +172,43 @@ test {
 
 ![img_2.png](img_2.png)
 
+## 📌 바이트 코드 조작 라이브러리
+***
+> - ASM : https://asm.ow2.io/
+> - Javassist : https://www.javassist.org/
+> - ByteBuddy: https://bytebuddy.net/#/ (가장 심플)
+
+- ### Javaagent
+> -  Javaagent JAR 파일 생성.
+> > - 시작할 때 붙이는 premain과 런타임 중에 동적으로 붙이는 agentmain이 있다.
+> > - Instrumentation을 사용.
+> - 클래스 로더가 클래스를 읽어올 때 javaagent를 거쳐서 변경된 바이트 코드를 읽어와 사용하기 때문에, 컴파일된 .class 파일의 바이트 코드는 변경되지 않는다.
+
+```java
+public static void premain(String agentArgs, Instrumentation inst) {
+        new AgentBuilder.Default()
+                .type(ElementMatchers.any())
+                .transform((builder, typeDescription, classLoader, javaModule) -> builder.method(named("pullOut"))
+                .intercept(FixedValue.value("Rabbit!")))
+                .installOn(inst);
+}
+```
+- Manifest to JAR 플러그인 사용.
+- 사용할 프로젝트의 VM 옵션에서 -javaagent {JAR Path}
+
+
+## - 활용
+> - 프로그램 분석 : 버그 찾기, 코드 복잡도 계산.
+> - 클래스 파일 생성 : 프록시, 특정 API 호출 제한
+> - 소스코드를 건드리지 않고 코드 변경이 필요한 경우
+> > - 프로파일러, 최적화, 로깅 ...
+
+> - 스프링에서 컴포넌트 스캔을 할 때 사용(asm)
+> > - ClassPathScanningCandidateComponentProvider -> SimpleMetadateaReder
+> > - ClassReader와 Visitor를 사용해서 클래스에 있는 메타 정보를 읽어옴.
+
+
+## 📌 리플렉션 API
+****
+> - [ReflectionAPI 정리](../ReflectionAPI/README.md)
+> 
