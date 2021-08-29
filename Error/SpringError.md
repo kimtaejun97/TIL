@@ -39,3 +39,18 @@ OS name: "mac os x", version: "10.16", arch: "x86_64", family: "mac"
 ```
 logging.level.com.amazonaws.util.EC2MetadataUtils: error
 ```
+
+
+## 📌 QueryDSL Cannot find symbol
+***
+
+- 생성된 Q클래스가 중복되어 cannot find symbol이 발생.
+가장 첫 테스크에 폴더를 지워주는 코드를 추가하여 해결
+
+- 처음에는 compileQeuryDsl의 실행전에 삭제하도록 하였으나 항상 실행되는 것이 아닌 task이기 때문에 삭제되지 않는 경우가 발생하였고, 항상 처음에 실행하는 task의 시작 전에 삭제하는것으로 변경.
+
+```java
+initQuerydslSourcesDir.doFirst {
+    if(file(generatedDir).exists() ) delete(file(generatedDir))
+}
+```

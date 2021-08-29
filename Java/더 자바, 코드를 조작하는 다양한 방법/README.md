@@ -211,4 +211,17 @@ public static void premain(String agentArgs, Instrumentation inst) {
 ## 📌 리플렉션 API
 ****
 > - [ReflectionAPI 정리](../ReflectionAPI/README.md)
-> 
+
+
+### 애노테이션과 리플렉션
+- 중요 애노테이션
+> - @Retention : 애노테이션의 유지 소스, 클래스, 런타임 
+> - @Inherit : 하위 클래스까지 전달.
+> - @Target : 어디에 사용하는가 , type, field, method  
+
+- 리플렉션
+> - Retention이 Runtime일 때 조회 가능.
+> > -  default는 class이기 때문에 바이트 코드에는 들어있다. 그러나 클래스를 로딩할 때 해당 정보는 빼고 읽어온다.
+> - getAnnotations() : 상속받은 애노테이션까지 조회
+> - getDeclaredAnnotations() : 자기 자신에게 붙어있는 애노테이션만 조회.
+
