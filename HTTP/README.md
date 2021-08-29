@@ -54,11 +54,11 @@
 - 애플리케이션에서 추가 작업 필요.
 - ☝️ HTTP3 에서 UDP를 사용하며 최근 대두되고 있다.
 
-## 🧐 Port 
+## 🧐 PORT 
 > 한 IP에서 둘 이상의 애플리케이션을 연결해야 한다면?
 
 - 같은 IP 내에서 프로세스 구분.
-- 비유 : 아파트(IP) 내의 호수(port)
+- 비유 : 아파트(IP) 내의 호수(PORT)
 
 > - 할당 가능한 포트 번호 : 0~65535
 > - 잘 알려진 포트 : 0~1023 (사용하지 않는 것이 좋음)
@@ -75,4 +75,65 @@ ex> google.com - 200.200.200.2
   ![img_3.png](img_3.png)
   
 
+# 📌 URI와 웹 브라우저 요청 흐름
+****
 
+## 🧐 URI
+> URI : Uniform Resource Identifier
+> - Uniforn : 리소스를 식별하ㅣ는 통일된 방식.
+> - Resource : 자원, URI로 식별할 수 있는 모든 것.
+> - Identifier : 다른 항목과 구분하는데 사용되 정보.
+> > - URL(Uniform Resource Locator) : 리소스의 위치
+> > - URN(Uniform Resource Name) : 리소스의 이름
+> - URN만으로 실제 리소스를 찾을 수 있는 방법이 보편화되지 않아 대부분 URL을 사용.
+> 
+![img_4.png](img_4.png)
+
+🧐 URL
+- ### 전체 문법
+> - Scheme
+> > - 주로 프로토콜 사용(자원 접근 약속 규칙 http, https, ftp 등)
+> > - 생략시 http로 동작.
+> - userinfo
+> > - URL에 사용자 정보를 포함해서 인증, 거의 사용하지 않는다.
+> - Host
+> > - 호스트명, 도메인명 또는 IP주소를 직접 입력
+> - PORT
+> > - 접속 포트, 일반적으로 생략, 생략시 http는 80, http는 443
+> - Path
+> > - 리소스 경로, 계층적 구조
+> > - ex) /home/.../.../ file.png
+> - Query
+> > - key = value 형태
+> > - ?로 시작, &로 추가 가능
+> > - ex) keyA=valueA&keyB=valueB
+> > - query parameter, query string 등으로 불린다. 웹 서버에서 제공하는 파라미터, 문자열.
+> - fragment
+> > - 다른곳으로 이동하는 html 내부 북마크 등에서 사용, 서버에 전송하는 정보가 아니다.
+
+
+## 🧐 웹 브라우저 요청 흐름
+![img_5.png](img_5.png)
+
+1. 요청 : https://www.google.com:443/search?q=heloo&hl=ko
+2. DNS 조회, PORT 조회 : IP, PORT를 얻어온다.
+3. HTTP 요청 메시지 생성.
+```
+GET /search?q=hello&hl=ko HTTP/1.1
+HOST: www.google.com
+```
+4. Socket 라이브러리를 통해 전송 계층(TCP)으로 전달.
+5. TCP에서 IP,PORT 정보를 추가.
+6. 노드들을 통해 서버에 전달.
+7. 서버에서는 TCP/IP 패킷을 버리고, HTTP 메시지를 해석 및 처리.
+8. 서버에서 HTTP 응답 메시지 생성.
+```
+HTTP/1.1 200 OK
+Content-Type: text/html;charset=URF-8
+Content-Length: 3423
+
+<html>
+    ...
+<html>
+```
+9. (4~6)의 과정을 거치고 도착한 패킷에서 HTML을 렌더링해서 결과를 보여준다.
