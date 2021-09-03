@@ -644,57 +644,194 @@ Content-Length: 3423
   - 데이터 유형(html, json), 데이터 길이, 압축 정보 등 .. 
   
 ## 🧐 표현(Representation)
-### ☝️ Content-Type: 표현 데이터의 형식.
-- 미디어 타입, 문자 인코딩
-- text/html; charset=utf-8, application/json, image/png 등 ..
+- ### ☝️ Content-Type: 표현 데이터의 형식.
+  - 미디어 타입, 문자 인코딩
+  - text/html; charset=utf-8, application/json, image/png 등 ..
 
-### ☝️ Content-Encoding: 표현 데이터의 압축 방식.
-![img_20.png](img_20.png)
+- ### ☝️ Content-Encoding: 표현 데이터의 압축 방식.
+  ![img_20.png](img_20.png)
 
-- 표현 데이터를 압축하기 위해 사용.
-- 데이터를 전달하느 곳에서 압축 후 인코딩 헤더 추가
-- 데이터를 읽는 쪽에서 인코딩 헤더의 정보로 압축 헤제
-- ex) gzip, deflate, identity ...
+  - 표현 데이터를 압축하기 위해 사용.
+  - 데이터를 전달하느 곳에서 압축 후 인코딩 헤더 추가
+  - 데이터를 읽는 쪽에서 인코딩 헤더의 정보로 압축 헤제
+  - ex) gzip, deflate, identity ...
 
-### ☝️ Content-Language: 표현 데이터의 자연 언어.
-- 표현 데이터의 자연 언어를 표현.
-- ex) ko, en, en-US ...
+- ### ☝️ Content-Language: 표현 데이터의 자연 언어.
+  - 표현 데이터의 자연 언어를 표현.
+  - ex) ko, en, en-US ...
 
-### ☝️ Content-Length: 표현 데이터의 길이.
-- 바이트 단위.
-- Transfer-Encoding(전송 코딩)을 사용할 때는 사용하면 안된다.
+- ### ☝️ Content-Length: 표현 데이터의 길이.
+  - 바이트 단위.
+  - Transfer-Encoding(전송 코딩)을 사용할 때는 사용하면 안된다.
 
 > 표현 헤더는 전송, 응답 둘다에서 사용.
 
 
 ## 🧐 협상(Content Negotiation)
 
-### ✏️ Accept: 클라이언트가 선호하는 미디어 타입 전달.
-### ✏️ Accept-Charset: 클라이언트가 선호하는 문자 인코딩.
-### ✏️ Accept-Encoding: 클라이언트가 선호하는 압축 인코딩.
-### ✏️ Accept-Language: 클라이언트가 선호하는 자연 언어
+-  ### ☝️️ Accept: 클라이언트가 선호하는 미디어 타입 전달.
+-  ### ☝️ Accept-Charset: 클라이언트가 선호하는 문자 인코딩.
+-  ### ☝️ Accept-Encoding: 클라이언트가 선호하는 압축 인코딩.
+-  ### ☝️ Accept-Language: 클라이언트가 선호하는 자연 언어
 
 > 협상 헤더는 요청시에만 사용한다.
 ️
-### ☝️ 협상과 우선순위: Quality Values(q)
-![img_21.png](img_21.png)
-- Quality Values(q)값 사용.
-- 0~1, 클수록 높은 우선순위
-- 생략하면 1
-- ex)
+- ### 🤔️ 협상과 우선순위: Quality Values(q)
+  ![img_21.png](img_21.png)
+  - Quality Values(q)값 사용.
+  - 0~1, 클수록 높은 우선순위
+  - 생략하면 1
+  - ex)
   ![img_23.png](img_23.png)
   
-### ☝️ 협상과 우선순위2
-- 구체적인 것이 우선한다.
-![img_24.png](img_24.png)
-1. text/plain;format=flowed
-2. text/plain
-3. text/*
-4. \*/*
+- ### 🧐 협상과 우선순위2
+  - 구체적인 것이 우선한다.
+  ![img_24.png](img_24.png)
+  ```
+  1. text/plain;format=flowed
+  2. text/plain
+  3. text/*
+  4. */*
+  ```
 
-### ☝️ 협상과 우선순위3
+
+### 🧐 협상과 우선순위3
 - 구체적인 것을 기준으로 미디어 타입을 맞춘다.
-![img_25.png](img_25.png)
+  ![img_25.png](img_25.png)
+  
+## 🧐 전송 방식 
+- ### ☝️️ 단순 전송
+  #### - Content-Length : 3300
+  
+- ### ☝️️ 압축 전송
+  #### - Content-Encoding : gzip ..
+- ### ☝️️ 분할 전송
+  ####- Transfer-Encoding: chunked    
+  - \r\n 으로 끝을 알린다.
+  - Content-Length를 보내면 안된다. (예상이 안됨, 분할 청크에 길이가 있음.)
+  ![img_27.png](img_27.png)
+- ### ☝️️ 범위 전송
+  #### - Range, Content-Range
+  ![img_28.png](img_28.png)
+
+
+## 🧐 일반 정보
+
+- ### ☝️️ From : 유저 에이전트의 이메일 정보.
+  - 일반적으로 잘 사용하지 않는다.
+  - 검색 엔진 같은 곳에서 주로 사용.
+  - 요청에서 사용한다.
+
+- ### ☝️️ Referer: 이전 웹 페이지 주소.
+  - 해당 요청을 보내기 전에 있던 웹 페이지의 주소.
+  - A -> B로 이동하는 경우 B로 요청할떄 Referer: A를 포함해서 요청.
+  - Referer를 사용해서 유입 경로 분석 가능.
+  - 요청에서 사용한다.
+  - 참고: referer는 단어 referrer의 오타..
+
+- ### ☝️️ User-agent: 유저 에이전트 애플리케이션 정보.
+  ``` user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36```
+  - 클라이언트의 애플리케이션 정보(웹 브라우저 정보 등..)
+  - 통계 정보(어떤 브라우저로 많이 접속하는가. 등..)
+  - 어떤 종류의 브라우저에서 장애가 발생하는지 파악 가능.
+  - 요청에서 사용한다.
+
+- ### ☝️ Server: 요청을 처리하는 ORIGIN 서버의 소프트웨어 정보.
+  - Server: Apache/2.2.22
+  - server: nginx
+  - 응답에서 사용.
+
+     > 🤔 ORIGIN Server? 실제로 표현 데이터를 만들어주는 종단의 서버.
+
+- ### ☝️️ Data : 메시지가 발생한 날짜와 시간.
+  - Data: Tue, 15, Nov 1994 15:50:31 GMT
+  - 응답에서 사용.
+
+
+## 🧐 특별한 정보
+
+- ### ☝️ Host: 요청한 호스트 정보(도메인) - 필수값.
+  - 요청에서 사용.
+  - 하나의 서버가 여러 도메인을 처리해야 할 때.
+  - 하나의 IP 주소에 여러 도메인이 적용(가상호스트 사용)되어 있을 때 구분.
+  - IP로 구분할 수 없기 때문에, 호스트 도메인을 넣어준다.
+    ![img_29.png](img_29.png)
+
+- ### ☝️ Location: 페이지 리다이렉션
+  - 웹 브라우저는 3xx의 응답의 결과에 Location 헤더가 있으면, 대상 리소스로 자동으로 리다이렉트.
+  - 201-Created 에서 Location 값은 요청에 의해 생성된 리소스의 URI
+
+- ### ☝️️ Allow: 허용 가능한 HTTP 메서드
+  - 405(Method Not Allowed)에서 응답에 포함해야 한다.
+  - 지원하는 HTTP 메서드를 알려주는 역할을 한다.
+  - Allow: GET, HEAD, PUT 
+
+- ### ☝️️ Retry-After: 유저 에이전트가 다음 요청을 하기까지 기다려야 하는 시간.
+  - 503(Service Unavailable): 서비슥사 언제까지 불능인지 알려줄 때 사용한다.
+  - (날짜로 표기) Retry-After: Fit, 31 Dec 1999 23:59:59 GMT
+  - (초단위로 표기) Retry-After: 120
+  
+## 🧐 인증 헤더
+
+- ### ☝️ Authorization: 클라이언트 인증 정보를 서버에 전달.
+  - Authorization: Basic xxxxxxxxxxxxxx
+  - 인증 방법에 따라 값은 달라진다.
+- ### 🧐 WWW-Authenticate: 리소스 접근시 필요한 인증 방법 정의.
+  - 401 Unauthorized 응답과 함께 사용한다.
+  - WWW-Authenticate: Newauth realm="apps", type=1, title="Login to\"apps\"", Basic realm="simple"
+  - 헤더 정보를 참고해서 제대로 된 인증 정보를 생성하게 된다.
   
 
+## 🍪 쿠키(Cookie)
+- Set-Cookie: 서버에서 클라이언트로 쿠키 전달(응답)
+- Cookie: 클라이언트가 서버에서 받은 쿠키를 저장하고, HTTP 요청시 서버로 전달.
 
+> HTTP는 무상태 프로토콜이기 때문에 클라이언트가 서버와 요청과 응답을 주고 받은 후 연결이 끊어지고, 다시 요청하더라도 서버는 이전 요청을 기억하지 않는다.
+
+![img_30.png](img_30.png)
+- 처음에 쿠키를 전달 받은뒤, 모든 요청에서 반드시 쿠키 저장소에서 정보를 가져와 함께 보낸다.
+
+```set-cooke: sessionId=aasd35sdd3sd23; expires-Sat, 26-Dec-2020 00:00:00 GMT; [ath=/; domain=.google.com; Secure```
+> - 사용자 로그인 세션 관리에 사용.
+> - 광고 정보를 트래킹 할 때 사용.
+> - 쿠키정보는 항상 서버에 전송되기 때문에 네티워크 트래픽을 추가 유발한다.
+> - 최소한의 정보만을 사용(Session Id, Authorization Token ...)
+> - 보안에 민감한 데이터는 저장하지 않도록 해야한다.
+> > 🤔 서버에 전송하지 않고 웹 브라우저 내부에 데이터 저장 -> 웹 스토리지(local, sessionStroage)사용.
+  
+- ### ☝️ 쿠키 - 생명주기 (Expires, max-age)
+  #### - Set-Cookie: expires=SAt, 26-Dec-23020 15:34:33 GMT
+    - 만료일이 되면 쿠키를 삭제
+  - Set-Cookie: max-age=4600(초)
+    - 0이나 음수를 지정하면 쿠키를 삭제한다.
+  - ✏️ 세션 쿠키 : 만료 날짜를 생략하게 되면 브라우저 종료시 까지만 유지한다.
+  - ✏️ 영속 쿠키 : 만료 날짜를 입력하면 해당 날짜까지 유지한다.
+
+- ### ☝️ 쿠키 - 도메인
+  #### - Set-Cookie: domain=example.org
+  - 명시: 명시한 문서 기준 도메인 + 서브 도메인까지 포함한다.
+    - dev.example.org도 쿠키에 접근할 수 있다.
+  - 생략 : 현재 문서 기준 도메인만 적용.
+    - example.org에서 쿠키를 생성했다면 example.org에서만 접근이 가능하고, dev.example.org(서브)에서는 접근할 수 없다.
+  
+- ### ☝️ 쿠키 - 경로
+  #### - Set-Cookie: path=/
+  - 이 경로를 포함한 하위 경로 페이지만 쿠키 접근이 가능하다.
+  - 일반적으로는 루트로 지정.
+  - path=/ -> 모두 접근 가능
+  - path=/home -> /home/* -> 접근 가능, /hello -> 접근 불가능.
+  
+- ### ☝️ 쿠키 - 보안
+    #### - Set-Cookie: Secure
+    - 기본적으로 쿠키는 http, https를 구분하지 않고 전송,
+    - Secure를 적용하면 https인 경우에만 전송.
+  
+  #### - Set-Cookie: HttpOnly
+    - XSS 공격 방지 : 자바스크립트에서 쿠키에 접근할 수 없도록 한다.
+    - HTTP 전송에서만 사용한다.
+    > 🧐 XXS? 사이트 간 스크립팅(Cross-Site Scripting) : 관리자가 아닌 권한이 없는 사용자가 웹 사이트에 스크립트를 삽입하는 공격. 사용자의 Session을 탈취하여 악의적으로 사용할 수 있다.
+  
+  #### - Set-Cookie: SameSite
+    - XSRF 공격 방지.
+    - 요청 도메인과 쿠키에 설정된 도메인이 같은 경우만 쿠키를 전송한다.
+    > 🤔 XSRF? 사이트 간 요청 위조(Cross-site Request Forgery) : 사용자가 자신의 의지와는 무관하게 공격자가 의도한 행위를 특정 웹사이트에 요청하게 하는 공격.
