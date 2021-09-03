@@ -791,7 +791,7 @@ Content-Length: 3423
 ![img_30.png](img_30.png)
 - 처음에 쿠키를 전달 받은뒤, 모든 요청에서 반드시 쿠키 저장소에서 정보를 가져와 함께 보낸다.
 
-```set-cooke: sessionId=aasd35sdd3sd23; expires-Sat, 26-Dec-2020 00:00:00 GMT; [ath=/; domain=.google.com; Secure```
+```set-cooke: sessionId=aasd35sdd3sd23; expires-Sat, 26-Dec-2021 00:00:00 GMT; [ath=/; domain=.google.com; Secure```
 > - 사용자 로그인 세션 관리에 사용.
 > - 광고 정보를 트래킹 할 때 사용.
 > - 쿠키정보는 항상 서버에 전송되기 때문에 네티워크 트래픽을 추가 유발한다.
@@ -800,7 +800,7 @@ Content-Length: 3423
 > > 🤔 서버에 전송하지 않고 웹 브라우저 내부에 데이터 저장 -> 웹 스토리지(local, sessionStroage)사용.
   
 - ### ☝️ 쿠키 - 생명주기 (Expires, max-age)
-  #### - Set-Cookie: expires=SAt, 26-Dec-23020 15:34:33 GMT
+  #### - Set-Cookie: expires=Sat, 26-Dec-2021 15:34:33 GMT
     - 만료일이 되면 쿠키를 삭제
   - Set-Cookie: max-age=4600(초)
     - 0이나 음수를 지정하면 쿠키를 삭제한다.
@@ -835,3 +835,87 @@ Content-Length: 3423
     - XSRF 공격 방지.
     - 요청 도메인과 쿠키에 설정된 도메인이 같은 경우만 쿠키를 전송한다.
     > 🤔 XSRF? 사이트 간 요청 위조(Cross-site Request Forgery) : 사용자가 자신의 의지와는 무관하게 공격자가 의도한 행위를 특정 웹사이트에 요청하게 하는 공격.
+
+
+# 📌 캐시
+***
+![img_31.png](img_31.png)
+- 60초간 유효한 캐시. (네트워크 다운로드가 발생하지 않는다.)
+- 웹 브라우저에서 캐시에 접근할 때 유효기간이 지났다면, 다시 서버에서 요청하게 된다.
+- 요청에 대한 응답을 다시 캐시에 저장하여 갱신한다.
+
+## 🧐 검증 헤더와 조건부 요청
+> 캐시 유효시간이 초과해서 서버에 다시 요청할 때는 두 가지 상황이 존재한다.
+#### 1. 서버에서 기존 데이터를 변경함.
+#### 2. 서버에서 기존 데이터를 변경하지 않음.
+
+- ### ☝️ Last-Modified, If-Modified-Since
+
+  - 이를 알기 위해 응답 데이터를 보낼 때 검증 헤더를 추가한다.   
+  ```Last-Modified: Fri, 26-Dec-2021 00:00:00 GMT ```
+  - 이후 캐시에서 해당 데이터가 사용될 때 데이터의 최종 수정일을 서버에 전송.   
+  ```if-modified-since: Fri, 26-Dec-2021 00:00:00 GMT```
+  - 서버에서는 변경되었는지 검증
+  > ✏️ 변경되지 않았을 때: 304 Not Modified
+  > 
+  > ![img_32.png](img_32.png)
+  > - 바디를 추가하지 않고 용량이 적은 헤더 정보만 다운로드 하기 때문에 네트워크의 부하를 줄일 수 있다.
+  > - 캐시에 있는 데이터를 재사용, 응답 헤더로 캐시의 메타 정보를 갱신한다.(max-age)
+  
+  > ✏️ 변경 되었을 때: 200 OK, 서버에서 응답에 데이터를 담아 보내준다.
+
+  ### ✏️ Last-Modified, If-ModifiedSince 의 단점.
+  - 1초 미만의 단위로 캐시 조정이 불가능하다.
+  - 날짜 기반의 로직을 사용한다.
+  - 데이터를 수정하여 날짜는 달라졌지만, 데이터 결과가 동일한 경우를 구분할 수 없다.
+  - 서버에서 별도의 캐시 로직을 관리할 수 없다.
+    - ex) 스페이스, 주석 처럼 크게 영향이 없는 변경에서 캐시를 사용하고 싶은 경우.
+  
+
+- ### ☝️ 해결: ETag, If-None-Match
+  - ETag: Entity Tag
+  - 캐시용 데이터에 임의의 고유한 버전 이름을 달아둠.
+  - 데이터가 변경되면 이 이름을 바꾸어서 변경함(Hash를 다시 생성)
+    -> 동일한 데이터의 경우 같은 Hash값을 가짐.
+  - 단순하게 ETag만 보내서 같으면 유지, 다르면 다운로드.
+
+  #### - 응답 데이터를 받을 때 ETag를 수신.
+  ![img_33.png](img_33.png)
+
+  #### - 캐시가 만료되었을 때 If-Not-Match로 ETag를 보낸다.(Match되지 않으면 데이터를 다시 달라.)
+  ![img_34.png](img_34.png)
+
+  #### 🔑 정리
+  > - 캐시 제어 로직을 서버에서 완전히 관리.
+  > - 클라이언트는 단순히 ETag를 서버에 제공(클라이언트 캐시 메커니즘을 몰라도 된다.)
+  > - 일정 기간동안 ETag를 동일하게 유지하여 캐시에서 데이터를 사용하게 하거나, 배포 주기에 맞춰 ETag를 한번에 갱신하는 등으로 사용 가능하다.
+
+
+## 🧐 캐시 제어 헤더
+
+- ### ☝️ Cache-Control : 캐시 지시어(directives)
+  - #### Cache-Control: max-age
+    - 캐시 유효 시간(초 단위)
+  - #### Cache-Control: no-cache
+    - 데이터는 캐시하지만, 항상 Origin 서버에 검증하고 사용.
+  - #### Cache-Control: no-store
+    - 데이터에 민감한 정보가 있으므로 저장하면 안된다.(메모리에서 사용하고 최대한 빨리 삭제.)
+  
+- ### ☝️ Pragma : 캐시 제어(하위 호환), 지금은 거의 사용하지 않는다.
+  - pragma: no-cache
+  - HTTP 1.0 하위 호환.
+  
+- ### ☝️ Expires : 캐시 만료일 지정(하위 호환)
+  - expires: Mon, 01 Jan 2021 00:00:00 GMT
+  - 캐시 만료일을 정확한 날짜로 지정.
+  - HTTP 1.0 부터 사용.
+  - 지금은 더 유욘한 Cache-Control: max-age를 권장하며, 함께 사용하면 Expires는 무시된다.
+
+## 🧐 검증 헤더, 조건부 요청 헤더(정리)
+
+- ### ☝️ 검증 헤더(Validator)
+  - ETag, Last-Modified
+
+- ### ☝️ 조건부 요청 헤더
+  - If-Match, If-None-Match: Etag값 사용.
+  - If-Modified-Since, If-Unmodified-Since: Last-Modified 값 사용.
