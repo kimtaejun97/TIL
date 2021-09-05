@@ -5,6 +5,7 @@
 ```이미지 출처 : 모든 개발자를 위한 HTTP 웹 기본지식 - 김영한님.```
 
 #### 🧐Protocol? 컴퓨터 간, 컴퓨터와 단말기 사이에서 통신을 원활하게 하기 위해 필요한 통신 규약.
+🔑 RFC 7230~7235: https://tools.ietf.org/html/rfc7230
 
 # 📌 인터넷 네트워크
 ***
@@ -91,8 +92,7 @@ ex> google.com - 200.200.200.2
 > 
 ![img_4.png](img_4.png)
 
-🧐 URL
-- ### 전체 문법
+### ☝️ URL
 > - Scheme
 > > - 주로 프로토콜 사용(자원 접근 약속 규칙 http, https, ftp 등)
 > > - 생략시 http로 동작.
@@ -190,41 +190,41 @@ Content-Length: 3423
 
 
 ## 🧐 HTTP 메시지
-- ### 구조
-![img_10.png](img_10.png)
--  Empty Line(CRLF)는 필수로 존재 (CR:Carriage return, LF:Line Feed)
+- ### ☝️ 구조
+  ![img_10.png](img_10.png)
+  -  Empty Line(CRLF)는 필수로 존재 (CR:Carriage return, LF:Line Feed)
 
-> ### 시작 라인 (start-line) = request-line / status-line
-> ```GET /search?q=hello HTTP/1.1```
-> - request-line = method SP(공백) request-target SP HTTP-version CRLF
-> > - method : GET, POST, PUT, DELETE ...
-> > - request-target : absolute-path[?query]
-> >     - ex) /search?q=hello
-> > - HTTP-version : HTTP/1.1
-> - status-line = HTTP-version SP status-code SP reason-phrase CRLF
-> > - status-code : 요청 성공, 실패 등의 상태 코드. 200: 성공, 400: 클라이언트 오류, 500: 서버 오류 ...
-> > - reason-phrase : 사람이 이해할 수 있는 짧은 상태코드 설명.
-> > - 
+  >  ### ☝️ 시작 라인 (start-line) = request-line / status-line
+  > ```GET /search?q=hello HTTP/1.1```
+  > - request-line = method SP(공백) request-target SP HTTP-version CRLF
+  > > - method : GET, POST, PUT, DELETE ...
+  > > - request-target : absolute-path[?query]
+  > >     - ex) /search?q=hello
+  > > - HTTP-version : HTTP/1.1
+  > - status-line = HTTP-version SP status-code SP reason-phrase CRLF
+  > > - status-code : 요청 성공, 실패 등의 상태 코드. 200: 성공, 400: 클라이언트 오류, 500: 서버 오류 ...
+  > > - reason-phrase : 사람이 이해할 수 있는 짧은 상태코드 설명.
+  > > - 
 
-> ### Header = field-name ":" OWS field-value OWS(띄어쓰기 허용)
-> ```Host:www.google.com```   
-> ```Content-Type:text/html;charset=UTF-8```
-> 
-> > - field-name은 대소문자를 구분하지 않는다. value는 구분.
-> > - HTTP 전송에 필요한 모든 부가 정보가 담긴다.
-> >  - 메시지 바디의 내용, 바디의 크기, 압축, 인증, 요청 클라이언트 정보, 서버 애플리케이션 정보, 캐시 관리 정보 ...
-> > - 필요시 임의의 헤더 추가 가능 fieldName: value
+  > ### ☝️ Header = field-name ":" OWS field-value OWS(띄어쓰기 허용)
+  > ```Host:www.google.com```   
+  > ```Content-Type:text/html;charset=UTF-8```
+  > 
+  > > - field-name은 대소문자를 구분하지 않는다. value는 구분.
+  > > - HTTP 전송에 필요한 모든 부가 정보가 담긴다.
+  > >  - 메시지 바디의 내용, 바디의 크기, 압축, 인증, 요청 클라이언트 정보, 서버 애플리케이션 정보, 캐시 관리 정보 ...
+  > > - 필요시 임의의 헤더 추가 가능 fieldName: value
 
-> ### Message Body
-> > - 실제 전송할 데이터
-> > - 바이트로 표현할 수 있는 모든 데이터 전송 가능.
+  > ### ☝️ Message Body
+  > > - 실제 전송할 데이터
+  > > - 바이트로 표현할 수 있는 모든 데이터 전송 가능.
 
 
 # 📌 HTTP 메서드
 ***
 
 ## 🧐 API URI 설계
-> ☝️ 가장 중요한 것은 리소스 식별!
+> 🖍️ 가장 중요한 것은 리소스 식별!
 
 - 리소스 : 회원 등록에서 회원, 이미지 저장에서 이미지.
 
@@ -244,7 +244,7 @@ Content-Length: 3423
 
 ## 🧐 GET
 
-> 리소스 조회.
+> 🖍 리소스 조회.
 > ```
 > GET /members/100 HTTP/1.1
 > ...
@@ -252,7 +252,7 @@ Content-Length: 3423
 > - 서버에 전달하고 싶은 데이터는 쿼리 파라미터를 통해서 전달.
 > - 메시지 바디를 사용할 수 있지만, 지원하지 않는곳이 많아서 권장하지 않음.
 
-> 응답 데이터
+> 🖍 응답 데이터
 > ```
 > HTTP/1.1 200 OK
 > ...
@@ -264,7 +264,7 @@ Content-Length: 3423
 
 ## 🧐 POST
 
-> 요청 데이터 처리
+> 🖍 요청 데이터 처리
 > ```
 > POST /members HTTP/1.1
 > ...
@@ -276,7 +276,7 @@ Content-Length: 3423
 > - 서버는 요청 데이터를 처리, 바디를 통해 들어온 데이터를 처리하는 모든 기능 수행.
 > - 주로 신규 리소스 등록, 프로세스 처리.
 
-> 응답 데이터
+> 🖍 응답 데이터
 > ```
 > HTTP/1.1 201 Created
 > ...
@@ -289,7 +289,7 @@ Content-Length: 3423
 > - 201일 경우 Location에는 생성된 리소스의 경로를 담아준다.
 > - 바디에는 생성된 리소스의 데이터.
 
-> 📃 요청의 처리?
+> 🤔 요청의 처리?
 > - 대상 리소스 고유의 의미 체계에 따라 요청에 포함된 표현을 처리.
 > - ex) HTML 양식에 입력된 필드와 같은 데이터 블록의 처리 프로세스 (회원가입, 주문 등..)
 > - 메시지 게시 (게시판 글쓰기, 댓글 등)
@@ -307,10 +307,10 @@ Content-Length: 3423
 > 3. 다른 메서드로 처리하기 애매한 경우
 > > ex) JSON으로 조회 데이터를 넘겨야 할 때
 > > - GET을 사용하여 바디에 데이터를 넣게 되면  지원하지 않는 서버가 있을 수 있기 때문에 POST 사용.
-#### > ☝️ POST 요청이 오면 데이터를 어떻게 처리할 지 리소스마다 따로 정해놓고 사용해야 한다.
+#### > 🖍 POST 요청이 오면 데이터를 어떻게 처리할 지 리소스마다 따로 정해놓고 사용해야 한다.
 
 ## 🧐 PUT
-> 리소스를 <strong>완전히 대체</strong>, 해당 리소스가 없으면 생성.
+> 🖍 리소스를 <strong>완전히 대체</strong>, 해당 리소스가 없으면 생성.
 > - 덮어쓰기. 해당하는 필드만 덮어쓰는것이 아닌 완전한 대체.
 > - 새로 보낸 데이터에 age만 존재하고, 기존 데이터가 age, name이 존재한다면 요청이 실행된 이후에 해당 리소스에는 대체된 age만 존재한다.
 > - PUT은 데이터의 수정이 아니다. 수정은 PATCH 사용.
@@ -324,7 +324,7 @@ Content-Length: 3423
 > - POST와 달리 클라이언트가 구체적인 리소스 위치를 알고 URI를 지정한다.
 
 ## 🧐 PATCH
-> 리소스 부분 변경.
+> 🖍 리소스 부분 변경.
 > - 해당 리소스의 일치하는 부분만 변경.
 > - 대부분 지원하지만 지원하지 않는 서버가 있다면 POST로 대체하여 사용.
 > ```
@@ -336,7 +336,7 @@ Content-Length: 3423
 > ```
 
 ## 🧐 DELETE
-> 리소스 제거.
+> 🖍 리소스 제거.
 > ```
 > DELETE /members/100 HTTP/1.1
 > ...
@@ -357,12 +357,12 @@ Content-Length: 3423
 ![img_11.png](img_11.png)
 - GET의 경우 Body를 넣을 수 있으나, 지원하지 않는 서버가 존재하기 때문에 넣지 않는것이 좋다.
 
-> ### 안전(Safe Methods)
-> - 호출해도 리소스를 변경하지 않는다.
+> ### ☝️ 안전(Safe Methods)
+>  🖍 호출해도 리소스를 변경하지 않는다.
   
-> ### 멱등(Idmpotent Methods)
-> > 몇 번을 호출하든 결과가 같다.    
-> > 외부 요인으로 중간에 리소스가 변경되는 것 까지는 고려하지 않는다.
+> ### ☝️ 멱등(Idmpotent Methods)
+> > 🖍 몇 번을 호출하든 결과가 같다.    
+> > - 외부 요인으로 중간에 리소스가 변경되는 것 까지는 고려하지 않는다.
 > > - GET : 몇 번을 조회하든 같은 결과가 조회된다,
 > > - PUT : 결과를 대체하므로, 같은 요청을 여러번 해도 최종 결과느 같다.
 > > - DELETE : 결과를 삭제하므로, 같은 요청을 여러번 해도 결과는 리소스 삭제로 똑같다.
@@ -372,10 +372,10 @@ Content-Length: 3423
 > > 자동 복구 메커니즘 - 서버가 TIMEOUT 등으로 정상 응답을 못 주었을 때, 같은 요청을 다시 해도 되는가?
 
 > ### 캐시가능(Cacheable Methods)
-> - 응답 결과 리소스를 캐시해서 사용해도 되는가?
+> 🖍 응답 결과 리소스를 캐시해서 사용해도 되는가?
 > - GET, HEAD, POST, PATCH 캐시가능.
-> - 실제로는 GET, HEAD 정도만 사용한다.
->   - POST, PATCH는 본문 내용까지 Cache Key로 고려해야 하기 때문에 구현이 어려움.
+> - 실제로는 GET, HEAD 정도만 사용한다.    
+>   🤔 POST, PATCH는 본문 내용까지 Cache Key로 고려해야 하기 때문에 구현이 어려움.
 
 
 # 📌 클라이언트에서 서버로 데이터 전송
@@ -919,3 +919,41 @@ Content-Length: 3423
 - ### ☝️ 조건부 요청 헤더
   - If-Match, If-None-Match: Etag값 사용.
   - If-Modified-Since, If-Unmodified-Since: Last-Modified 값 사용.
+  
+
+## 🧐 프록시 캐시
+![img_35.png](img_35.png)
+- 최초 접속자만 다운로드 하거나 혹은 원 서버에서 캐시 서버에 데이터를 밀어 넣는다.
+- 공용 캐시 : public
+- 로컬 캐시 : private
+
+### ☝️ Cache Control: 캐시 지시어
+
+- ####  ✏️ Cache-Control: public
+  - 응답이 public 캐시에 저장되어도 된다.
+- #### ✏️ Cache-Control: private
+  - 응답이 해당 사용자만을 위한 것, private 캐시에 저장해야 함(default)
+- #### ✏️ Cache-Control: s-maxage
+  - 프록시 캐시에만 적용되는 max-age
+- #### ✏️ Age
+  - Origin 서버에서 응답 후 프록시 캐시 내에 머문 시간(초)
+  - Age: 60
+  
+
+## 🧐 캐시 무효화
+
+- ### ☝️ 확실한 캐시 무효화 응답.
+  - 절대 캐시가 되면 안되는 데이터.
+  - Cache-Control: no-cache, no-store, must-revalidate (모두 사용)
+  - Pragma: no-cache (HTTP 1.0 대비)
+  
+  > 🤔 must-revalidate : 캐시 만료 후 최초 조회시 origin서버에 검증.
+  > - 원 서버 접근 실패시 반드시 오류가 발생해야한다 - 504 Gateway Timeout
+  > - must-revalidate는 캐시 유효 간이라면 캐시를 사용한다.
+  > 
+  > 
+  > > 🖍 no-cache 와의 차이 : origin 서버에 접근할 수 없는 경우.
+  > > - no-cache 에서는 서버 설정에 따라 오래된 데이터를 결과를 받게될 수 있다.
+  > > - must-revalidate 에서는 반드시 504 오류가 발생한다.
+
+
