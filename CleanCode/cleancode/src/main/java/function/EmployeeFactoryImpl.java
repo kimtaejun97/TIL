@@ -18,8 +18,6 @@ public class EmployeeFactoryImpl implements EmployeeFactory{
             default:
                 throw new Exception();
         }
-
-
     }
 
 }
