@@ -240,3 +240,7 @@ Long memberId = order.getMemberId();
 Member member = em.find(Member.class, memberId);
 ```
 > - 해결 : 연관관계 매핑을 이용. field에 Member를 두고 order.getMember() 처럼 주문자를 찾을 수 있다.
+
+
+# 📌 연관관계 매핑
+***
