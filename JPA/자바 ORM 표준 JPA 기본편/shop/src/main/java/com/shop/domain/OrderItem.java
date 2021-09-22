@@ -1,21 +1,30 @@
 package com.shop.domain;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
+@Table(name = "orderitem")
 public class OrderItem {
+
     @Id @GeneratedValue
-    @Column(name = "order_item_id")
+    @Column(name = "orderItem_id")
     private Long id;
 
-    @Column(name = "order_id")
-    private Long orderId;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
-    @Column(name = "item_id")
-    private Long itemId;
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+
+    private int count;
 }
