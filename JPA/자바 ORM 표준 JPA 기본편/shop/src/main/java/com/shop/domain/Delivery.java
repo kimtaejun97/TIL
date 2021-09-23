@@ -10,20 +10,20 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-public class OrderItem {
+public class Delivery {
 
     @Id @GeneratedValue
-    @Column(name = "orderItem_id")
+    @Column(name = "delivery_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
+    @OneToOne(mappedBy = "delivery")
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "item_id")
-    private Item item;
+    private String city;
 
+    private String street;
 
-    private int count;
+    private String zipcode;
+
+    private DeliveryStatus status;
 }

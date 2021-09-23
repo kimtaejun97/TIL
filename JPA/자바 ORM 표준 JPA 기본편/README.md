@@ -302,7 +302,7 @@ public class Team {
     - 객체의 두 관계중 하나를 연관관계의 주인으로 지정.
     - 연관관계의 주인이 외래키를 가진다.
     - <strong>주인이 아닌쪽은 데이터의 변경 불가, 읽기만 가능.</strong>
-      - 예를 들어 멤버가 연관관계의 주인일때 ```team.getMember().add(member);```을 실행하면 쿼리는 나가지만 실제 DB를 확인해보면 맴버의 외래키 값이 null로 설정된다.
+      - 예를 들어 멤버가 연관관계의 주인일때 ```team.getMember().add(member);```을 실행하면 쿼리는 나가지만 <mark>실제 DB를 확인해보면 맴버의 외래키 값이 null로 설정된다.</mark>
       - ```member.setTeam(team)```으로 사용해야 한다.
     - 주인은 mappedBy 속성을 사용하지 않는다.
     - 주인이 아니면 mappedBy 속성으로 주인을 지정해준다.
@@ -320,7 +320,7 @@ public class Team {
     >   team.getMembers().add(member);
     >   member.setTeam(team);
     > ```
-    > - 한 트랜잭션 안에서 조회를 하고자 할 때 flush(), clear()를 해주고 다시 조회를 한다면 상관없지만, 그렇지 않으면 1차 캐시에 있던 데이터를 그대로 불러오기 때문에 이전에 추가한 데이터를 team.getMembers()로 조회할 수 없게 된다.(1차 캐시에 저장된 데이터에서 불러오게 됨)
+    > - 한 트랜잭션 안에서 조회를 하고자 할 때 flush(), clear()를 해주고 다시 조회를 한다면 상관없지만, 그렇지 않으면 1차 캐시에 있던 데이터를 그대로 불러오기 때문에 <mark>이전에 추가한 데이터를 team.getMembers()로 조회할 수 없게 된다.</mark>(1차 캐시에 저장된 데이터에서 불러오게 됨)
     > - 객체 지향적으로도 이상적.
     > - 테스트 케이스 작성할 때 더 유연함.
     > - 연관관계 편의 메서드를 작성 (위의 두 과정을 하나의 메서드로, 멤버 메서드)
@@ -330,4 +330,129 @@ public class Team {
     > - JSON 생성 라이브러리에서도 마찬가지의 상황이 발생할 수 있다.    
      => 해결 : 컨트롤러에서는 엔티티를 반환하지 말아야 한다. DTO로 반환해야 한다.
     
-    
+
+# 📌 다양한 연관관계 매핑
+****
+> ✏️ 고려 사항
+> - 다중성 : 다대일 일대다, 일대일, 다대다(사용 지양)
+> - 단방향 ,양방향
+> > - 테이블 : 외래 키 하나로 양쪽 조인이 가능, 방향이라는 개념이 없다.
+> > - 객체 : 참조용 필드가 있는 쪽으로만 참조 가능. 양방향은 사실상 두 개의 단방향 -> 외래키를 관리할 곳을 정해주어야 한다 -> 연관관계의 주인.
+
+
+## ☝️ 다대일 (N:1)
+> ![img_4.png](img_4.png)
+- N에 해당하는 곳이 외래키를 관리.
+  ```java
+  @ManyToOne
+  @JoinColumn(name="team_id")
+  Team team;
+  ```
+- <mark>양방향</mark>은 반대쪽에 @OneToMany를 추가하여 읽을 수 있는 참조를 추가.
+- 반드시 mappedBy를 추가.
+  ````java  
+  @OneToMany(maapedBy="team")
+  List<Member> merbers = new ArrayList<>();
+  ````
+- 양방향을 위해 참조를 추가하더라도 테이블에 영향을 주지 않는다.
+
+## ☝️ 일대다 (1:N) 단방향
+> ![img_5.png](img_5.png)
+- 잘 사용하지 않는다.
+- <mark>객체와 테이블이 외래키를 서로 다른곳에서 가지고 있게 된다.<mark>(테이블은 항상 N쪽에 외래키가 있음.)
+- Team의 List<Member>를 변경시키면 Member 테이블에 TEAM_ID가 바뀌도록 쿼리가 발생한다.(멤버 테이블의 업데이트 쿼리가 발생)
+    ```java
+    @OneToMany
+    @JoinColumn(name = "team_id")
+    private List<Member> members = new ArrayList<>();
+    ```
+  - 멤버 테이블의 team_id와 조인.(JoinColumn을 사용하지 않으면 JoinTable방식을 사용하게 된다. -> <mark>중간 테이블이 새로 생성됨</mark>)
+- 팀 객체를 수정했는데 멤버 테이블에 쿼리가 나가므로 헷갈릴 수 있다. -> 차라리 다대일 양방향을 사용.
+
+## ☝️ 일대일 (1:1)
+- 주 테이블과 대상 테이블 중에 외래키 선택 가능.
+
+> - 주 테이블에 외래키
+> 
+> ![img_6.png](img_6.png)
+```java
+// Member
+@OneToOne
+@JoinColumn(name="locker_id")
+private Locker locker;
+```
+- 양방향으로 만들고 싶으면 반대편에 참조를 추가하고 mappedBy를 사용하면 된다.
+```java
+//Locker                 
+@OneToOne(mappedBy = "locker")
+private Member member;
+```
+- 자신의 테이블에 있는 외래키를 관리한다. 상대 테이블의 외래키 관리 불가능.
+```
+- 주 테이블에 외래키 : 주 객체가 대상 객체의 참조를 가지는 형태. 객체 지향 개발자가 선호, JPA 매핑 편리
+  장점: 주 테이블만 조회해도 대상 테이블 데이터 여부 확인 가능, 다대일로 변경이 테이블 구조 유지.
+  단점: 값이 없다면 null을 허용하게 됨.
+- 대상 테이블에 외래 키 : 전통적인 DBA가 선호
+  장점: 주 테이블과 대상 테이블을 일대일에서 일대다 관계로 변경할 때 테이블 구조 유지.
+  단점: 프록시 기능의 한계로 항상 즉시 로딩으로 사용 됨.(어차피 대상 테이블을 쿼리해야 알 수 있음.)
+```
+
+## ☝️ 다대다 (N:M)
+```java
+// Member
+@ManyToMany
+@JoinTable(name="MEMBER_PRODUCT")
+private List<Product> products = new ArrayList<>();
+```
+
+- 관계형 데이터베이스는 정규화된 테이블 두 개로 다대다 관계를 표현할 수 없다.
+- 추가적인 정보를 넣는것이 불가능하다.
+- 생각지도 못한 쿼리가 발생하기도 한다.
+- 실무에서 사용 지양. <mark>일대다 + 다대일 + 일대다 관계로 풀어내야 한다.</mark>
+
+> ![img_7.png](img_7.png)
+> - 중간 테이블을 엔티티로 승격.
+> - 일대다, 다대일, 일대다로 품어낸다.
+
+```java
+// Member
+@OneToMany(mappedBy = "member")
+private List<MemberProduct> memberProducts = new ArrayList<>();
+```
+```java
+// MemberProduct
+@ManyToOne
+@JoinColumn(name = "member_id")
+Member member;
+
+@ManyToOne
+@JoinColumn(name = "product_id")
+Product product;
+```
+
+```java
+// Product
+@OneToMany(mappedBy = "product")
+private List<MemberProduct> memberProducts = new ArrayList<>();
+```
+
+
+### 🤔 @JoinColumn 주요 속성
+- name : 매핑할 외래 키 이름 
+    ```java
+    @JoinColumn(name = "member_id")
+    Member member;
+    ```
+- referencedColumnName : 외래 키가 참조하는 대상 테이블의 컬럼명.(다를 경우 사용)
+- foreignKey(DDL) : 외래 키 제약 조건을 직접 지정, 테이블을 생성할때만 사용된다.
+- unique, nullable, insertale, updatable, columnDefinition, table ...
+
+### 🤔 @ManyToOne 주요 속성
+- optional : false로 설정하면 연관된 엔티티가 항상 있어야 한다 (default = true)
+- fetch : 글로벌 패치 전략을 설정. (default = FetchType.EAGER)
+- cascade : 영속선 전이 기능.
+
+### 🤔 @OneToMany
+- mappedBy : 연관관계의 주인 필드를 선택.
+- fetch : 글로벌 패치 전략을 설정. (default = FetchType.LAZY)
+- cascade : 영속선 전이 기능. 

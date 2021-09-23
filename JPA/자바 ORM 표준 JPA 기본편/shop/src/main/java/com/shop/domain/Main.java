@@ -1,10 +1,5 @@
 package com.shop.domain;
 
-import org.aspectj.weaver.ast.Or;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
-
 import javax.persistence.*;
 public class Main {
 
@@ -21,22 +16,19 @@ public class Main {
             OrderItem orderItem = new OrderItem();
             em.persist(orderItem);
 
-//            order.addOrderItem(orderItem);
-            order.getOrderItems().add(orderItem);
-//            orderItem.setOrder(order);
+            order.addOrderItem(orderItem);
 
-            em.flush();
-            em.clear();
+//            em.flush();
+//            em.clear();
 
+            System.out.println("===========find order===============");
             Order findOrder = em.find(Order.class, order.getId());
-
             System.out.println("===================================");
-            for(OrderItem o : order.getOrderItems()){
+
+            for(OrderItem o : findOrder.getOrderItems()){
                 System.out.println("orderItem = "+  o);
             }
             System.out.println("===================================");
-
-
 
             tx.commit();
 

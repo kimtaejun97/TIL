@@ -12,19 +12,24 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-public class Item {
+public class Category {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "item_id")
+    @Id @GeneratedValue
+    @Column(name = "category_id")
     private Long id;
 
     private String name;
 
-    private int price;
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Category parent;
 
-    private int stockQuantity;
+    @OneToMany(mappedBy = "parent")
+    private List<Category> child = new ArrayList<>();
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "category")
     private List<CategoryItem> categoryItems = new ArrayList<>();
+
+
+
 }

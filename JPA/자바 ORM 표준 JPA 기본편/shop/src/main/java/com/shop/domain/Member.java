@@ -32,4 +32,5 @@ public class Member {
         orders.add(order);
         order.setMember(this);
     }
+
 }
