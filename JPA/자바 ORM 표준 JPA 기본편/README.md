@@ -597,5 +597,48 @@ public class Member extends BaseEntity{
 🤔 N + 1 문제의 해결
     1. fetchJoin 
     2. Entity Graph
-            
-        
+
+# 📌 영속성 전이 (CASCADE)와 고아 객체
+***
+###  ☝️CASCADE
+- 특정 엔티티를 영속 상태로 만들 때 연관 엔티티도 함께 영속 상태로 만들고 싶을 때.
+    ```java
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.PERSIST)
+    private List<Child> childList = new ArrayList<>();
+    ```
+    의 상태에서.
+    
+    ```java
+    perent.getChildList().add(child1);
+    perent.getChildList().add(child2);
+    
+    em.persist(perent);
+    ```
+    를 실행하면 perent의 참조에 있는 child1, child2 또한 persist가 실행된다.    
+
+    - 영속성 전이는 연관관계를 매핑하는 것과 아무 관련이 없다. 편리함을 제공 할 뿐.
+
+    #### 🖍 CASCADE의 종류
+    - ALL: 모두 적용, 라이프 싸이클이 유사할 때.
+    - PERSIST: 영속. 저장할때만.
+    - REMOVE, MERGE, REFRESH, DETACH
+
+    #### 🖍 주로 한 부모가 여러 자식을 관리할 때 사용 (게시판, 첨부파일), 다른 엔티티와 연관이 없어야 한다. 즉 소유자가 하나일 때.
+
+### ☝️ 고아 객체
+- 고아 객체 제거 : 부모 엔티티와 연관관계가 끊어진 자식 엔티티를 자동으로 삭제.
+    ```java
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    ```
+    - ex) ```perent.getChildren().remove(0)```
+
+    #### 🖍 참조하는 곳이 하나일 때 사용(하나의 엔티티가 소유할 때.)
+    #### 🖍 부모를 제거하면 모두 고아가 되기 때문에 CascadeType.REMOVE 처럼 동작.
+
+
+### 🔑 CascadeType.ALL + orphanRemover
+    - 두 옵션을 모두 활상화하면 자식의 생명주기를 부모 엔티티가 관리.
+    - 도메인 주도 설계(DDD)의 *Aggregate Root 개념을 구현할 때 유용하다.
+        🤔 *Aggregate Root: Root만 Repository를 생성하고, 나머지는 만들지 않는것이 낫다.
+            Root를 통해 생명주기를 관리.
+

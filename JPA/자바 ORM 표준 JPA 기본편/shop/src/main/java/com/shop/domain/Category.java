@@ -21,11 +21,11 @@ public class Category extends BaseEntity {
 
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.PERSIST)
     private List<Category> child = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
