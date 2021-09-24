@@ -574,3 +574,28 @@ public class Member extends BaseEntity{
 - 프록시 클래스 확인 방법 : ```entity.getClass().getName()```
 - 프록시 강제 초기화(Hibernate) : ```Hibernate.initialize(entity);```
         
+
+# 📌 즉시 로딩과 지연 로딩
+***
+- 지연 로딩 : fetch = FetchType.LAZY
+    - ex) @ManyToOne(fetch = FetchType.LAZY)
+    - 프록시로 조회하게 된다. 실제 사용(메소드 호출 등)하는 시점에 초기화.(쿼리 발생)
+
+- 즉시 로딩 : fetch = FetchType.EAGER
+    - 조회할때 애초에 모두 함께 조회.
+    - 실제 엔티티가 불려온다.
+    - JPA 구현체는 가능하면 조인을 사용하여 SQL 한번에 모두 조회.
+    
+
+#### 🖍 즉시로딩 주의점
+- 가급적 지연 로딩을 사용(특히 실무)
+- 즉시 로딩을 적용하면 예상하지 못한 SQL이 발생.
+- JPQL 사용시 즉시 로딩은 N+1 쿼리 문제를 발생시킨다.
+    - 전체 멤버를 조회할 때 멤버 한명당 팀 조회쿼리가 발생
+- <mark>@ManyToOne, @OneToOne은 기본이 즉시로딩이기 때문에 LAZY로 변경해 주어야 한다.</mark>
+
+🤔 N + 1 문제의 해결
+    1. fetchJoin 
+    2. Entity Graph
+            
+        
