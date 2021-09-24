@@ -1,9 +1,11 @@
 package com.shop.domain;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
+
 import javax.persistence.*;
 
 @Entity
-public class CategoryItem {
+public class CategoryItem extends BaseEntity {
 
     @Id @GeneratedValue
     private Long id;

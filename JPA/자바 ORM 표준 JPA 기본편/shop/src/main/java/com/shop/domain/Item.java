@@ -8,11 +8,13 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+
+@Setter @Getter
 @NoArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "DTYPE")
 @Entity
-public class Item {
+public abstract class Item extends BaseEntity{
 
     @Id
     @GeneratedValue

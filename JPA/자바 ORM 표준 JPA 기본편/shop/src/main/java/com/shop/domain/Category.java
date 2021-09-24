@@ -6,13 +6,14 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-public class Category {
+public class Category extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "category_id")

@@ -11,7 +11,7 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor
 @Entity
-public class Member {
+public class Member extends BaseEntity{
 
     @Id @GeneratedValue()
     @Column(name = "member_id")
