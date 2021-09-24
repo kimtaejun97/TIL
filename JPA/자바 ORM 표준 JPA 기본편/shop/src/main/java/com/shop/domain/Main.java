@@ -1,6 +1,10 @@
 package com.shop.domain;
 
+import org.hibernate.Hibernate;
+
 import javax.persistence.*;
+import java.util.Arrays;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -18,23 +22,25 @@ public class Main {
             em.persist(orderItem);
 
             order.addOrderItem(orderItem);
+            em.flush();
+            em.clear();
 
-//            em.flush();
-//            em.clear();
-
-            System.out.println("===========find order===============");
-            Order findOrder = em.find(Order.class, order.getId());
+            System.out.println("====================================");
+            Order findOrder = em.getReference(Order.class, order.getId());
+            System.out.println(emf.getPersistenceUnitUtil().isLoaded(findOrder));
+            Hibernate.initialize(findOrder);
+            System.out.println(emf.getPersistenceUnitUtil().isLoaded(findOrder));
+            findOrder.setStatus(OrderStatus.ORDER);
+            Order findOrder2 = em.find(Order.class, order.getId());
             System.out.println("===================================");
+            System.out.println("findOrder2 = " + findOrder2.getClass());
 
-            for(OrderItem o : findOrder.getOrderItems()){
-                System.out.println("orderItem = "+  o);
-            }
-            System.out.println("===================================");
 
             tx.commit();
 
         }catch (Exception e){
             tx.rollback();
+            e.printStackTrace();
         }finally {
             em.close();
         }

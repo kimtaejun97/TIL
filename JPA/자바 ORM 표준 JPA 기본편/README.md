@@ -541,3 +541,36 @@ public class Member extends BaseEntity{
 }
 ```
 ![img_13.png](img_13.png)
+
+# 📌 프록시
+****
+![img_14.png](img_14.png)
+- em.getReference() : 데이터 베이스 조회를 미루는 가짜(프록시)엔티티 객체 조회.
+    - em.gerReference()가 실행될 때에는 쿼리가 나가지 않다가, 해당 객체에서 값을 꺼낼 때 쿼리가 발생한다.
+    - getReference()로 가져온 객체의 클래스를 확인해 보면 Proxy 임을 확인할 수 있다.         
+      ```class com.shop.domain.Order$HibernateProxy$naIZTxPo```
+
+![img_15.png](img_15.png)
+- 원본의 참조인 target을 가지고 있다. 실제 엔티티를 상속받아 만들어진다.
+- 초기화: 처음에는 target이 null 이지만 프록시의 값을 호출할 때 영속성 컨텍스트에서 실제 엔티티를 가져와 이를 연결시킨다.
+- 프록시의 메소드를 호출하면 target의 메소드를 호출 해 준다.
+- 사용하는 입장에서는 이론상으로 원본과 구분하지 않고 사용해도 된다.
+
+### 🔑 프록시의 특징
+- 프록시 객체는 처음 사용할 때 한 번만 초기화
+- 초기화를 하더라도 프록시 객체가 실제 엔티티로 바뀌는 것이 아니다. 프록시 객체를 통해 실제 엔티티에 접근하는 것.
+- 프록시 객체는 원본 엔티티를 상속받음, 따라서 타입 체크시 '=='이 아닌 instance of를 사용해야 한다.
+- <mark>영속성 컨텍스트에 찾는 엔티티가 이미 있다면 실제 엔티티를 반환.</mark>
+    - JPA에서는 한 영속성 컨텍스트에서 같은 PK로 가져온 객체는 항상 ==비교에서 true가 나와야한다.
+      - ```때문에 한 영속성 컨텍스트에서 getReference()를 통해 proxy 객체를 이미 가져왔다면, 영속성 컨텍스트에서  getReference()로 객체를 가져오거나 find()로 객체를 가져오더라도 proxy객체가 된다.```
+    - 이미 가져온 객체를 프록시로 가져와서 얻을 수 있는 이점이 없다.
+- 영속성 컨텍스트의 도움을 받을 수 없는 준영속 상태일 때, 프록시를 초기화하면 예외 발생.
+    - detach(), close(), clear()    
+    ```org.hibernate.LazyInitializationException: could not initialize proxy```
+      
+
+### 🖍 프록시 확인
+- 프록시 인스턴스의 초기화 여부 확인(boolean) : ```emf.getPersistenceUnitUtil().isLoaded(Object entity)```
+- 프록시 클래스 확인 방법 : ```entity.getClass().getName()```
+- 프록시 강제 초기화(Hibernate) : ```Hibernate.initialize(entity);```
+        
