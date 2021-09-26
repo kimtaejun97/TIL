@@ -15,13 +15,20 @@ public class Main {
 
         tx.begin();
         try {
+            Member member = new Member();
             Order order = new Order();
-            em.persist(order);
+            member.addOrder(order);
+            em.persist(member);
+
+            Item book = new Book();
+            em.persist(book);
 
             OrderItem orderItem = new OrderItem();
+            orderItem.setItem(book);
+            orderItem.setOrder(order);
             em.persist(orderItem);
 
-            order.addOrderItem(orderItem);
+
             em.flush();
             em.clear();
 

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import static javax.persistence.FetchType.*;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,11 +23,11 @@ public class Category extends BaseEntity {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "parent")
     private List<Category> child = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")

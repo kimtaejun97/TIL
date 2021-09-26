@@ -642,3 +642,64 @@ public class Member extends BaseEntity{
         🤔 *Aggregate Root: Root만 Repository를 생성하고, 나머지는 만들지 않는것이 낫다.
             Root를 통해 생명주기를 관리.
 
+
+# 📌 값 타입
+****
+
+## 🧐️ 엔티티 타입
+- @Entity로 정의하는 객체. 
+- 데이터가 변해도 식별자로 지속해서 추적 가능. 
+
+
+## 🧐️️ 값 타입
+- int, Integer, String 처럼 단순한 값, 자바 기본 타입이나 객체.
+- 식별자가 없고 값만 있으므로 변경시 추적 불가. (완전히 다른 값으로 대체 됨.)
+- 모든 값 타입은, 해당 값을 소유한 엔티티의 생명주기에 의존.
+
+- ### ☝️️ 기본 값 타입
+    - 자바 기본타입, 래퍼 클래스, String
+    - 생명 주기를 엔티티에 의존
+    - 값 타입은 공유되지 않는다.(래퍼 클래스, String은 공유는 되나 변경할 수 없는 값.)
+- ### ☝️️ 임베디드 타입(embedded type, 복합 값 타입)
+    > ![img_17.png](img_17.png)
+    - DB 입장에서는 바뀌는 것이 없다.   
+    - class를 이용한 커스텀 값( ex) 주소(city,zipcode ..를 묶어낸).
+    - @Embeddable로 값을 정의, @Embedded로 값 타입을 사용.
+      ```java
+        @Embeddable
+        public class Address {
+            private String city;
+        
+            private String street;
+    
+            @Column(name = "zcode")
+            private String zipcode;
+        }
+      ```
+      ```java
+        @Embedded
+        private Address homeAddress;
+      ```
+    - AttributeOverrides를 사용하여 같은 임베디드 타입 여러개 사용가능. (컬럼명을 재정의)
+      ```java
+        @Embedded
+        @AttributeOverrides({
+                @AttributeOverride(name = "city", column = @Column(name = "work_city")),
+                @AttributeOverride(name = "street", column = @Column(name = "work_street")),
+                @AttributeOverride(name = "zipcode", column = @Column(name = "work_zipcode"))
+        })
+        private Address workAddress;
+      ```
+    - 기본 생성자 필수.
+    - 주로 기본값 타입을 모아 만들어서 복합 값 타입이라고도 한다.
+    > 👍 장점
+    > - 재사용 가능, 높은 응집도
+    > - 값 타입만 사용하는 의미 있는 메소드를 만들 수 있다. (Point.moveLeft(1))
+  
+    ![img_18.png](img_18.png)
+    - 임베디드 타입은 임베디드 타입을 가질 수 있다.
+    - 임베디드 타입은 엔티티 또한 가질 수 있다.
+    
+ 
+- ### ☝️ 컬렉션 값 타입(collection value type)
+
