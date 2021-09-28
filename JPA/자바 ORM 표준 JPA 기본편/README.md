@@ -850,3 +850,48 @@ List<Member> members = query
         em.createQuery("select m from Member m where m.username=?1", Member.class)
                     .setParameter(1, "kim")
         ```
+      
+# 📌 프로젝션
+***
+- SELECT 절에 조회할 대상을 지정하는 것.
+- ### ☝️ 프로젝션 대상
+    - 엔티티 프로젝션 : ```SELECT m FROM Member m```
+    - 엔티티 프로젝션 : ```SELECT m.team FROM Member m```
+        - 실제 나가는 쿼리와 같게하기 위해 ```SELECT t FROM Member m join m.team t```로 사용하는 것이 좋다.
+    - 스칼라 프로젝션(숫자,문자 등 기본 데이터 타입)) : ```SELECT m.age, m.username FROM Member m```
+    - 임베디드 프로젝션 : ```SELECT m.address FROM Member m```
+    - DISTINCT로 중복 제거 : ```SELECT distinct m.username FROM Member m```
+    
+- ### ☝️ 한번에 여러 타입의 값 조회
+    -  ```select m.username, m.age from Member m``` 과 같은 쿼리.
+    
+    - #### Query 타입으로 조회.
+      ```java
+      List resultList = em.createQuery("select m.age, m.username from Member m")
+                .getResultList();
+      Object o = resultList.get(0);
+      Object[] result = (Object[]) o;
+      System.out.println("age : " + result[0]);
+      System.out.println("username : " + result[1]);        
+      ```
+      
+    - #### Object[] 타입으로 조회.
+      ```java
+      List<Object[]> resultList = em.createQuery("select m.age, m.username from Member m")
+                .getResultList();
+      Object[] result = resultList.get(0);
+      System.out.println("age : " + result[0]);
+      System.out.println("username : " + result[1]);
+      ```
+    - #### new 명령어로 조회.
+        - 단순 값을 DTO로 바로 조회.
+        - 패키지명을 포함한 전체 클래스 명 입력.
+        - 순서와 타입이 일치하는 생성자 필요.
+        ```java
+        List<MemberDto> results = em.createQuery("select new com.jpql.module.jpql.MemberDto(m.username, m.age) from Member m", MemberDto)
+                .getResultList();
+        MemberDto memberDto = results.get(0);
+        System.out.println("age : " + memberDto.getAge());
+        System.out.println("username : " + memberDto.getUsername());
+        ```
+        

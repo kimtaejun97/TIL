@@ -1,10 +1,12 @@
 package com.jpql.module.main;
 
 import com.jpql.module.jpql.Member;
+import com.jpql.module.jpql.MemberDto;
 import com.jpql.module.jpql.Team;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 public class Main {
     public static void main(String[] args) {
@@ -31,7 +33,18 @@ public class Main {
                     .getResultList();
 
             // Query
-            Query query = em.createQuery("select m.age, m.username from Member m");
+            List<Object[]> resultList = em.createQuery("select m.age, m.username from Member m")
+                    .getResultList();
+            Object[] result = resultList.get(0);
+            System.out.println("age : " + result[0]);
+            System.out.println("username : " + result[1]);
+
+            // new 명령어로 조회
+            List<MemberDto> results = em.createQuery("select new com.jpql.module.jpql.MemberDto(m.username, m.age) from Member m", MemberDto.class)
+                    .getResultList();
+            MemberDto memberDto = results.get(0);
+            System.out.println("age : " + memberDto.getAge());
+            System.out.println("username : " + memberDto.getUsername());
 
 
             tx.commit();
