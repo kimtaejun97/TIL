@@ -739,7 +739,7 @@ public class Member extends BaseEntity{
     - 값 타입 컬렉션도 지연 로딩 전략을 사용한.
     - #### 🖍 컬렉 션 값 타입의 값 수정 : 값 타입은 불변해야 하기 때문에 Setter를 이용하여 수정하지 않고, 새로운 객체를 생성하여 값을 넣는다. 기존 객체는 remove
         - equals()) , hashCode()를 재정의 했다면 ```address.remove(new Address("city", "street", "zipcode"))```와 같이 사용하여도 동등한 객체를 제거해준다. 
-
+zxc
 
 - #### 🔑 값 타입 컬렉션의 제약 사항
     - 값 타입은 엔티티와 달리 식별자 개념이 없다. 때문에 값을 변경하면 추적이 어렵다.
@@ -751,3 +751,102 @@ public class Member extends BaseEntity{
         - Cascade + OrphanRemover = true 사용.
 
     
+
+
+# 📌 객체지향 쿼리 언어(JPQL)
+****
+> JPA는 다양한 쿼리 방법을 지원
+> - JPQL
+> - QueryDSL
+> - JPA criteria
+> - 네이티브 SQL
+> - JDBC API 직접 사용, Mybatis, SpringJdbcTemplate 함께 사용.
+
+
+## 🧐 JPQL
+- SQL을 추상화한 객체 지향 쿼리 언어.
+- 엔티티 객체를 대상으로 쿼리
+    ```java
+    List<Member> resultList = em.createQuery("select m from Member m where m.name like %kim%", Member.class)
+            .getResultList();
+    ```
+- 문자열이기 때문에 동적 쿼리를 작성하기 어렵다.
+- QueryDSL을 사용하여 해결.
+
+## 🧐 QueryDSL
+```java
+JPAQueryFactory qeury = new JPAQueryFactory();
+QMember m = QMember.member;
+
+List<Member> members = query
+        .select(m)
+        .from(m)
+        .where(m.name.like("kim"))
+        .orderBy(m.id.desc())
+        .fetch();
+```
+- 코드로 작성이 가능하기 때문에 타입 세이프.
+- 컴파일 타임에 오류 발견 가능.
+- 동적인 쿼리 작성이 더 쉽다.(메소드 반환값을 이용하여 간편하게 추출 가능.)
+- 그러나 결국 기본적으로 JPQL을 알아야 한다.
+
+## 🧐 네이티브 SQL
+- JPA가 제공하는 SQL을 직접 사용.
+- JPQL로 해결할 수 없는 특정 DB에 의존적인 기능을 사용할 때.   
+  ex) 오라클의 CONNECT BY
+- SQL을 작성하고 ```em.createNativeQuery(query, Member.class)```    
+
+## 🧐 JDBC 직접 사용, SPringJdbcTemplate 등..
+- JPA를 사용하면서 JDBC 커넥션을 직접 사용, 또는 스프링 JdbcTemplate, 마이바티스 등을 함께 사용.
+- 영속성 컨텍스트를 적절한 시점에 flush 필요.(JPA와 연관 없는 SQL을 실행할 때 - dbconnetcion 에서 execute로 쿼리 실행.)
+
+
+## 🤔 JPQL - 기본 문법과 기능
+- JPQL은 SQL을 추상화하여 특정 DB의 SQL에 의존하지 않는다.
+- JPQL은 결국 SQL로 변환된다.
+
+> ![img_21.png](img_21.png)
+
+- 엔티티와 속성은 대소문자를 구분한다.
+- JPQL 키워드는 대소문자를 구분하지 않는다 (select, FROM ..)
+- 테이블 명이 아닌 엔티티 이름을 사용한다.
+- 별칭은 필수 (Member [as] m, as는 생략 가능)
+- 집합 정렬 지원
+    ```sql
+        select
+            count(m),
+            sum(m.age),
+            avg(m.age)
+            max(m.age)
+            min(m.age)
+        from Member as m
+    ```
+  
+- ### ☝️ TypeQuery, Query
+    - TypeQuery : 반환 타입이 명확할 때 사용.
+      ```java
+      TypedQuery<Member> query = em.createQuery("select m from Member m", Member.class); 
+      ```
+    - Query : 반환 타입이 명확하지 않을 때 사용.
+      ```java
+      Query query = em.createQuery("select m.age, m.username from Member m");
+      ```
+
+- ### ☝️ 결과 조회 API
+    - 결과가 컬렉션 : query.getResultList(), 리스트 반환
+        - 결과가 없으면 빈 리스트 반환.
+    - 결과가 정확히 하나 : query.getSingleResult()
+        - 결과가 없으면 : javax.persistence.NoResultException
+        - 결과가 두개 이상 : javax.persistence.NonUniqueResultException
+    
+- ### ☝️ 파라미터 바인딩 (이름 기준, 위치 기준)
+    - 이름 기준
+        ```java
+        em.createQuery("select m from Member m where m.username=:username", Member.class);
+                    .setParameter("username","kim");
+        ```
+    - 위치 기준
+        ```java
+        em.createQuery("select m from Member m where m.username=?1", Member.class)
+                    .setParameter(1, "kim")
+        ```

@@ -4,6 +4,7 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.List;
 
 public class Main {
 
@@ -58,6 +59,12 @@ public class Main {
             Member findMember2 = em.find(Member.class, member2.getId());
             findMember2.getFavoriteFood().remove("치킨");
             findMember2.getFavoriteFood().add("새 치킨");
+
+            //JPQL
+            List<Member> resultList = em.createQuery("select m from Member m where m.name like %kim%", Member.class)
+                    .getResultList();
+
+            //QueryDSL
 
 
             tx.commit();
