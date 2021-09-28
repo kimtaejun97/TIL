@@ -20,4 +20,12 @@ public class Member {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", age=" + age +
+                '}';
+    }
 }

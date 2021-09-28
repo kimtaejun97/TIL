@@ -895,3 +895,28 @@ List<Member> members = query
         System.out.println("username : " + memberDto.getUsername());
         ```
         
+# 📌 페이징
+****
+- JPA는 페이징을 두개의 API로 추상화.
+- 조회 시작 위치: ```setFirstResult(int startPosition)```
+- 조회할 데이터 수: ```setMaxResults(int maxResult)```
+```java
+List<Member> pagingResult = em.createQuery("select m from Member m order by m.age desc", Member.class)
+                    .setFirstResult(0)
+                    .setMaxResults(23)
+                    .getResultList();
+```
+- 페이징 MySQL 방언.
+```sql
+SELECT
+    M.ID AS ID,
+    M.AGE AS AGE,
+    M.TEAM_ID AS TEAM_ID,
+    M.NAME AS NAME       
+FROM
+     MEMBER M
+ORDER BY
+    M.AGE DESC LIMIT ?, ?
+    
+    
+```

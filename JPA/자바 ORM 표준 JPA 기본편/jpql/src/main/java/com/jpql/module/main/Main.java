@@ -46,6 +46,22 @@ public class Main {
             System.out.println("age : " + memberDto.getAge());
             System.out.println("username : " + memberDto.getUsername());
 
+            // 페이징
+            for(int i =0; i < 100; i++){
+                Member m = new Member();
+                m.setUsername("kim" + i);
+                m.setAge(i);
+                em.persist(m);
+            }
+
+
+            List<Member> pagingResult = em.createQuery("select m from Member m order by m.age desc", Member.class)
+                    .setFirstResult(0)
+                    .setMaxResults(23)
+                    .getResultList();
+            for(Member m : pagingResult){
+                System.out.println("m = " + m.toString());
+            }
 
             tx.commit();
         }catch (Exception e){
