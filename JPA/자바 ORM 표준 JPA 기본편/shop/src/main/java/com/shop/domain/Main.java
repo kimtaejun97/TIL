@@ -32,6 +32,7 @@ public class Main {
             em.flush();
             em.clear();
 
+            // 지연 로딩
             System.out.println("====================================");
             Order findOrder = em.getReference(Order.class, order.getId());
             System.out.println(emf.getPersistenceUnitUtil().isLoaded(findOrder));
@@ -41,6 +42,22 @@ public class Main {
             Order findOrder2 = em.find(Order.class, order.getId());
             System.out.println("===================================");
             System.out.println("findOrder2 = " + findOrder2.getClass());
+
+
+            // 컬렉션 값 타입
+            Member member2 = new Member();
+
+            member2.getFavoriteFood().add("치킨");
+            member2.getFavoriteFood().add("피자");
+            member2.getFavoriteFood().add("족발");
+            em.persist(member2);
+
+            em.flush();
+            em.clear();
+
+            Member findMember2 = em.find(Member.class, member2.getId());
+            findMember2.getFavoriteFood().remove("치킨");
+            findMember2.getFavoriteFood().add("새 치킨");
 
 
             tx.commit();

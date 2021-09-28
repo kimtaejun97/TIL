@@ -1,5 +1,6 @@
 package com.shop.domain;
 
+
 import lombok.Getter;
 import lombok.Setter;
 

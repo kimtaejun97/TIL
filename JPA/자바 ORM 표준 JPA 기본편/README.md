@@ -715,7 +715,8 @@ public class Member extends BaseEntity{
     
     #### 🖍 값 타입의 비교는 내용이 같다면 true가 나와야 한다.
         - 그러나 임베디드 타입은 객체의 참조를 비교하기 때문에 false가 나온다. 때문에 동등성 비교(equals)를 사용해야 한다.
-        - 객체 타입의 동등성 비교는 기본적으로'==' 비교이기 때문에 equals메서드의 재정의가 필요하다.
+        - 객체 타입의 동등성 비교는 기본적으로'==' 비교이기 때문에 equals() & hashCode() 메서드의 재정의가 필요하다.
+            (프록시를 사용할 수 있으므로 getter를 사용하도록 재정의. - 프록시를 사용할 때 getter를 사용하면 원래 객체를 찾아갈 수 있다.)
                 
     
     
@@ -723,4 +724,30 @@ public class Member extends BaseEntity{
      
  
 - ### ☝️ 컬렉션 값 타입(collection value type)
+    - 값 타입을 컬렉션에 담아 사용.
+    > ![img_20.png](img_20.png)
+    > - DB의 입장에서는 새로운 테이블이 하나 생기고 마치 일대다와 같은 관계를 형성한다.
+    > - 모든 필드의 조합으로 PK가 된다(특정 값하나로 PK를 지정하게 되면 이것은 값 타입이 아닌 엔티티다.)
+    
+    - ```@ElementCollection```
+    - 테이블 명 지정 : ```@CollectionTable(name = "table_name")```
+    - 외래키 지정 : @CollectionTable의 속성으로 ```joinColumns = @JoinColumn(name = "column_name")```
+    - 컬럼 명 지정(기본 값 타입) : ```@Column(name = "column_name```
+    - 컬럼 명 지정(임베디드 값 타입) : ```@AttributeOverrides``` 사용 임베디드 값 타입 설명 참조.
+    
+    - 값 타입 컬렉션은 엔티티의 라이프 사이클에 의존. 즉, [Cascade] + [OrphanRemover = true] 와 동일(별도의 persist, update 등이 필요 없다.)
+    - 값 타입 컬렉션도 지연 로딩 전략을 사용한.
+    - #### 🖍 컬렉 션 값 타입의 값 수정 : 값 타입은 불변해야 하기 때문에 Setter를 이용하여 수정하지 않고, 새로운 객체를 생성하여 값을 넣는다. 기존 객체는 remove
+        - equals()) , hashCode()를 재정의 했다면 ```address.remove(new Address("city", "street", "zipcode"))```와 같이 사용하여도 동등한 객체를 제거해준다. 
 
+
+- #### 🔑 값 타입 컬렉션의 제약 사항
+    - 값 타입은 엔티티와 달리 식별자 개념이 없다. 때문에 값을 변경하면 추적이 어렵다.
+    - 값 타입 컬렉션을 변겨하면 주인 엔티티와 연관된 모든 데이터를 삭제한 후 현재 남은 값을 모두 다시 저장 -> 매우 비효율적.
+    - 값 타입 컬렉션을 매핑하는 테이블은 모든 컬럼을 묶어서 기본키를 구성.(null 안됨, 중복 저장 안됨.)
+    
+    #### ✏️ 실무에서는 값 타입 컬렉션 대신에 일대다 관계를 고려한다.(값 타입을 엔티티로 승급)
+        - 일대다를 위한 엔티티를 만들고 엔티티에서 값 타입을 사용.(List<Address> -> AddressEntity 의 필드로 Address 타입.
+        - Cascade + OrphanRemover = true 사용.
+
+    
