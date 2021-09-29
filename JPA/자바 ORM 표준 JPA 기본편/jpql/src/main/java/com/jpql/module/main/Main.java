@@ -83,6 +83,35 @@ public class Main {
             System.out.println("resultList3 = " + resultList3);
 
 
+            // 조건식 - case
+            List<String> resultList4 = em.createQuery("select " +
+                    "case when m.age <=19 then '학생요금' " +
+                    "when m.age >=60 then '경로요금' " +
+                    "else '일반요금' " +
+                    "end " +
+                    "from Member m", String.class)
+                    .getResultList();
+
+            for(String s : resultList4){
+                System.out.println("s = " + s);
+            }
+
+            List<String> resultList5 = em.createQuery("select " +
+                    "case t.name " +
+                    "when 'TeamA' then '110%' " +
+                    "when 'TeamB' then '120%' " +
+                    "else '100%' " +
+                    "end " +
+                    "from Team t", String.class)
+                    .getResultList();
+
+            // Coalesce
+            em.createQuery("select coalesce(m.username, 'unknown') from Member m");
+
+            //NullIf
+            em.createQuery("select nullif(m.username, '관리자') from Member m");
+
+
             tx.commit();
         }catch (Exception e){
             tx.rollback();

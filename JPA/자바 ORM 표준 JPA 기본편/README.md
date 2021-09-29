@@ -987,3 +987,49 @@ em.createQuery("select m from Member m, Team t where m.username = t.name")
 - FROM 절의 서브 쿼리는 현재 JPQL에서 불가능. 
     - 조인으로 풀 수 있다면 풀어서 해결.
 
+
+# 📌 JPQL 타입 표현
+***
+- 문자열 : 'Hello', 'She''s'(She's)
+- 숫자 : 10L, 10D, 10F
+- Boolean : true, false (대소문자 구분 없음.)
+- ENUM : package.MemberType.ADMIN(패키지명을 포함)
+    - 그러나 파라미터로 사용하게 되면
+        ```.setParameter("userType", MemberType.ADMIN)``` 으로 사용 가능하다.
+- 엔티티 타입 : ```where type(i) = Book```
+    - 상속관계에서 사용. Item을 상속한 받은 것들 중 Book 타입에 해당하는 타입만 조회.(Item.DTYPE = Book으로 쿼리 발생.)
+
+- 기타 : EXISTS, IN, AND, OR, NOT, =, >... (BETWEEN i and j), LIKE, IS NULL
+
+# 📌 조건식(CASE 등..)
+***
+- 기본 CASE 식
+```java
+List<String> resultList4 = em.createQuery("select " +
+                    "case when m.age <=19 then '학생요금' " +
+                    "when m.age >=60 then '경로요금' " +
+                    "else '일반요금' " +
+                    "end " +
+                    "from Member m", String.class)
+                    .getResultList();
+```
+- 단순 CASE 식
+```java
+List<String> resultList5 = em.createQuery("select " +
+        "case t.name " +
+        "when 'TeamA' then '110%' " +
+        "when 'TeamB' then '120%' " +
+        "else '100%' " +
+        "end " +
+        "from Team t", String.class)
+        .getResultList();
+```
+
+- COALESCE : 하나씩 조회하면 null이 아니면 반환, null이면 두번째 인자 값 반환.
+```java
+em.createQuery("select coalesce(m.username, 'unknown') from Member m");
+```
+- NULLIF : 값이 두번째 인자와 같으면 null을, 다르다면 원래 값을 반환.
+```java
+em.createQuery("select nullif(m.username, '관리자') from Member m");
+```
