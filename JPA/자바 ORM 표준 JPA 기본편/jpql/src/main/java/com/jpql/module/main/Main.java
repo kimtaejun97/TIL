@@ -111,6 +111,15 @@ public class Main {
             //NullIf
             em.createQuery("select nullif(m.username, '관리자') from Member m");
 
+            // 사용자 함수
+            List<String> resultList6 = em.createQuery("select function('my_concat', m.username) from Member m", String.class)
+                    .getResultList();
+            System.out.println("resultList6 = " + resultList6);
+
+            //사용자 함수 - hibernate
+            List<String> resultList7 = em.createQuery("select my_concat(m.username) from Member m", String.class)
+                    .getResultList();
+            System.out.println("resultList7 = " + resultList7);
 
             tx.commit();
         }catch (Exception e){

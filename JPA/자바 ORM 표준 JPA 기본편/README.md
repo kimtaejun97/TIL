@@ -1033,3 +1033,40 @@ em.createQuery("select coalesce(m.username, 'unknown') from Member m");
 ```java
 em.createQuery("select nullif(m.username, '관리자') from Member m");
 ```
+
+
+# 📌 JPQL  함수
+***
+## 🧐 기본 함수
+- CONCAT : ```select concat('a', 'b') ...```
+- SUBSTRING : ```select substring(m.username,0,3) ...```
+- TRIM, LOWER, UPPER, LENGTH, ABS, SQRT, MOD
+- LOCATE : 첫 번째 인자를 두번째 인자에서 찾아 위치 반환(1부터 시작)    
+  ```select locate('de','abcdef')```
+- SIZE : 컬렉션의 크기 반환    
+  ```select size(t.members) from Team t```
+    
+## 🧐 사용자 함수
+- 하이버네이트는 사용전에 방언을 생성해야 한다.
+- 각 데이터베이스의 방언에는 기본적으로 다양한 함수가 이미 정의되어 있다.
+
+> - H2Dialect
+> ![img_22.png](img_22.png)
+
+- ### 사용자 정의
+```java
+public class MyH2Dialect extends H2Dialect {
+
+    public MyH2Dialect() {
+        registerFunction("my_concat", new VarArgsSQLFunction(StandardBasicTypes.STRING, "(", "||", ")"));
+    }
+}
+```
+> - 방언을 새로 생성한 방언으로 사용.
+> - ```<property name="hibernate.dialect" value="com.jpql.dialect.MyH2Dialect"/>```
+```java
+em.createQuery("select function('my_concat', m.username) from Member m", String.class);
+
+// hibernate
+        em.createQuery("select my_concat(m.username) from Member m", String.class)
+```
