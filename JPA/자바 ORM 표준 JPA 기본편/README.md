@@ -920,3 +920,70 @@ ORDER BY
     
     
 ```
+
+# 📌 조인
+***
+```java
+ // Inner Join [inner 생략 가능]
+em.createQuery("select m from Member m join m.team t");
+
+//left outer join [outer 생략 가능]
+em.createQuery("select m from Member m left join m.team t ")
+
+// theta join
+em.createQuery("select m from Member m, Team t where m.username = t.name")
+```
+
+## 🧐 ON 절을 이용한 조인.
+- JPA 2.1 부터 지원
+- 조인 대상 필터링
+     ```sql
+    -- 필터 : 팀 이름이 A인 팀만 조인.
+    select m,t from Member m left join m.team t on t.name = 'A'
+    ```
+    ```sql
+    -- 실제 SQL
+    select m.*,t.* 
+    from Member m 
+        left join team t 
+            on m.team_id=t.id and t.name = 'A'
+    ```
+- 연관관계 없는 엔티티 외부 조인.
+    ```sql
+    -- 회원 이름과 팀이름이 같은 대상 외부 조인
+    select m, t from Member m left join Team t on m.username = t.name
+    ```
+    ```sql
+    -- 실제 SQL
+    select m.*,t.* from Member m left join Team t on m.username = t.name
+    ```
+
+# 📌 서브 쿼리
+### ☝️ 서브 쿼리 지원 함수.
+- [NOT] EXISTS (subquery): 서브 쿼리의 결과가 존재하면 참.
+  ```sql
+    -- 팀 A에 소속된 회원.
+    select m from Member m
+    where exist(select t from m.team t where t.name = 'A')
+    ```
+- {ALL | ANY | SOME} (subquery)
+    - ALL: 모두 만족해야 참.
+    - ANY, SOME: 하나라도 만족하면 참.
+    ```sql
+    -- 전체 상품의 재고보다 주문량이 많은 주문들
+    select o from Order o 
+    where o.orderAmout > ALL(select p.stockAmout from Product p)
+    ```
+    ```sql
+    -- 어떤 팀이든 팀에 소속된 회원
+    select m from Member m
+    where m.team = ANY(select t from Team t)
+    ```
+- [NOY] IN (subquery): 서브쿼리의 결과중 하나라도 같은 것이 있으면 참.
+
+### ☝️ JPA 서브 쿼리의 한계
+- WHERE, HAVING 절에서만 서브 쿼리가 사용 가능하다.
+- SELECT 절에서도 가능(하이버네이트에서 지원.)
+- FROM 절의 서브 쿼리는 현재 JPQL에서 불가능. 
+    - 조인으로 풀 수 있다면 풀어서 해결.
+

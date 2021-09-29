@@ -16,8 +16,13 @@ public class Main {
 
         tx.begin();
         try {
+            Team teamA  = new Team();
+            teamA.setName("TeamA");
+            em.persist(teamA);
+
             Member member = new Member();
             member.setUsername("kim");
+            member.setTeam(teamA);
             em.persist(member);
 
             // TypeQuery : 반환 타입이 명확할 때
@@ -54,7 +59,6 @@ public class Main {
                 em.persist(m);
             }
 
-
             List<Member> pagingResult = em.createQuery("select m from Member m order by m.age desc", Member.class)
                     .setFirstResult(0)
                     .setMaxResults(23)
@@ -62,6 +66,22 @@ public class Main {
             for(Member m : pagingResult){
                 System.out.println("m = " + m.toString());
             }
+
+            // Inner Join
+            Query query = em.createQuery("select m from Member m join m.team t");
+            List resultList1 = query.getResultList();
+            System.out.println("resultList1 = " + resultList1);
+
+            //left outer join
+            List resultList2 = em.createQuery("select m from Member m left join m.team t ")
+                    .getResultList();
+            System.out.println("resultList2 = " + resultList2);
+
+            // theta join
+            List resultList3 = em.createQuery("select m from Member m, Team t where m.username = t.name")
+                    .getResultList();
+            System.out.println("resultList3 = " + resultList3);
+
 
             tx.commit();
         }catch (Exception e){
