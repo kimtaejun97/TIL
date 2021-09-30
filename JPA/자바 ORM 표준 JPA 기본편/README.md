@@ -1070,3 +1070,31 @@ em.createQuery("select function('my_concat', m.username) from Member m", String.
 // hibernate
         em.createQuery("select my_concat(m.username) from Member m", String.class)
 ```
+
+# 📌 경로 표현식
+****
+- 점을 찍어 객체 그래프를 탐색하는 것.
+    
+### ☝️ 상태 필드
+- ```m.username```
+- 단순히 값을 저장하기 위한 필드
+- 경로 탐색의 끝, 더이상 탐색이 불가능.
+
+### ☝️ 연관 필드
+- 단일 값 연관 필드 : @ManyToOne, @OneToOne, 대상이 엔티티
+    -  ```m.team```
+    - 묵시적인 내부 조인이 발생, 추가적 탐색이 가능(t.name ..)
+  
+- 컬렉션 값 연관 필드: @OneToMany, @ManyToMant, 대상이 컬렉션
+    - ```t.members ```
+    - 묵시적 내부 조인(inner join)이 발생.(발생 쿼리를 직관적으로 알기 어렵기 때문에 주의.)
+    - 더이상 탐색할 수 없다.(FROM 절에서 명시적 조인을 통해 별칭을 얻으면 <mark>별칭을 통해 탐색 가능.</mark>)
+        ```sql
+        -- member.username 과 같으므로 가능하다.
+        select m.username from Team t join t.members m 
+        ```
+    - .size로 컬렉션의 사이즈는 가져올 수 있다.
+
+🖍 <mark>묵시적 조인보다는 조인을 직접 명시하는 것이 좋다.</mark>
+    
+    
