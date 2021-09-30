@@ -1172,5 +1172,58 @@ em.createQuery("select distinct t from Team t join fetch t.members", Team.class)
             - ex) Team 과 member의 관계에서 batch size만큼의 team.members 한 쿼리에서 조회.
         - N + 1 -> 2번의 쿼리(팀 조회쿼리, 멤버 조회쿼리)
 
+# 📌 다형성 쿼리
+***
 
+### ☝️ TYPE
+- 조회 대상을 특정 자식으로 한정.
+- DTYPE로 쿼리.
+```sql
+-- Item 중에 Book, Movie 조회해라
+select i from Item i where type(i) in (Book,Movie)
 
+--[SQL]
+select i from i where i.DTYPE in('Book', 'Movie')
+```
+
+### ☝️ TREAT
+- 자바의 타입 케스팅과 유사.
+- 상속 구조에서 부모 타입을 특정 자식 타입으로 다룰 때 사용.
+- FROM, WHERE, SELECT 절에서 사용
+```sql
+--Book 타입의 author 
+select i from Item i where treat(i as Book).author='kim'
+
+--[SQL]
+select i from i where i.DTYPE ='book' and i.author ='kim'
+```
+
+# 📌 엔티티 직접 사용
+***
+#### - JPQL에서 엔티티를 직접 사용하면 SQL에서 해당 엔티티의 기본 키 값을 사용
+```sql
+--[JPQL]
+select count(m) from Member m
+
+--[실행된 SQL]
+select count(m.id) from Member m
+```
+```sql
+--[JPQL]
+select m from Member m where m = :member
+
+--[실행된 SQL]
+select m from Member m where m.id = ?
+
+```
+- 파라미터로 엔티티 객체를 전달해도 마찬가지로 기본 키 값으로 쿼리가 발생한다.
+
+#### - 외래 키 값
+```sql
+--[JPQL]
+select  m from Member m where m.team = :team
+
+--[실행된 SQL]
+select m from Member m where m.team_id = ?
+```
+- 외래키 또한 엔티티로 주어져도 동일하게 적용된다. 
