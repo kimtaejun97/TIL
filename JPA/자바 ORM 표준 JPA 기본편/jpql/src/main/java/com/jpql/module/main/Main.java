@@ -25,6 +25,14 @@ public class Main {
             member.setTeam(teamA);
             em.persist(member);
 
+            Member member2 = new Member();
+            member2.setUsername("tae");
+            member2.setTeam(teamA);
+            em.persist(member2);
+
+            em.flush();
+            em.clear();
+
             // TypeQuery : 반환 타입이 명확할 때
             // 파라미터 설정 이름 기반.
             TypedQuery<Member> typedQuery = em.createQuery("select m from Member m where m.username=:username", Member.class);
@@ -120,6 +128,27 @@ public class Main {
             List<String> resultList7 = em.createQuery("select my_concat(m.username) from Member m", String.class)
                     .getResultList();
             System.out.println("resultList7 = " + resultList7);
+
+            // join fetch -entity
+            em.flush();
+            em.clear();
+
+            List<Member> resultList8 = em.createQuery("select m from Member m join fetch m.team", Member.class)
+                    .getResultList();
+            System.out.println("resultList8 = " + resultList8.get(0));
+            System.out.println("resultList8 = " + resultList8.get(0).getTeam().getName());
+
+            // join fetch collection
+            List<Team> resultList9 = em.createQuery("select distinct t from Team t join fetch t.members", Team.class)
+                    .getResultList();
+
+            for(Team t :resultList9){
+                System.out.println("t = " + t.getName());
+                System.out.println("size = " + t.getMembers().size());
+                for(Member m : t.getMembers()){
+                    System.out.println("-> m = " + m);
+                }
+            }
 
             tx.commit();
         }catch (Exception e){

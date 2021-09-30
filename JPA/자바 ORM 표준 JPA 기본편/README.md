@@ -1097,4 +1097,51 @@ em.createQuery("select function('my_concat', m.username) from Member m", String.
 
 🖍 <mark>묵시적 조인보다는 조인을 직접 명시하는 것이 좋다.</mark>
     
-    
+
+# 📌 Fetch Join
+***
+- JPQL에서 성능 최적화를 위해 제공하는 기능.
+- 연관된 엔티티나 컬렉션을 SQL 한 번에 함께 조회하는 기능.
+- ```[left [outer] | inner] join fetch```
+  
+### ☝️ 엔티티 페치 조인
+- 회원을 조회하면서 연관된 팀도 함께 조회(SQL 한번)
+
+![img_23.png](img_23.png)
+```sql
+select m from Member m join fetch m.team
+```
+```sql
+-- 실제 sql
+SELECT M.*, T.* FROM MEMBER M INNER JOIN TEAM T ON M.TEAM_ID=T.ID
+```
+- Member 뿐만 아니라 Team도 함께 SELECT 하는 것을 확인할 수 있다.
+- 함께 조회하여 가져오기 때문에 지연 로딩이 적용되지 않는다.
+- N + 1 쿼리 문제를 해결할 수 있다.
+
+### ☝️ 컬렉션 페치 조인
+![img_25.png](img_25.png)
+```sql
+select t from Team t join fetch t.members;
+```
+```sql
+-- 실제 sql
+SELECT T.*, M.* FROM TEAM T INNER JOIN MEMBERM ON T.ID=M.TEAM.ID
+```
+- 일대다의 조인에서는 중복된 투플이 생기게 된다. (그림처럼 두 멤버의 팀이 같다면 같은 팀 두개가 조회된다.)   
+> ![img_24.png](img_24.png)
+
+#### 🖍 중복 값의 제거 DISTINCT
+
+```java
+em.createQuery("select distinct t from Team t join fetch t.members", Team.class)
+```
+- 그러나 실제로 투플의 값은 다르기 때문에 SQL의 DISTINCT만으로는 모두 제거할 수 없다.
+- JPQL의 DISTINCT는 SQL에 DISTINCT를 추가하는 것 말고도 <mark>애플리케이션에서 엔티티 중복을 제거하는 기능</mark>을 가지고 있다.
+> ![img_26.png](img_26.png)
+> - 정상적으로 하나만 조회된다 .
+
+
+
+
+
