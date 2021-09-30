@@ -150,6 +150,22 @@ public class Main {
                 }
             }
 
+            //NamedQuery
+            List<Member> resultList10 = em.createNamedQuery("Member.findByUsername", Member.class)
+                    .setParameter("username", "kim")
+                    .getResultList();
+
+            System.out.println("resultList10 = " + resultList10);
+
+            // 벌크 연산
+            int count = em.createQuery("update Member m set age=20")
+                    .executeUpdate();
+            System.out.println("count = " + count);
+
+            int i = em.createQuery("delete from Member m where m.username='kim'")
+                    .executeUpdate();
+            System.out.println("i = " + i);
+
             tx.commit();
         }catch (Exception e){
             tx.rollback();
