@@ -1,7 +1,7 @@
 > 이미지 출처: 자바 ORM 표준 JPA 프로그래밍 - 기본편 김영한님.
 
 ### 🤔 SQL 중심적인 개발의 문제.
-> - 반복적인 SQL 작성 및 유지보수가 힘들다.
+> - 반복적인 SQL의 작성, 유지보수가 힘들다.
 > - 객체, 관계형 데이터베이스의 패러다임 불일치.
 > - 상속, 연관관계, 데이터 타입, 데이터 식별 방법 등의 차이.
 
@@ -52,7 +52,7 @@
   > ✏️ JPA의 성능 최적화
   > - 1차 캐시와 동일성 보장
   >     - 같은 트랙잭션 안에서는 같은 엔티티를 반환 -> 약간의 조회 성능 향상
-  >     - DB Isolation Level이 REad Commit 이어도 애플리케이션에서 Repeatable Read 보장.
+  >     - DB Isolation Level이 Read Commit 이어도 애플리케이션에서 Repeatable Read 보장.
   >     ```java
   >     Member m1 = jpa.find(Member.class, 0); // SQL
   >     Member m2 = jpa.find(Member.class, 0); // Cache
@@ -116,7 +116,7 @@
     > - commit 또는 flush 전까지 쓰기지연 저장소에 생성된 sql을 저장하다가 한번에 전송.
     
   - ### ☝️ 엔티티 변경 감지.
-    > - commit 시점에 flush가 실해되며 자동으로 엔티티 변경 사항을 감지(엔티티와 스냅샷 비교, 더티 체킹)
+    > - commit 시점에 flush가 실어되며 자동으로 엔티티 변경 사항을 감지(엔티티와 스냅샷 비교, 더티 체킹)
     > - Update SQL을 생성, 쿼리 전송.
     > 
     > ![img_3.png](img_3.png)
@@ -311,25 +311,24 @@ public class Team {
     - 주로 테이블 설계에서 외래 키가 있는 곳을 주인으로 정한다.(N을 담당하는 엔티티)
   
     - 예를 들어 팀과 멤버의 관계에서는 멤버가 연관관계의 주인이 된다.
-    만약 팀을 연관관계의 주인으로 설정하게 되면 팀에 멤버를 추가하였는데,멤버의 업테이트 쿼리가 발생하므로, 맞지않다.
+    만약 팀을 연관관계의 주인으로 설정하게 되면 팀에 멤버를 추가하였는데,멤버의 업데이트 쿼리가 발생하므로 맞지않다.
     성능 이슈 또한 발생. 
     ```
       
     > 🖍 데이터를 저장할 떄에는 연관관계의 주인 뿐만 아니라 역방향에도 세팅을 해주는 것이 좋다.
     > ```java
-    >   team.getMembers().add(member);
     >   member.setTeam(team);
+    >   team.getMembers().add(member);
     > ```
-    > - 한 트랜잭션 안에서 조회를 하고자 할 때 flush(), clear()를 해주고 다시 조회를 한다면 상관없지만, 그렇지 않으면 1차 캐시에 있던 데이터를 그대로 불러오기 때문에 <mark>이전에 추가한 데이터를 team.getMembers()로 조회할 수 없게 된다.</mark>(1차 캐시에 저장된 데이터에서 불러오게 됨)
+    > - 한 트랜잭션 안에서 조회를 하고자 할 때 flush(), clear()를 해주고 다시 조회를 한다면 상관없지만, 그렇지 않으면 1차 캐시에 있던 데이터를 그대로 불러오기 때문에 <mark>추가한 데이터를 team.getMembers()로 조회할 수 없게 된다.</mark>(1차 캐시에 저장된 데이터에서 불러오게 됨)
     > - 객체 지향적으로도 이상적.
     > - 테스트 케이스 작성할 때 더 유연함.
-    > - 연관관계 편의 메서드를 작성 (위의 두 과정을 하나의 메서드로, 멤버 메서드)
+    > - 연관관계 편의 메서드를 작성 (위의 두 과정을 하나의 멤버 메서드로)
     
     > 🖍 양방향 매핑시 무한 루프를 조심하자.
     > - 기본 toString() 사용시 서로를 호출하기 때문에 무한루프가 발생한다. (team에서는 member를 meber에서는 team을)
     > - JSON 생성 라이브러리에서도 마찬가지의 상황이 발생할 수 있다.    
      => 해결 : 컨트롤러에서는 엔티티를 반환하지 말아야 한다. DTO로 반환해야 한다.
-    
 
 # 📌 다양한 연관관계 매핑
 ****
@@ -390,7 +389,7 @@ private Member member;
 - 자신의 테이블에 있는 외래키를 관리한다. 상대 테이블의 외래키 관리 불가능.
 ```
 - 주 테이블에 외래키 : 주 객체가 대상 객체의 참조를 가지는 형태. 객체 지향 개발자가 선호, JPA 매핑 편리
-  장점: 주 테이블만 조회해도 대상 테이블 데이터 여부 확인 가능, 다대일로 변경이 테이블 구조 유지.
+  장점: 주 테이블만 조회해도 대상 테이블 데이터 여부 확인 가능, 다대일로 변경 테이블 구조 유지.
   단점: 값이 없다면 null을 허용하게 됨.
 - 대상 테이블에 외래 키 : 전통적인 DBA가 선호
   장점: 주 테이블과 대상 테이블을 일대일에서 일대다 관계로 변경할 때 테이블 구조 유지.
@@ -461,7 +460,7 @@ private List<MemberProduct> memberProducts = new ArrayList<>();
 ****
 - 관계형 DB에는 상속관계가 없다.
 - 가장 유사한 방법이 슈퍼타입 서브타입 관계.
-- 상속관계 매핑: 객체의 상속 구조와 DB의 슈퍼타입 서브타입 관계를 매핑.
+- 상속관계 매핑: 객체의 상속 구조와 DB의 슈퍼타입 서브타입 관계를 매핑.     
      ![img_8.png](img_8.png)
   
 ### ☝️ 조인 전략 (JOINED)
@@ -515,11 +514,30 @@ private List<MemberProduct> memberProducts = new ArrayList<>();
 ```@DiscriminatorValue("XXX")```
 - DTYPE에 들어갈 이름을 엔티티 명이 아닌 임의의 이름을 넣어줄 수 있다.
 
+```java
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "DTYPE")
+@Entity
+public abstract class Item {
+    ...
+}
+```
+- 상위 클래스는 생성해서 사용하지 않기 떄문에 추상클래스로 생성.
+```java
+@Entity
+@DiscriminatorValue("B")
+public class Book extends Item{
+
+    private String author;
+    private String isbn;
+}
+```
+
 # 📌 @MappedSuperclass
 ***
 ![img_12.png](img_12.png)
 - 공통 매핑 정보를 생성하여 사용하고 싶을 때 사용. 주로 등록일, 수정일 등과같이 전체 엔티티에서 공통으로 적용할 속성에 사용.
-- 엔티티가 아니기 떄문에 테이블에 매핑되지 않는다. 조회 또한 불가.
+- 엔티티가 아니기때문에 테이블에 매핑되지 않는다. 조회 또한 불가.
 - 상속관계 매핑이 아님.
 - 직접 생성해서 사용할 일이 없으므로 추상 클래스로 생성.
 
@@ -560,7 +578,7 @@ public class Member extends BaseEntity{
 - 프록시 객체는 처음 사용할 때 한 번만 초기화
 - 초기화를 하더라도 프록시 객체가 실제 엔티티로 바뀌는 것이 아니다. 프록시 객체를 통해 실제 엔티티에 접근하는 것.
 - 프록시 객체는 원본 엔티티를 상속받음, 따라서 타입 체크시 '=='이 아닌 instance of를 사용해야 한다.
-- <mark>영속성 컨텍스트에 찾는 엔티티가 이미 있다면 실제 엔티티를 반환.</mark>
+- <mark>영속성 컨텍스트에 찾는 엔티티가 이미 있다면 getReference()를 하더라도 실제 엔티티를 반환.</mark>
     - JPA에서는 한 영속성 컨텍스트에서 같은 PK로 가져온 객체는 항상 ==비교에서 true가 나와야한다.
       - ```때문에 한 영속성 컨텍스트에서 getReference()를 통해 proxy 객체를 이미 가져왔다면, 영속성 컨텍스트에서  getReference()로 객체를 가져오거나 find()로 객체를 가져오더라도 proxy객체가 된다.```
     - 이미 가져온 객체를 프록시로 가져와서 얻을 수 있는 이점이 없다.
@@ -594,9 +612,9 @@ public class Member extends BaseEntity{
     - 전체 멤버를 조회할 때 멤버 한명당 팀 조회쿼리가 발생
 - <mark>@ManyToOne, @OneToOne은 기본이 즉시로딩이기 때문에 LAZY로 변경해 주어야 한다.</mark>
 
-🤔 N + 1 문제의 해결
-    1. fetchJoin 
-    2. Entity Graph
+🤔 N + 1 문제의 해결       
+    1. fetchJoin       
+    2. Entity Graph   
 
 # 📌 영속성 전이 (CASCADE)와 고아 객체
 ***
@@ -636,7 +654,7 @@ public class Member extends BaseEntity{
     #### 🖍 부모를 제거하면 모두 고아가 되기 때문에 CascadeType.REMOVE 처럼 동작.
 
 
-### 🔑 CascadeType.ALL + orphanRemover
+### 🔑 CascadeType.ALL + orphanRemovar
     - 두 옵션을 모두 활상화하면 자식의 생명주기를 부모 엔티티가 관리.
     - 도메인 주도 설계(DDD)의 *Aggregate Root 개념을 구현할 때 유용하다.
         🤔 *Aggregate Root: Root만 Repository를 생성하고, 나머지는 만들지 않는것이 낫다.
@@ -704,7 +722,7 @@ public class Member extends BaseEntity{
     #### 🖍  임베디드 타입은 공유로 인한 Side Effect가 발생할 수 있기 때문에 주의.
     ![img_19.png](img_19.png)
     - 멤버1 과 멤버2가 같은 Address 객체를 공유하게 되면 address 필드에서 값을 변경하면 둘다 함께 변경된다.
-    - 공유하고 싶다면 엔티티를 만들어 공유해야 한다.
+    - 의도적으로 공유하고 싶다면 임베디드 타입이 아닌 엔티티를 만들어 공유해야 한다.
     - 같은 값만을 사용하고 싶다면 참조가 아닌 객체를 복사하여 사용해야한다.
         ```
         🤔 객체 타입의 한계 : 객체 타입의 참조값을 대입하는 것을 원천적으로 막을 방법이 없다.
@@ -732,14 +750,22 @@ public class Member extends BaseEntity{
     - ```@ElementCollection```
     - 테이블 명 지정 : ```@CollectionTable(name = "table_name")```
     - 외래키 지정 : @CollectionTable의 속성으로 ```joinColumns = @JoinColumn(name = "column_name")```
-    - 컬럼 명 지정(기본 값 타입) : ```@Column(name = "column_name```
+    - 컬럼 명 지정(기본 값 타입) : ```@Column(name = "column_name")```
     - 컬럼 명 지정(임베디드 값 타입) : ```@AttributeOverrides``` 사용 임베디드 값 타입 설명 참조.
-    
-    - 값 타입 컬렉션은 엔티티의 라이프 사이클에 의존. 즉, [Cascade] + [OrphanRemover = true] 와 동일(별도의 persist, update 등이 필요 없다.)
-    - 값 타입 컬렉션도 지연 로딩 전략을 사용한.
+        ```java
+        @ElementCollection
+        @CollectionTable(name = "member_favorite_food", joinColumns = @JoinColumn (name = "member_id"))
+        @Column(name = "food_name")
+        private List<String> favoriteFood = new ArrayList<>();
+        
+        @OneToMany(mappedBy = "member",cascade = PERSIST)
+        private List<Order> orders = new ArrayList<>();
+        ```    
+    - 값 타입 컬렉션은 엔티티의 라이프 사이클에 의존. 즉, [Cascade] + [OrphanRemovar = true] 와 동일(별도의 persist, update 등이 필요 없다.)
+    - 값 타입 컬렉션도 지연 로딩 전략을 사용한다.
     - #### 🖍 컬렉 션 값 타입의 값 수정 : 값 타입은 불변해야 하기 때문에 Setter를 이용하여 수정하지 않고, 새로운 객체를 생성하여 값을 넣는다. 기존 객체는 remove
         - equals()) , hashCode()를 재정의 했다면 ```address.remove(new Address("city", "street", "zipcode"))```와 같이 사용하여도 동등한 객체를 제거해준다. 
-zxc
+
 
 - #### 🔑 값 타입 컬렉션의 제약 사항
     - 값 타입은 엔티티와 달리 식별자 개념이 없다. 때문에 값을 변경하면 추적이 어렵다.
@@ -748,7 +774,7 @@ zxc
     
     #### ✏️ 실무에서는 값 타입 컬렉션 대신에 일대다 관계를 고려한다.(값 타입을 엔티티로 승급)
         - 일대다를 위한 엔티티를 만들고 엔티티에서 값 타입을 사용.(List<Address> -> AddressEntity 의 필드로 Address 타입.
-        - Cascade + OrphanRemover = true 사용.
+        - Cascade + OrphanRemovar = true 사용.
 
     
 
@@ -1006,7 +1032,8 @@ em.createQuery("select m from Member m, Team t where m.username = t.name")
 - 기본 CASE 식
 ```java
 List<String> resultList4 = em.createQuery("select " +
-                    "case when m.age <=19 then '학생요금' " +
+                    "case " +
+                    "when m.age <=19 then '학생요금' " +
                     "when m.age >=60 then '경로요금' " +
                     "else '일반요금' " +
                     "end " +
@@ -1050,7 +1077,7 @@ em.createQuery("select nullif(m.username, '관리자') from Member m");
 - 하이버네이트는 사용전에 방언을 생성해야 한다.
 - 각 데이터베이스의 방언에는 기본적으로 다양한 함수가 이미 정의되어 있다.
 
-> - H2Dialect
+> - H2Dialect     
 > ![img_22.png](img_22.png)
 
 - ### 사용자 정의
@@ -1068,7 +1095,7 @@ public class MyH2Dialect extends H2Dialect {
 em.createQuery("select function('my_concat', m.username) from Member m", String.class);
 
 // hibernate
-        em.createQuery("select my_concat(m.username) from Member m", String.class)
+em.createQuery("select my_concat(m.username) from Member m", String.class)
 ```
 
 # 📌 경로 표현식
@@ -1084,6 +1111,7 @@ em.createQuery("select function('my_concat', m.username) from Member m", String.
 - 단일 값 연관 필드 : @ManyToOne, @OneToOne, 대상이 엔티티
     -  ```m.team```
     - 묵시적인 내부 조인이 발생, 추가적 탐색이 가능(t.name ..)
+        - ```select t from Member m join m.team t```
   
 - 컬렉션 값 연관 필드: @OneToMany, @ManyToMant, 대상이 컬렉션
     - ```t.members ```

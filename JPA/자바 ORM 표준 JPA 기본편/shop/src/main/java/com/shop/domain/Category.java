@@ -30,7 +30,7 @@ public class Category extends BaseEntity {
     @OneToMany(mappedBy = "parent")
     private List<Category> child = new ArrayList<>();
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", o)
     private List<CategoryItem> categoryItems = new ArrayList<>();
 
 
