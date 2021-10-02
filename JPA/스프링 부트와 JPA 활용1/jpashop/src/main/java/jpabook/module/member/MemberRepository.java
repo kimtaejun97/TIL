@@ -1,4 +1,4 @@
-package jpabook;
+package jpabook.module.member;
 
 import org.springframework.stereotype.Repository;
 

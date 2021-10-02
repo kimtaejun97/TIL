@@ -1,5 +1,7 @@
 package jpabook;
 
+import jpabook.module.member.Member;
+import jpabook.module.member.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
