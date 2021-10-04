@@ -52,8 +52,9 @@ public class MemberRepository {
     }
 }
 ```
-- #### @PersistenceContext : EntityManagerFactory 를 생성할 필요없이 Spring Boot 에서 관리해준다. 
-
+- #### @PersistenceContext : EntityManagerFactory 를 생성할 필요없이 Spring Boot 에서 자동으로 생성해서 주입해준다.
+- EntityManagerFactory 를 주입받고 싶다면 @PersistenceUnit 으로 주입받는다.
+- 또는 생성자 주입으로 주입받을 수 있다.
 ### 🧐 Test Code
 ```java
 @Transactional
@@ -79,9 +80,6 @@ class MemberRepositoryTest {
     }
 }
 ```
-- #### @Transactional: EntityManager를 통한 모든 데이터 변경은 Transaction 안에서 이루어 져야 한다.
-    - Test 환경에서 @Transactional을 사용하게 되면, Test가 끝난 뒤 DB를 Rollback 시킨다.
-- #### @Rollback(false): 테스트를 종료한 후 Rollback하지 않고 Commit
 - asserThat에서는 member와 find로 가져온 member을 '=='비교를 실행하게 되는데, 같은 transaction 안에서 이루어졌기 때문에 두 엔티티는 같음이 보장된다.
     - 영속성 컨텍스트에서 가져오기 때문에 같다.(실제로 select 쿼리가 발생하지 않는다.)
     
@@ -143,3 +141,37 @@ public class Address {
   - 점(.)을 언더스코어로(_)
   - 대문자를 모두 소문자로.
   - ex) orderStatus -> order_status
+  
+
+# 📌 @Transactional
+***
+- #### @Transactional: EntityManager를 통한 모든 데이터 변경은 Transaction 안에서 이루어 져야 한다.
+  - Test 환경에서 @Transactional을 사용하게 되면, Test가 끝난 뒤 DB를 Rollback 시킨다.
+  -  @Rollback(false): 테스트를 종료한 후 Rollback 하지 않고 Commit
+- #### @Transactional(readOnly = true) : 읽기 전용 트랜젝션
+  - flush, 더티 채킹을 하지 않는다. -> 읽기만 할 때 성능이 더 좋다.
+  - 즉, 변경이 이루어지지 않는다.
+  - default = false
+  - 클래스에 선언된 Transactional 이 먼저 적용되고, 각 메서드에 선언된 Transactional 이 덮어 씌운다.
+
+```java
+ @Test
+public void join_duplicate() throws Exception {
+    // given
+    Member member1 = new Member();
+    member1.setName("kim");
+
+    Member member2 = new Member();
+    member2.setName("kim");
+
+    // when
+    memberService.join(member1);
+
+    // then
+    assertThrows(IllegalStateException.class,()-> memberService.join(member2));
+}
+```
+- save하는 로직을 작성하고 쿼리를 보면 insert 쿼리가 나가지 않는다.
+- 테스트 코드에서는 테스트가 완료되면 Rollback을 시키기 때문에 Commit이 발생하지 않고, 때문에 쿼리가 발생하지 않는다.
+  - ```Rollback(false)``` : 롤백을 하지 않는다.
+  - ```em.flush()``` : flush를 통해 쿼리는 발생하여 확인할 수 있지만, Rollback은 실행된다.

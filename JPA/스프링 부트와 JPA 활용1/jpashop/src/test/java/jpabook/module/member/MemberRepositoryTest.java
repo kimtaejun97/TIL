@@ -1,4 +1,4 @@
-package jpabook;
+package jpabook.module.member;
 
 import jpabook.module.member.Member;
 import jpabook.module.member.MemberRepository;
@@ -24,13 +24,13 @@ class MemberRepositoryTest {
     void saveTest(){
         // given
         Member member = new Member();
-        member.setUsername("kim");
+        member.setName("kim");
 
         //when
-        Long saveId = memberRepository.save(member);
+        Member save = memberRepository.save(member);
 
         //then
-        assertThat(memberRepository.find(saveId)).isEqualTo(member);
+        assertThat(memberRepository.findById(save.getId())).isEqualTo(member);
     }
 
 }
