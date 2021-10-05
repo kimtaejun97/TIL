@@ -217,3 +217,70 @@ private Delivery delivery;
 > - 도메인 모델 패턴: 비즈니스 로직의 대부분이 엔티티에 있다. Service 계층은 단순히 엔티티에 필요한 요청을 위임하는 역할만을 수행.(예제 코드가 이와같은 패턴 사용)
 > - 트랜잭션 스크립트 패: 엔티티에 비즈니스 로직이 거의 없고 대부분 Service 계층에서 처리.
 - 도메인 모델 패턴을 사용하면 조금 더 객체지향의 특성을 활용 가능하다. 유지보수를 고려하여 상황에 맞게 선택하여 사용한다.
+
+# 📌 동적 쿼리의 작성 : QueryDSL
+***
+- JPQL로 동적쿼리를 작성하기 위해서는 String을 붙이는 작업이 필요하기 때문에 매우 어렵고, 오류를 컴파일 타임에 잡을 수 없다. 이를 해결하기 위해 QueryDSL 사용.
+
+```java
+id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"  //plugin
+implementation 'com.querydsl:querydsl-jpa' //library
+
+// 설정
+def querydslDir = "$buildDir/generated/querydsl"
+def generatedDir = "$buildDir/generated"
+
+querydsl {
+jpa = true
+    querydslSourcesDir = querydslDir
+}
+sourceSets {
+    main.java.srcDir querydslDir
+}
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+
+// cannot find symbol 에러 해결. 매번 컴파일 전에 generated 폴더를 삭제한다.
+initQuerydslSourcesDir.doFirst{
+    if(file(generatedDir).exists()) delete(file(generatedDir))
+}
+```
+
+```java
+public List<Order> findAll(OrderSearch orderSearch){
+    JPAQueryFactory query = new JPAQueryFactory(em);
+
+    QOrder order = QOrder.order;
+    QMember member = QMember.member;
+
+    return query
+                .selectFrom(order)
+                .join(order.member, member)
+                .where(eqStatus(orderSearch.getOrderStatus(), order),
+                        likeName(orderSearch.getMemberName(), order))
+                .limit(1000)
+                .fetch();
+}
+
+private BooleanExpression likeName(String searchMemberName, QOrder order) {
+    if(!StringUtils.hasText(searchMemberName)){
+        return null;
+    }
+    return order.member.name.like(searchMemberName);
+}
+
+private BooleanExpression eqStatus(OrderStatus searchOrderStatus, QOrder order) {
+    if(searchOrderStatus == null){
+        return null;
+    }
+    return order.status.eq(searchOrderStatus);
+}
+```
+- 마치 sql을 작성하는 듯 유사한 문법으로 사용 가능하고, 어떤 쿼리인지 파악하기 쉽다.
+- 컴파일 타임에 에러를 감지.
+- 에디터의 지원을 받아 자동완성 가능.

@@ -13,8 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
@@ -49,7 +50,7 @@ class OrderServiceTest {
         assertEquals("주문 수량만큼 재고 감소", 8, book.getStockQuantity());
     }
 
-    @DisplayName("")
+    @DisplayName("주문 - 재고가 충분하지 않음")
     @Test
     public void order_notEnoughStock() throws Exception {
         // given
@@ -75,6 +76,50 @@ class OrderServiceTest {
         // then
         assertEquals("오더 상태 취소로 변경", OrderStatus.CANCEL, orderRepository.findById(orderId).getStatus());
         assertEquals("재고 복구", 10, book.getStockQuantity());
+    }
+
+    @DisplayName("검색 필터 - 아무것도 없음")
+    @Test
+    public void search_nonFilter() throws Exception {
+        // given
+        Member member = createMember("kim");
+        Member member2 = createMember("tae");
+        Book book = createBook("kim", "1235563463", 10);
+
+        orderService.order(member.getId(), book.getId(), 2);
+        Long orderId = orderService.order(member.getId(), book.getId(), 2);
+        orderService.order(member2.getId(), book.getId(), 2);
+        orderService.cancelOrder(orderId);
+
+        // when
+        List<Order> orders = orderService.findOrders(new OrderSearch());
+
+        // then
+        assertEquals("주문 건수는 3건", 3, orders.size());
+    }
+
+    @DisplayName("검색 필터 - 이름, status = order")
+    @Test
+    public void search_filter() throws Exception {
+        // given
+        Member member = createMember("kim");
+        Member member2 = createMember("tae");
+        Book book = createBook("kim", "1235563463", 10);
+
+        orderService.order(member.getId(), book.getId(), 2);
+        Long orderId = orderService.order(member.getId(), book.getId(), 2);
+        orderService.order(member2.getId(), book.getId(), 2);
+        orderService.cancelOrder(orderId);
+
+        // when
+        OrderSearch orderSearch = new OrderSearch();
+        orderSearch.setOrderStatus(OrderStatus.ORDER);
+        orderSearch.setMemberName("kim");
+        List<Order> orders = orderService.findOrders(orderSearch);
+
+        // then
+        assertEquals("검색된 주문 건수는 1건", 1, orders.size());
+        assertEquals("주문자는 kim", "kim", orders.get(0).getMember().getName());
     }
 
 
