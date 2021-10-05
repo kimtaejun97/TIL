@@ -175,3 +175,45 @@ public void join_duplicate() throws Exception {
 - 테스트 코드에서는 테스트가 완료되면 Rollback을 시키기 때문에 Commit이 발생하지 않고, 때문에 쿼리가 발생하지 않는다.
   - ```Rollback(false)``` : 롤백을 하지 않는다.
   - ```em.flush()``` : flush를 통해 쿼리는 발생하여 확인할 수 있지만, Rollback은 실행된다.
+
+
+
+# 📌 OrderService : Cascade의 활용, 도메 모델 패턴.
+***
+## 🧐 Cascade의 활용
+```java
+@Transactional
+public Long order(Long memberId, Long itemId, int count){
+    Member member = memberRepository.findById(memberId);
+    Item item = itemRepository.findById(itemId);
+
+    OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), count);
+    Order order = createOrder(member, orderItem);
+    orderRepository.save(order);
+
+    return order.getId();
+}
+
+private Order createOrder(Member member, OrderItem orderItem) {
+    Delivery delivery = Delivery.createDelivery(member.getAddress());
+    Order order = Order.createOrder(member, delivery, orderItem);
+
+    return order;
+}
+```
+- 코드에서 볼 수 있듯 OrderItem과 Delivery를 save하는 코드는 존재하지 않고, 오직 Order만이 save된다.
+```java
+@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+private List<OrderItem> orderItems = new ArrayList<>();
+
+@OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
+@JoinColumn(name = "delivery_id")
+private Delivery delivery;
+```
+- Order의 매핑관계에서 orderItem과 delivery에는  Cascade All(Persist, Remove ...)가 적용되어 있기 때문에, 라이프 사이클을 함께한다.
+- 오직 Order에서만 두 엔티티를 사용하기 때문에 이러한 방법이 가능하다.
+
+## 🧐 도메인 모델 패턴.
+> - 도메인 모델 패턴: 비즈니스 로직의 대부분이 엔티티에 있다. Service 계층은 단순히 엔티티에 필요한 요청을 위임하는 역할만을 수행.(예제 코드가 이와같은 패턴 사용)
+> - 트랜잭션 스크립트 패: 엔티티에 비즈니스 로직이 거의 없고 대부분 Service 계층에서 처리.
+- 도메인 모델 패턴을 사용하면 조금 더 객체지향의 특성을 활용 가능하다. 유지보수를 고려하여 상황에 맞게 선택하여 사용한다.

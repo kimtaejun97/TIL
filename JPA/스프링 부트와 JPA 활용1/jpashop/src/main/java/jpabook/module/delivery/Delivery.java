@@ -3,13 +3,16 @@ package jpabook.module.delivery;
 import jpabook.module.member.Address;
 import jpabook.module.order.Order;
 import jpabook.module.order.OrderStatus;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 import static javax.persistence.FetchType.*;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter @Setter
 @Entity
 public class Delivery {
@@ -26,5 +29,13 @@ public class Delivery {
 
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status;
+
+    public static Delivery createDelivery(Address address) {
+        Delivery delivery =new Delivery();
+        delivery.setAddress(address);
+        delivery.setStatus(DeliveryStatus.READY);
+
+        return delivery;
+    }
 }
 

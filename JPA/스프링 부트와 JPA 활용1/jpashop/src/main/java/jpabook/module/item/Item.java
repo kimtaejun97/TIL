@@ -3,12 +3,13 @@ package jpabook.module.item;
 import jpabook.exception.NotEnoughStockException;
 import jpabook.module.category.Category;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
+@Getter @Setter
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class Item {
@@ -31,8 +32,8 @@ public abstract class Item {
 
     public void removeStock(int quantity) throws NotEnoughStockException {
         int restStock = this.stockQuantity - quantity;
-        if(stockQuantity < 0){
-            throw new NotEnoughStockException("need mort stock");
+        if(restStock < 0){
+            throw new NotEnoughStockException("need more stock");
         }
         this.stockQuantity  = restStock;
     }
