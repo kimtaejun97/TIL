@@ -2,6 +2,7 @@ package jpabook.module.item;
 
 import jpabook.exception.NotEnoughStockException;
 import jpabook.module.category.Category;
+import jpabook.module.item.dto.UpdateItemDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,9 +18,7 @@ public abstract class Item {
     @Id @GeneratedValue
     @Column(name = "item_id")
     private Long id;
-
     private String name;
-
     private int price;
     private int stockQuantity;
 
@@ -37,4 +36,7 @@ public abstract class Item {
         }
         this.stockQuantity  = restStock;
     }
+
+
+
 }
