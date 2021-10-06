@@ -3,6 +3,12 @@
 ***
 ### ✏️ [JPA와 DB 설정](#-jpa와-db-설정)
 ### ✏️ [테이블과 도메인 설계](#-테이블-설계)
+### ✏️ [@Transactional](#-transactional)
+### ✏️ [CasCade, 도메인 모델 패턴](#-cascade의-활용-도메인-모델-패턴)
+### ✏️ [동적 쿼리의 작성 : QueryDSL](#-동적-쿼리의-작성--querydsl)
+### ✏️ [변경 감지와 병합(merge)](#-변경-감지와-병합merge)
+
+
 
 
 # 📌 JPA와 DB 설정
@@ -88,12 +94,12 @@ class MemberRepositoryTest {
 # 📌 테이블 설계
 ****
 
-![img.png](img.png)
+![img.png](img/img.png)
 - Entity 에서는 Getter, Setter를 생성하지 않고, 꼭 필요할 때 별도의 메서드를 이용하는 것이 이상적,
   하지만 실제로는 엔티티를 조회할 일이 너무 많기 때문에 Getter를 열어두고 사용한다.
 - Setter는 데이터를 변경할 수 있기 때문에, 막 열어두면 어디서 데이터가 변경되었는지 추적하기가 어려워진다. 때문에 Setter는 닫아두고, 데이터 변경을 위한 비즈니스 메서드를 별도로 생성하는 것이 좋다.
 
-- ####🤔 id의 컬럼명을 "entity_id"로 설정 하는 이유
+- #### 🤔 id의 컬럼명을 "entity_id"로 설정 하는 이유
   - 데이터베이스에는 타입이 없기 때문에 모두 id로 해두면 나중에 데이터를 구분하기 어렵다.
   - 외래키와 이름을 맞추기 위해서 같게 설정한다.
   - 가장 중요한 것은 일관성을 맞추는 것이다.
@@ -113,9 +119,10 @@ public class Address {
     protected Address(){}
 
 }
+```
 - 값을 변경하면 안되기 때문에 Setter는 사용하지 않는다.(변경 하고자 할때는 새로운 객체 생성.)
 - 모든 필드를 받아 생성하는 생성자를 만들고, 기본 생성자를 protected로 만들어 빈 객체를 생성하지 않도록 유도.
-```
+
 ### ☝️ 연관관계 편의 메서드
 ```java
  public void setMember(Member member){
@@ -155,7 +162,7 @@ public class Address {
   - 클래스에 선언된 Transactional 이 먼저 적용되고, 각 메서드에 선언된 Transactional 이 덮어 씌운다.
 
 ```java
- @Test
+@Test
 public void join_duplicate() throws Exception {
     // given
     Member member1 = new Member();
@@ -178,7 +185,7 @@ public void join_duplicate() throws Exception {
 
 
 
-# 📌 OrderService : Cascade의 활용, 도메 모델 패턴.
+# 📌 Cascade의 활용, 도메인 모델 패턴
 ***
 ## 🧐 Cascade의 활용
 ```java
@@ -290,7 +297,7 @@ private BooleanExpression eqStatus(OrderStatus searchOrderStatus, QOrder order) 
 ## 🧐 준영속 엔티티를 수정하는 방법
 
 ### ☝️ 병합(merge) 사용
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 - ```em.merge(entiry)```
 
 1. 파라미터로 넘어온 준영속 엔티티의 식별자 값으로 1차캐시, DB 순으로 엔티티를 조회한다.
@@ -307,6 +314,7 @@ private BooleanExpression eqStatus(OrderStatus searchOrderStatus, QOrder order) 
 ### ☝️ 변경 감지 기능 사용.
 - ```em.find()``` 를 사용해 영속 엔티티를 조회한 후 해당 엔티티의 값을 변경.
 - 변경 후 트랜잭션 커밋시점에 변경을 감지(Dirty Checking)하여 Update SQL 실행.
+- Setter를 사용하기보다는 엔티에 메서드를 하나 두는 것이 변경된 곳을 추적하기 쉽다.  
 - 병합보다 안전한 방법.
 
 

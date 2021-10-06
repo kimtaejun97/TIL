@@ -86,7 +86,7 @@
 > - J2EE, spring과 같은 컨테이너 환경 : N:1
 
 ### ☝️ 엔티티의 생명 주기
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 ### ☝️ 비영속
 - 영속성 컨텍스트와 아무 관계가 없는 상태, (새로 생성된 객체 등)
@@ -105,7 +105,7 @@
 ## 🧐 영속성 컨텍스트의 이점
 
   - ### ☝️ 1차 캐시
-    ![img_2.png](img_2.png)
+    ![img_2.png](img/img_2.png)
     > - 동일한 트랜젝션에서 다시 조회를 하면 먼저 1차 캐시에서 조회.
     > - 캐시에 존재하면 캐시에서 가져오고 존재하지 않으면 DB에서 조회, 캐시에 저장.
   
@@ -119,7 +119,7 @@
     > - commit 시점에 flush가 실어되며 자동으로 엔티티 변경 사항을 감지(엔티티와 스냅샷 비교, 더티 체킹)
     > - Update SQL을 생성, 쿼리 전송.
     > 
-    > ![img_3.png](img_3.png)
+    > ![img_3.png](img/img_3.png)
     > 
 
 # 📌 flush
@@ -340,7 +340,7 @@ public class Team {
 
 
 ## ☝️ 다대일 (N:1)
-> ![img_4.png](img_4.png)
+> ![img_4.png](img/img_4.png)
 - N에 해당하는 곳이 외래키를 관리.
   ```java
   @ManyToOne
@@ -356,7 +356,7 @@ public class Team {
 - 양방향을 위해 참조를 추가하더라도 테이블에 영향을 주지 않는다.
 
 ## ☝️ 일대다 (1:N) 단방향
-> ![img_5.png](img_5.png)
+> ![img_5.png](img/img_5.png)
 - 잘 사용하지 않는다.
 - <mark>객체와 테이블이 외래키를 서로 다른곳에서 가지고 있게 된다.<mark>(테이블은 항상 N쪽에 외래키가 있음.)
 - Team의 List<Member>를 변경시키면 Member 테이블에 TEAM_ID가 바뀌도록 쿼리가 발생한다.(멤버 테이블의 업데이트 쿼리가 발생)
@@ -373,7 +373,7 @@ public class Team {
 
 > - 주 테이블에 외래키
 > 
-> ![img_6.png](img_6.png)
+> ![img_6.png](img/img_6.png)
 ```java
 // Member
 @OneToOne
@@ -409,7 +409,7 @@ private List<Product> products = new ArrayList<>();
 - 생각지도 못한 쿼리가 발생하기도 한다.
 - 실무에서 사용 지양. <mark>일대다 + 다대일 + 일대다 관계로 풀어내야 한다.</mark>
 
-> ![img_7.png](img_7.png)
+> ![img_7.png](img/img_7.png)
 > - 중간 테이블을 엔티티로 승격.
 > - 일대다, 다대일, 일대다로 품어낸다.
 
@@ -461,10 +461,10 @@ private List<MemberProduct> memberProducts = new ArrayList<>();
 - 관계형 DB에는 상속관계가 없다.
 - 가장 유사한 방법이 슈퍼타입 서브타입 관계.
 - 상속관계 매핑: 객체의 상속 구조와 DB의 슈퍼타입 서브타입 관계를 매핑.     
-     ![img_8.png](img_8.png)
+     ![img_8.png](img/img_8.png)
   
 ### ☝️ 조인 전략 (JOINED)
-> ![img_9.png](img_9.png)
+> ![img_9.png](img/img_9.png)
 > - 데이터를 나누고 두번의 insert
 > - 조회하기 위해서는 item_id로 조인해서 가져온다.    
 > > 👍 장점: 
@@ -477,7 +477,7 @@ private List<MemberProduct> memberProducts = new ArrayList<>();
 > > - 데이터 저장시 INSERT 두번 호출.
 
 ### ☝️ 단일 테이블 전략 (SINGLE_TABLE)
-> ![img_10.png](img_10.png)
+> ![img_10.png](img/img_10.png)
 > - 한 테이블에 모든 데이터를 집어놓고 Type Column(DTYPE)을 두어 구분.
 > > 👍 장점:
 > > - 조인이 필요 없으므로 일반적으로 조회 성능이 좋다. 
@@ -488,7 +488,7 @@ private List<MemberProduct> memberProducts = new ArrayList<>();
 > > - 단일 테이블에 모든 것을 저장하므로 테이블이 커질 수 있다. 상황에 따라 조회 성능이 오히려 하락.
 
 ### ☝️ 구현 클래스마다 테이블 두기 전략 (TABLE_PER_CLASS)
-> ![img_11.png](img_11.png)
+> ![img_11.png](img/img_11.png)
 > - ❌ 추천하지 않는 전략.
 > - 각 타입마다 테이블을 하나씩 생성. 각각의 데이터를 가짐.
 > > 👍 장점:
@@ -535,7 +535,7 @@ public class Book extends Item{
 
 # 📌 @MappedSuperclass
 ***
-![img_12.png](img_12.png)
+![img_12.png](img/img_12.png)
 - 공통 매핑 정보를 생성하여 사용하고 싶을 때 사용. 주로 등록일, 수정일 등과같이 전체 엔티티에서 공통으로 적용할 속성에 사용.
 - 엔티티가 아니기때문에 테이블에 매핑되지 않는다. 조회 또한 불가.
 - 상속관계 매핑이 아님.
@@ -558,17 +558,17 @@ public class Member extends BaseEntity{
     
 }
 ```
-![img_13.png](img_13.png)
+![img_13.png](img/img_13.png)
 
 # 📌 프록시
 ****
-![img_14.png](img_14.png)
+![img_14.png](img/img_14.png)
 - em.getReference() : 데이터 베이스 조회를 미루는 가짜(프록시)엔티티 객체 조회.
     - em.gerReference()가 실행될 때에는 쿼리가 나가지 않다가, 해당 객체에서 값을 꺼낼 때 쿼리가 발생한다.
     - getReference()로 가져온 객체의 클래스를 확인해 보면 Proxy 임을 확인할 수 있다.         
       ```class com.shop.domain.Order$HibernateProxy$naIZTxPo```
 
-![img_15.png](img_15.png)
+![img_15.png](img/img_15.png)
 - 원본의 참조인 target을 가지고 있다. 실제 엔티티를 상속받아 만들어진다.
 - 초기화: 처음에는 target이 null 이지만 프록시의 값을 호출할 때 영속성 컨텍스트에서 실제 엔티티를 가져와 이를 연결시킨다.
 - 프록시의 메소드를 호출하면 target의 메소드를 호출 해 준다.
@@ -680,7 +680,7 @@ public class Member extends BaseEntity{
     - 기본 값 타입은 공유되지 않는다.(래퍼 클래스, String은 공유는 되나 변경할 수 없는 값.)
     
 - ### ☝️️ 임베디드 타입(embedded type, 복합 값 타입)
-    > ![img_17.png](img_17.png)
+    > ![img_17.png](img/img_17.png)
     - DB 입장에서는 바뀌는 것이 없다.   
     - class를 이용한 커스텀 값( ex) 주소(city,zipcode ..를 묶어낸).
     - @Embeddable로 값을 정의, @Embedded로 값 타입을 사용.
@@ -715,12 +715,12 @@ public class Member extends BaseEntity{
     > - 재사용 가능, 높은 응집도
     > - 값 타입만 사용하는 의미 있는 메소드를 만들 수 있다. (Point.moveLeft(1))
   
-    ![img_18.png](img_18.png)
+    ![img_18.png](img/img_18.png)
     - 임베디드 타입은 임베디드 타입을 가질 수 있다.
     - 임베디드 타입은 엔티티 또한 가질 수 있다.
     
     #### 🖍  임베디드 타입은 공유로 인한 Side Effect가 발생할 수 있기 때문에 주의.
-    ![img_19.png](img_19.png)
+    ![img_19.png](img/img_19.png)
     - 멤버1 과 멤버2가 같은 Address 객체를 공유하게 되면 address 필드에서 값을 변경하면 둘다 함께 변경된다.
     - 의도적으로 공유하고 싶다면 임베디드 타입이 아닌 엔티티를 만들어 공유해야 한다.
     - 같은 값만을 사용하고 싶다면 참조가 아닌 객체를 복사하여 사용해야한다.
@@ -743,7 +743,7 @@ public class Member extends BaseEntity{
  
 - ### ☝️ 컬렉션 값 타입(collection value type)
     - 값 타입을 컬렉션에 담아 사용.
-    > ![img_20.png](img_20.png)
+    > ![img_20.png](img/img_20.png)
     > - DB의 입장에서는 새로운 테이블이 하나 생기고 마치 일대다와 같은 관계를 형성한다.
     > - 모든 필드의 조합으로 PK가 된다(특정 값하나로 PK를 지정하게 되면 이것은 값 타입이 아닌 엔티티다.)
     
@@ -831,7 +831,7 @@ List<Member> members = query
 - JPQL은 SQL을 추상화하여 특정 DB의 SQL에 의존하지 않는다.
 - JPQL은 결국 SQL로 변환된다.
 
-> ![img_21.png](img_21.png)
+> ![img_21.png](img/img_21.png)
 
 - 엔티티와 속성은 대소문자를 구분한다.
 - JPQL 키워드는 대소문자를 구분하지 않는다 (select, FROM ..)
@@ -1078,7 +1078,7 @@ em.createQuery("select nullif(m.username, '관리자') from Member m");
 - 각 데이터베이스의 방언에는 기본적으로 다양한 함수가 이미 정의되어 있다.
 
 > - H2Dialect     
-> ![img_22.png](img_22.png)
+> ![img_22.png](img/img_22.png)
 
 - ### 사용자 정의
 ```java
@@ -1135,7 +1135,7 @@ em.createQuery("select my_concat(m.username) from Member m", String.class)
 ### ☝️ 엔티티 페치 조인
 - 회원을 조회하면서 연관된 팀도 함께 조회(SQL 한번)
 
-![img_23.png](img_23.png)
+![img_23.png](img/img_23.png)
 ```sql
 select m from Member m join fetch m.team
 ```
@@ -1148,7 +1148,7 @@ SELECT M.*, T.* FROM MEMBER M INNER JOIN TEAM T ON M.TEAM_ID=T.ID
 - N + 1 쿼리 문제를 해결할 수 있다.
 
 ### ☝️ 컬렉션 페치 조인
-![img_25.png](img_25.png)
+![img_25.png](img/img_25.png)
 ```sql
 select t from Team t join fetch t.members;
 ```
@@ -1157,7 +1157,7 @@ select t from Team t join fetch t.members;
 SELECT T.*, M.* FROM TEAM T INNER JOIN MEMBERM ON T.ID=M.TEAM.ID
 ```
 - 일대다의 조인에서는 중복된 투플이 생기게 된다. (그림처럼 두 멤버의 팀이 같다면 같은 팀 두개가 조회된다.)   
-> ![img_24.png](img_24.png)
+> ![img_24.png](img/img_24.png)
 
 #### 🖍 중복 값의 제거 DISTINCT
 
@@ -1166,7 +1166,7 @@ em.createQuery("select distinct t from Team t join fetch t.members", Team.class)
 ```
 - 그러나 실제로 투플의 값은 다르기 때문에 SQL의 DISTINCT만으로는 모두 제거할 수 없다.
 - JPQL의 DISTINCT는 SQL에 DISTINCT를 추가하는 것 말고도 <mark>애플리케이션에서 엔티티 중복을 제거하는 기능</mark>을 가지고 있다.
-> ![img_26.png](img_26.png)
+> ![img_26.png](img/img_26.png)
 > - 정상적으로 하나만 조회된다 .
 
 ## 🧐 Fetch Join의 특징과 한계
