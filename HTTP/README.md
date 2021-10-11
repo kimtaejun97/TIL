@@ -15,7 +15,7 @@
 > - 패킷 정보 : 출발지 IP, 목적지 IP, 데이터 ...
 > - 주소간 패킷을 전달. (노드들을 통해)
 > 
-> ![img.png](img.png)
+> ![img.png](img/img.png)
 
 - ### 👎 IP 프로토콜의 한계
 > - 비연결성 : 패킷을 수신할 대상이 없거나 서비스 불능 상태여도 패킷이 전송됨.
@@ -25,13 +25,13 @@
 
 
 ## 🧐 TCP
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 - 전송 제어 프로토콜 (Transmission Control Protocol)
 - 데이터 전달 보증
 - 순서 보장
 - 신뢰성 있는 프로토콜
 
-![img_2.png](img_2.png)
+![img_2.png](img/img_2.png)
   > - IP 패킷 : IP 주소 
   > - TCP 세그먼트 :포트, 전송 제어, 순서, 검증 정보 등 ...
 
@@ -75,7 +75,7 @@
 
 - 도메인 명을 IP주소로 변환해준다.
 ex> google.com - 200.200.200.2
-  ![img_3.png](img_3.png)
+  ![img_3.png](img/img_3.png)
   
 
 # 📌 URI와 웹 브라우저 요청 흐름
@@ -90,7 +90,7 @@ ex> google.com - 200.200.200.2
 > > - URN(Uniform Resource Name) : 리소스의 이름
 > - URN만으로 실제 리소스를 찾을 수 있는 방법이 보편화되지 않아 대부분 URL을 사용.
 > 
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 
 ### ☝️ URL
 > - Scheme
@@ -115,7 +115,7 @@ ex> google.com - 200.200.200.2
 
 
 ## 🧐 웹 브라우저 요청 흐름
-![img_5.png](img_5.png)
+![img_5.png](img/img_5.png)
 
 1. 요청 : ```https://www.google.com:443/search?q=heloo&hl=ko```
 2. DNS 조회, PORT 조회 : IP, PORT를 얻어온다.
@@ -184,14 +184,14 @@ Content-Length: 3423
 > >     - 사이트를 요청하면 JS,CSS, 이미지 등 수 많은 자원이 함께 다운로드 된다.
 > > - 👍 해결 : HTTP 지속연결(Persistent Connections) 사용. HTTP/2,HTTP/3에서 더 많은 최적화가 이루어 졌다, 일정 시간동안 지속.
 > >
-> > ![img_8.png](img_8.png)
-> > ![img_9.png](img_9.png)
+> > ![img_8.png](img/img_8.png)
+> > ![img_9.png](img/img_9.png)
 > - 단순함, 확장 가능
 
 
 ## 🧐 HTTP 메시지
 - ### ☝️ 구조
-  ![img_10.png](img_10.png)
+  ![img_10.png](img/img_10.png)
   -  Empty Line(CRLF)는 필수로 존재 (CR:Carriage return, LF:Line Feed)
 
   >  ### ☝️ 시작 라인 (start-line) = request-line / status-line
@@ -345,7 +345,7 @@ Content-Length: 3423
 > }
 > ```
 
-###☝️ 이 외의 메서드.
+### ☝️ 이 외의 메서드.
 - HEAD : GET과 동일하지만 메시지 부분을 제외하고 상태 줄과, 헤더만 반환.
 - OPTIONS : 대상 리소스에 대한 통신 가능 옵션(메서드)을 설명(주로 CORS에서 사용).
 - CONNECT : 대상 자원으로 식별되느 서버에 대한 터널을 설정.
@@ -354,7 +354,7 @@ Content-Length: 3423
 
 ## 🧐 HTTP 메서드의 속성
 
-![img_11.png](img_11.png)
+![img_11.png](img/img_11.png)
 - GET의 경우 Body를 넣을 수 있으나, 지원하지 않는 서버가 존재하기 때문에 넣지 않는것이 좋다.
 
 > ### ☝️ 안전(Safe Methods)
@@ -395,24 +395,24 @@ Content-Length: 3423
 > - 이미지, 정적 텍스트 문서
 > - 쿼리 파라미터 없이 단순히 리소스 경로로 조회 가능.
 >
-> ![img_12.png](img_12.png)
+> ![img_12.png](img/img_12.png)
 
 ### 2. 동적 데이터 조회 (GET)
 > - 주로 검색, 게시판 목록 정렬 필터, 정렬 조건 등..
 > - 쿼리 파라미터를 사용하여 추가적인 정보 전달.
 >
-> ![img_13.png](img_13.png)
+> ![img_13.png](img/img_13.png)
 
 ### 3. HTML Form을 통한 데이터 전송 (POST)
 > -  회원 가입, 상품 주문, 데이터 변경 등..
 > - GET, POST 만 지원.
 >
-> ![img_14.png](img_14.png)
+> ![img_14.png](img/img_14.png)
 > 🖍 쿼리 파라미터와 유사한 Key=Value 쌍으로 데이터를 생성하여 바디에 추가.    
 > 🖍 Content-Type은 application/x-www-form-urlencoded 가 된다. (url 인코딩 처리)        
 > 🤔 method를 GET으로 사용하면 URL 경로에 쿼리 파라미터로 들어가게 되지만 GET은 리소스의 변경에는 사용해서는 안된다.
 >
-> ![img_15.png](img_15.png)
+> ![img_15.png](img/img_15.png)
 > 🖍 파일 업로드와 같은 바이너리 데이터 전송시 사용.    
 > 🖍 웹 브라우저가 자동으로 boundary를 생성하고 이를 기준으로 잘라서 읽는다.    
 > 🖍 여러 파일과 폼의 내용을 함께 전송 가능 (multipart)
@@ -504,7 +504,7 @@ Content-Length: 3423
 - 동사를 직접 사용.
 
 
-####🤔 참고 : https://restfulapi.net/resource-naming
+#### 🤔 참고 : https://restfulapi.net/resource-naming
 
 
 # 📌 HTTP 상태 코드
@@ -530,15 +530,15 @@ Content-Length: 3423
 - 요청을 완료하려면 추가 행동이 필요
 - 3xx 응답의 결과에 Location 헤더가 있으면, Location 위치로 자동 리다이렉트.
 
-![img_16.png](img_16.png)
+![img_16.png](img/img_16.png)
 
 - ### 🧐 영구 리다이렉션 - 특정 리소스의 URI가 영구적으로 이동. (301, 308)
   - 원래의 URL을 사용하지 않고, 검색 엔진 등에서도 변경을 인지한다.
   - ex) /event -> /new-event
   > #### ☝️️ 301 Moved Permanently
-  > > - 리다이렉트 요청시 요청 메서드가 GET으로 변하고, 본문이 제거될 수 있다.
+  > > - 리다이렉트 요청시 요청 메서드가 GET으로 변하고, 본문이 제거될 수 있다.(수신 데이터 형식이 다를 수 있기 때문에 안전을 위해 GET으로 변경함.)
   > >
-  > > ![img_17.png](img_17.png)
+  > > ![img_17.png](img/img_17.png)
   > 
   > #### ☝️️️ 308 Permanent Redirect
   > > - 301과 기능은 같으나 요청 메서드와 본문을 유지한다.
@@ -564,8 +564,8 @@ Content-Length: 3423
   >  ✏️ 새로고침해도 결과 화면을 GET으로 조회.    
   >  ✏️ 중복 주문 대신에 결과 화면만 GET으로 다시 요청.    
   > 
-  >  ![img_18.png](img_18.png)
-  > - 주문에 대한 응답을 302 Found나 307 See Other로 돌려 준다.
+  >  ![img_18.png](img/img_18.png)
+  > - 주문에 대한 응답을 302 Found나 308 See Other로 돌려 준다.
   > - PRG 이후 리다이렉트를 시도해도 URL이 이미 GET으로 리다이렉트 된다. 새로고침 해도 GET으로 화면만 조회.
   
 - ### ☝️ 특수 리다이렉션 (304 Not Modified)
@@ -635,7 +635,7 @@ Content-Length: 3423
 ***
 
 ### ✏️ RFC723x 변화
-![img_19.png](img_19.png)
+![img_19.png](img/img_19.png)
 - 엔티티(Entity) -> 표현(Representation)
 - Representation = representation Metadata + Representation Data
 
@@ -649,7 +649,7 @@ Content-Length: 3423
   - text/html; charset=utf-8, application/json, image/png 등 ..
 
 - ### ☝️ Content-Encoding: 표현 데이터의 압축 방식.
-  ![img_20.png](img_20.png)
+  ![img_20.png](img/img_20.png)
 
   - 표현 데이터를 압축하기 위해 사용.
   - 데이터를 전달하느 곳에서 압축 후 인코딩 헤더 추가
@@ -677,16 +677,16 @@ Content-Length: 3423
 > 협상 헤더는 요청시에만 사용한다.
 ️
 - ### 🤔️ 협상과 우선순위: Quality Values(q)
-  ![img_21.png](img_21.png)
+  ![img_21.png](img/img_21.png)
   - Quality Values(q)값 사용.
   - 0~1, 클수록 높은 우선순위
   - 생략하면 1
-  - ex)
-  ![img_23.png](img_23.png)
+  - ex)    
+  ![img_23.png](img/img_23.png)
   
 - ### 🧐 협상과 우선순위2
-  - 구체적인 것이 우선한다.
-  ![img_24.png](img_24.png)
+  - 구체적인 것이 우선한다.     
+  ![img_24.png](img/img_24.png)
   ```
   1. text/plain;format=flowed
   2. text/plain
@@ -696,8 +696,8 @@ Content-Length: 3423
 
 
 ### 🧐 협상과 우선순위3
-- 구체적인 것을 기준으로 미디어 타입을 맞춘다.
-  ![img_25.png](img_25.png)
+- 구체적인 것을 기준으로 미디어 타입을 맞춘다.      
+  ![img_25.png](img/img_25.png)
   
 ## 🧐 전송 방식 
 - ### ☝️️ 단순 전송
@@ -706,13 +706,13 @@ Content-Length: 3423
 - ### ☝️️ 압축 전송
   #### - Content-Encoding : gzip ..
 - ### ☝️️ 분할 전송
-  ####- Transfer-Encoding: chunked    
+  #### - Transfer-Encoding: chunked    
   - \r\n 으로 끝을 알린다.
-  - Content-Length를 보내면 안된다. (예상이 안됨, 분할 청크에 길이가 있음.)
-  ![img_27.png](img_27.png)
+  - Content-Length를 보내면 안된다. (예상이 안됨, 분할 청크에 길이가 있음.)      
+  ![img_27.png](img/img_27.png)
 - ### ☝️️ 범위 전송
   #### - Range, Content-Range
-  ![img_28.png](img_28.png)
+  ![img_28.png](img/img_28.png)
 
 
 ## 🧐 일반 정보
@@ -755,7 +755,7 @@ Content-Length: 3423
   - 하나의 서버가 여러 도메인을 처리해야 할 때.
   - 하나의 IP 주소에 여러 도메인이 적용(가상호스트 사용)되어 있을 때 구분.
   - IP로 구분할 수 없기 때문에, 호스트 도메인을 넣어준다.
-    ![img_29.png](img_29.png)
+    ![img_29.png](img/img_29.png)
 
 - ### ☝️ Location: 페이지 리다이렉션
   - 웹 브라우저는 3xx의 응답의 결과에 Location 헤더가 있으면, 대상 리소스로 자동으로 리다이렉트.
@@ -767,7 +767,7 @@ Content-Length: 3423
   - Allow: GET, HEAD, PUT 
 
 - ### ☝️️ Retry-After: 유저 에이전트가 다음 요청을 하기까지 기다려야 하는 시간.
-  - 503(Service Unavailable): 서비슥사 언제까지 불능인지 알려줄 때 사용한다.
+  - 503(Service Unavailable): 서비스가 언제까지 불능인지 알려줄 때 사용한다.
   - (날짜로 표기) Retry-After: Fit, 31 Dec 1999 23:59:59 GMT
   - (초단위로 표기) Retry-After: 120
   
@@ -788,13 +788,13 @@ Content-Length: 3423
 
 > HTTP는 무상태 프로토콜이기 때문에 클라이언트가 서버와 요청과 응답을 주고 받은 후 연결이 끊어지고, 다시 요청하더라도 서버는 이전 요청을 기억하지 않는다.
 
-![img_30.png](img_30.png)
+![img_30.png](img/img_30.png)
 - 처음에 쿠키를 전달 받은뒤, 모든 요청에서 반드시 쿠키 저장소에서 정보를 가져와 함께 보낸다.
 
 ```set-cooke: sessionId=aasd35sdd3sd23; expires-Sat, 26-Dec-2021 00:00:00 GMT; [ath=/; domain=.google.com; Secure```
 > - 사용자 로그인 세션 관리에 사용.
 > - 광고 정보를 트래킹 할 때 사용.
-> - 쿠키정보는 항상 서버에 전송되기 때문에 네티워크 트래픽을 추가 유발한다.
+> - 쿠키정보는 항상 서버에 전송되기 때문에 네트워 트래픽을 추가 유발한다.
 > - 최소한의 정보만을 사용(Session Id, Authorization Token ...)
 > - 보안에 민감한 데이터는 저장하지 않도록 해야한다.
 > > 🤔 서버에 전송하지 않고 웹 브라우저 내부에 데이터 저장 -> 웹 스토리지(local, sessionStroage)사용.
@@ -839,7 +839,7 @@ Content-Length: 3423
 
 # 📌 캐시
 ***
-![img_31.png](img_31.png)
+![img_31.png](img/img_31.png)
 - 60초간 유효한 캐시. (네트워크 다운로드가 발생하지 않는다.)
 - 웹 브라우저에서 캐시에 접근할 때 유효기간이 지났다면, 다시 서버에서 요청하게 된다.
 - 요청에 대한 응답을 다시 캐시에 저장하여 갱신한다.
@@ -858,7 +858,7 @@ Content-Length: 3423
   - 서버에서는 변경되었는지 검증
   > ✏️ 변경되지 않았을 때: 304 Not Modified
   > 
-  > ![img_32.png](img_32.png)
+  > ![img_32.png](img/img_32.png)
   > - 바디를 추가하지 않고 용량이 적은 헤더 정보만 다운로드 하기 때문에 네트워크의 부하를 줄일 수 있다.
   > - 캐시에 있는 데이터를 재사용, 응답 헤더로 캐시의 메타 정보를 갱신한다.(max-age)
   
@@ -880,10 +880,10 @@ Content-Length: 3423
   - 단순하게 ETag만 보내서 같으면 유지, 다르면 다운로드.
 
   #### - 응답 데이터를 받을 때 ETag를 수신.
-  ![img_33.png](img_33.png)
+  ![img_33.png](img/img_33.png)
 
   #### - 캐시가 만료되었을 때 If-Not-Match로 ETag를 보낸다.(Match되지 않으면 데이터를 다시 달라.)
-  ![img_34.png](img_34.png)
+  ![img_34.png](img/img_34.png)
 
   #### 🔑 정리
   > - 캐시 제어 로직을 서버에서 완전히 관리.
@@ -909,7 +909,7 @@ Content-Length: 3423
   - expires: Mon, 01 Jan 2021 00:00:00 GMT
   - 캐시 만료일을 정확한 날짜로 지정.
   - HTTP 1.0 부터 사용.
-  - 지금은 더 유욘한 Cache-Control: max-age를 권장하며, 함께 사용하면 Expires는 무시된다.
+  - 지금은 더 유연한 Cache-Control: max-age를 권장하며, 함께 사용하면 Expires는 무시된다.
 
 ## 🧐 검증 헤더, 조건부 요청 헤더(정리)
 
@@ -922,7 +922,7 @@ Content-Length: 3423
   
 
 ## 🧐 프록시 캐시
-![img_35.png](img_35.png)
+![img_35.png](img/img_35.png)
 - 최초 접속자만 다운로드 하거나 혹은 원 서버에서 캐시 서버에 데이터를 밀어 넣는다.
 - 공용 캐시 : public
 - 로컬 캐시 : private
