@@ -769,7 +769,7 @@ public class Member extends BaseEntity{
 
 - #### 🔑 값 타입 컬렉션의 제약 사항
     - 값 타입은 엔티티와 달리 식별자 개념이 없다. 때문에 값을 변경하면 추적이 어렵다.
-    - 값 타입 컬렉션을 변겨하면 주인 엔티티와 연관된 모든 데이터를 삭제한 후 현재 남은 값을 모두 다시 저장 -> 매우 비효율적.
+    - 값 타입 컬렉션을 변하면 주인 엔티티와 연관된 모든 데이터를 삭제한 후 현재 남은 값을 모두 다시 저장 -> 매우 비효율적.
     - 값 타입 컬렉션을 매핑하는 테이블은 모든 컬럼을 묶어서 기본키를 구성.(null 안됨, 중복 저장 안됨.)
     
     #### ✏️ 실무에서는 값 타입 컬렉션 대신에 일대다 관계를 고려한다.(값 타입을 엔티티로 승급)
@@ -1198,7 +1198,7 @@ em.createQuery("select distinct t from Team t join fetch t.members", Team.class)
         - 또는 persistence.xml에  <property name="hibernate.default_batch_fetch_size" value="100"/>
         - batch size의 크기만큼 쿼리가 묶어서 나간다 (where team_id = (? ,?, ? ..)
             - ex) Team 과 member의 관계에서 batch size만큼의 team.members 한 쿼리에서 조회.
-        - N + 1 -> 2번의 쿼리(팀 조회쿼리, 멤버 조회쿼리)
+        - N + 1 -> 2번의 쿼리로 감소(팀 조회쿼리, 멤버 조회쿼리)
 
 # 📌 다형성 쿼리
 ***
@@ -1211,7 +1211,7 @@ em.createQuery("select distinct t from Team t join fetch t.members", Team.class)
 select i from Item i where type(i) in (Book,Movie)
 
 --[SQL]
-select i from i where i.DTYPE in('Book', 'Movie')
+select i from Item i where i.DTYPE in('Book', 'Movie')
 ```
 
 ### ☝️ TREAT
@@ -1223,7 +1223,7 @@ select i from i where i.DTYPE in('Book', 'Movie')
 select i from Item i where treat(i as Book).author='kim'
 
 --[SQL]
-select i from i where i.DTYPE ='book' and i.author ='kim'
+select i from Item i where i.DTYPE ='book' and i.author ='kim'
 ```
 
 # 📌 엔티티 직접 사용
@@ -1262,7 +1262,7 @@ select m from Member m where m.team_id = ?
 - 정적 쿼리
 - 어노테이션 | XML에 정의(우선)
 - 애플리케이션 로딩 시점에 초기화 후 재사용 가능. -> <mark>파싱 후 캐시하고 있는다.</mark>
-- <mark>애플리케이션 로딩 시점에 쿼리를 검증</mark>
+- <mark>애플리케이션 로딩 시점에 쿼리를 검증할 수 있어 빠르게 오류 발견 가능.</mark>
 
 ```java
 @NamedQuery(
