@@ -160,6 +160,7 @@ public class Address {
   - 즉, 변경이 이루어지지 않는다.
   - default = false
   - 클래스에 선언된 Transactional 이 먼저 적용되고, 각 메서드에 선언된 Transactional 이 덮어 씌운다.
+    - 클래스에 @Transactional(readOnly =true), 변경이 가해지는 메서드에 @Transactional를 추가로 선언하는 식으로 사용 가능하다.
 
 ```java
 @Test
@@ -222,7 +223,7 @@ private Delivery delivery;
 
 ## 🧐 도메인 모델 패턴.
 > - 도메인 모델 패턴: 비즈니스 로직의 대부분이 엔티티에 있다. Service 계층은 단순히 엔티티에 필요한 요청을 위임하는 역할만을 수행.(예제 코드가 이와같은 패턴 사용)
-> - 트랜잭션 스크립트 패: 엔티티에 비즈니스 로직이 거의 없고 대부분 Service 계층에서 처리.
+> - 트랜잭션 스크립트 패턴: 엔티티에 비즈니스 로직이 거의 없고 대부분 Service 계층에서 처리.
 - 도메인 모델 패턴을 사용하면 조금 더 객체지향의 특성을 활용 가능하다. 유지보수를 고려하여 상황에 맞게 선택하여 사용한다.
 
 # 📌 동적 쿼리의 작성 : QueryDSL
