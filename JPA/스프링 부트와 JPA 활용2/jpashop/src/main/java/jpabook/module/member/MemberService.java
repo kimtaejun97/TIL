@@ -1,5 +1,6 @@
 package jpabook.module.member;
 
+import jpabook.api.MemberApiController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,5 +31,13 @@ public class MemberService {
     }
     public Member findById(Long memberId){
         return memberRepository.findById(memberId);
+    }
+
+    @Transactional
+    public Long update(Long id, String name) {
+        Member member = memberRepository.findById(id);
+        member.update(name);
+
+        return member.getId();
     }
 }

@@ -1,12 +1,12 @@
 package jpabook.api;
 
 import jpabook.module.member.Member;
+import jpabook.module.member.MemberRepository;
 import jpabook.module.member.MemberService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -26,6 +26,25 @@ public class MemberApiController {
     public CreateMemberResponse saveMemberV2(@RequestBody @Valid CreateMemberRequest request){
         Long newAccountId = memberService.join(request.toEntity());
         return new CreateMemberResponse(newAccountId);
+    }
+
+    @PutMapping("/api/v2/members/{id}")
+    public UpdateMemberResponse UpdateMemberV2(@PathVariable("id") Long id,
+                                               @RequestBody @Valid UpdateMemberRequest request){
+        Long memberId = memberService.update(id, request.getName());
+        Member member = memberService.findById(memberId);
+        return new UpdateMemberResponse(member.getId(), member.getName());
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class UpdateMemberResponse{
+        private Long id;
+        private String name;
+    }
+    @Data
+    static class UpdateMemberRequest{
+        private String name;
     }
 
     @Data
