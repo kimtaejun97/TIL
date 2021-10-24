@@ -1,7 +1,7 @@
 package jpabook.api;
 
+import jpabook.module.member.Address;
 import jpabook.module.member.Member;
-import jpabook.module.member.MemberRepository;
 import jpabook.module.member.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -34,6 +36,34 @@ public class MemberApiController {
         Long memberId = memberService.update(id, request.getName());
         Member member = memberService.findById(memberId);
         return new UpdateMemberResponse(member.getId(), member.getName());
+    }
+
+    @GetMapping("/api/v1/members")
+    public List<Member> membersV1(){
+        return memberService.findMembers();
+    }
+
+    @GetMapping("/api/v2/members")
+    public Result memberV2(){
+        List<MemberDto> memberDtos = memberService.findMembers().stream()
+                .map(m -> new MemberDto(m.getName(), m.getAddress()))
+                .collect(Collectors.toList());
+
+        return new Result(memberDtos.size(),memberDtos);
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class Result<T>{
+        private int count;
+        private T data;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class MemberDto{
+        private String name;
+        private Address address;
     }
 
     @Data

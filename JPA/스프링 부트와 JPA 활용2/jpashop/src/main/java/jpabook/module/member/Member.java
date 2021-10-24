@@ -1,5 +1,6 @@
 package jpabook.module.member;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jpabook.module.order.Order;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class Member {
     @Embedded
     private Address address;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
 
