@@ -30,6 +30,10 @@ dependencies {
     //queryDSL
     implementation 'com.querydsl:querydsl-jpa'
 
+    //
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+
+
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

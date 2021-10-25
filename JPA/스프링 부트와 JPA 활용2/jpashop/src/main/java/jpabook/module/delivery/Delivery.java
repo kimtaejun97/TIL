@@ -1,5 +1,6 @@
 package jpabook.module.delivery;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jpabook.module.member.Address;
 import jpabook.module.order.Order;
 import jpabook.module.order.OrderStatus;
@@ -20,7 +21,7 @@ public class Delivery {
     @Id @GeneratedValue
     @Column(name = "delivery_id")
     private Long id;
-
+    @JsonIgnore
     @OneToOne(mappedBy = "delivery", fetch = LAZY)
     private Order order;
 

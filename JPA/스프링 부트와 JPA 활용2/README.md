@@ -190,3 +190,50 @@ public List<Member> membersV1(){
   } 
   ```
 - Result로 한번 감싸주었기 때문에 가장 바깥쪽이 Array가 아닌 Object. 확장 가능.
+
+
+
+# 📌 고급 주문 조회 API
+***
+
+## 🧐 V1 - 엔티티 직접 노출
+```java
+@GetMapping("/api/v1/simple-orders")
+public List<Order> ordersV1(){
+      return orderService.findOrders(new OrderSearch());
+}
+```
+- Order와 양방향 연관관계를 맺고 있는 엔티티들이 존재하기 때문에 JSON객체를 생성할 때 순환으로 계속 객체를 생성하게되는 무한루프에 빠지게 된다.
+- 양방향 연관관계의 반대쪽에서 Order를 참조하는 부분에 ```@JsonIgnore```를 사용하여 생성하지 않도록 해야한다.
+
+### 🖍 Json객체 생성시 프록시 객체.
+```json
+Type definition error: 
+[simple type, class org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor]
+```
+- Lazy로딩을 사용할 때 해당 객체를 비워둘 수 없기 때문에 Hibernate 에서 프록시 객체를 넣어둔다.(ByteBuddy 사용)
+- 그러나 Jackson 라이브러리는 프록시 객체를 다루지 못해 발생한 에러.
+```json
+implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+```
+```java
+@Bean
+Hibernate5Module hibernate5Module(){
+    return new Hibernate5Module();
+}
+```
+- Hibernate5Module를 사용 해결 가능. -> 기본으로 Lazy Loading은 null로 채워준다.
+```java
+@Bean
+Hibernate5Module hibernate5Module(){
+    Hibernate5Module hibernate5Module = new Hibernate5Module();
+    hibernate5Module.configure(Hibernate5Module.Feature.FORCE_LAZY_LOADING, true);
+    return hibernate5Module;
+}
+```
+- Force Lazy Loading 옵션을 사용하면 Json을 생성하는 시점에 로딩해 값을 채워준다.
+- 사용하지 않는 것들도 모두 가져와버리기 때문에 성능 이슈가 발생한다.
+- Force Lazy Loading을 사용하지 않고 프록시를 강제 초기화시켜 해결할 수도 있다.(member의 name을 호출 ->프록시 객체가 초기화 된다.)
+
+
+## 🧐 V2 - 엔티티를 DTO로 변환
