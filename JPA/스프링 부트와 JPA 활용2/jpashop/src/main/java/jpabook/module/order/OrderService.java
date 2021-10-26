@@ -1,5 +1,6 @@
 package jpabook.module.order;
 
+import jpabook.api.OrderSimpleApiController;
 import jpabook.module.delivery.Delivery;
 import jpabook.module.item.Item;
 import jpabook.module.item.ItemRepository;
@@ -19,6 +20,7 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
 
@@ -52,4 +54,11 @@ public class OrderService {
     }
 
 
+    public List<Order> findOrdersWithMemberDelivery(OrderSearch orderSearch) {
+        return orderRepository.findOrdersWithMemberAndDelivery(orderSearch);
+    }
+
+    public List<SimpleOrderQueryDto> findOrderDto(OrderSearch orderSearch) {
+        return orderQueryRepository.findOrderDto(orderSearch);
+    }
 }

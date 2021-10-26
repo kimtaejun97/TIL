@@ -193,7 +193,7 @@ public List<Member> membersV1(){
 
 
 
-# 📌 고급 주문 조회 API
+# 📌 간단한 주문 조회 API - 지연 로딩과 조회 성능 최적화
 ***
 
 ## 🧐 V1 - 엔티티 직접 노출
@@ -237,3 +237,167 @@ Hibernate5Module hibernate5Module(){
 
 
 ## 🧐 V2 - 엔티티를 DTO로 변환
+```java
+@GetMapping("/api/v2/simple-orders")
+public Result ordersV2(){
+    List<SimpleOrderDto> orderDtos = orderService.findOrders(new OrderSearch()).stream()
+            .map(o -> new SimpleOrderDto(o))
+            .collect(Collectors.toList());
+
+    return new Result(orderDtos);
+}
+@Data
+@AllArgsConstructor
+static class Result<T>{
+    private T orders;
+}
+
+@Data
+static class SimpleOrderDto{
+    private Long orderId;
+    private String name;
+    private LocalDateTime orderDate;
+    private OrderStatus orderStatus;
+    private Address address;
+
+    public SimpleOrderDto(Order order){
+        this.orderId = order.getId();
+        this.name = order.getMember().getName(); // Lazy 초기화
+        this.orderDate = order.getOrderDate();
+        this.orderStatus = order.getStatus();
+        this.address = order.getDelivery().getAddress(); // Lazy 초기화
+    }
+
+}
+```
+- orderService.findOrders 에서 Order 를 조회.
+- DTO 값을 설정할 때 Member 와 Delivery 를 Lazy 로딩으로 가져옴. -> N+1 쿼리 문제 발생.(영속성 컨텍스트에 없는 데이터당 1건)
+
+## 🧐 V3 - DTO + Fetch Join
+
+```java
+public List<Order> findOrdersWithMemberAndDelivery(OrderSearch orderSearch) {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+        QDelivery delivery = QDelivery.delivery;
+
+        return query.selectFrom(order)
+                      .where(eqStatus(orderSearch.getOrderStatus(), order),
+                            likeName(orderSearch.getMemberName(), order))
+                      .join(order.member, member).fetchJoin()
+                      .join(order.delivery, delivery).fetchJoin()
+                      .fetch();
+}
+```
+- Fetch Join을 사용하여 N+1 쿼리문제 해결.
+- Order, Member, Delivery 를 한번에 Select 절에 넣어 조회해 온다.
+- 이미 조회해 영속성 컨텍스트에 존재하기 때문에 Lazy Loading 이 발생하지 않고 한번의 쿼리만 발생하게 된다.
+
+```sql
+ select
+        order0_.order_id as order_id1_6_0_,
+        member1_.member_id as member_i1_4_1_,
+        delivery2_.delivery_id as delivery1_2_2_,
+        order0_.delivery_id as delivery4_6_0_,
+        order0_.member_id as member_i5_6_0_,
+        order0_.order_date as order_da2_6_0_,
+        order0_.status as status3_6_0_,
+        member1_.city as city2_4_1_,
+        member1_.street as street3_4_1_,
+        member1_.zipcode as zipcode4_4_1_,
+        member1_.name as name5_4_1_,
+        delivery2_.city as city2_2_2_,
+        delivery2_.street as street3_2_2_,
+        delivery2_.zipcode as zipcode4_2_2_,
+        delivery2_.status as status5_2_2_ 
+    from
+        orders order0_ 
+    inner join
+        member member1_ 
+            on order0_.member_id=member1_.member_id 
+    inner join
+        delivery delivery2_ 
+            on order0_.delivery_id=delivery2_.delivery_id
+```
+
+
+## 🧐 V4 - JPA에서 DTO로 바로 조회
+
+```java
+@GetMapping("/api/v4/simple-orders")
+public Result ordersV4(){
+    List<SimpleOrderQueryDto> orderDtos = orderService.findOrderDto(new OrderSearch());
+    return new Result(orderDtos);
+}
+```
+- ### ✏️ JPQL 사용
+```java
+return em.createQuery(
+                "select new jpabook.module.order.SimpleOrderQueryDto(o.id, m.name, o.orderDate, o.status, d.address) " +
+                        "from Order o " +
+                        "join o.member m " +
+                        "join o.delivery d " +
+                        "where o.status = :status and o.member.name = :name", SimpleOrderQueryDto.class)
+                .setParameter("status", orderSearch.getOrderStatus())
+                .setParameter("name", orderSearch.getMemberName())
+                .getResultList();
+```
+
+
+- ### ✏️ Querydsl 사용
+```java
+JPAQueryFactory query = new JPAQueryFactory(em);
+QOrder order = QOrder.order;
+QMember member = QMember.member;
+QDelivery delivery = QDelivery.delivery;
+
+
+return query.select(Projections.constructor(SimpleOrderQueryDto.class,
+                order.id,
+                member.name,
+                order.orderDate,
+                order.status,
+                delivery.address))
+            .from(order)
+            .join(order.member, member) // 별칭 클래스.
+            .join(order.delivery, delivery)
+            .where(eqStatus(orderSearch.getOrderStatus(), order),
+                likeName(orderSearch.getMemberName(), order))
+            .fetch();
+```
+- Projection.constructor : 생성자를 이용. 파라미터의 순서, 타입이 맞아야 한다.
+- Projection.bean : 기본 생성자를 이용하여 객체를 생성한 후 Setter 를 이용하여 값을 셋팅.
+- Projection.fields : 리플렉션 API를 사용하여 필드에 직접 값 주입(기본 생성자 필요)
+- order.id.as("orderId)와 같이 별칭 가능.
+```sql
+select
+        order0_.order_id as col_0_0_,
+        member1_.name as col_1_0_,
+        order0_.order_date as col_2_0_,
+        order0_.status as col_3_0_,
+        delivery2_.city as col_4_0_,
+        delivery2_.street as col_4_1_,
+        delivery2_.zipcode as col_4_2_ 
+    from
+        orders order0_ 
+    inner join
+        member member1_ 
+            on order0_.member_id=member1_.member_id 
+    inner join
+        delivery delivery2_ 
+            on order0_.delivery_id=delivery2_.delivery_id 
+```
+
+- fetch join을 이용했을때는 테이블 전체를 Select 하기 때문에 필요없는 데이터 또한 조회하게 된다.
+- DTO 를 이용하면 필요한 데이터만을 조회하여 가져올 수 있다. Select 절에서 조회하는 데이터가 줄어든 것을 확인 할 수 있다.
+- DTO 를 사용하여 반환받으면 성능은 조금 더 최적화될 수 있지만, 재사용성이 거의 없다.(member 의 이름이 아니라 전화번호가 필요하다면?)
+- 필요에 따라 어떤것을 사용할지 결정.
+- Repository 는 객체 그래프를 탐색하는 용도(엔티티 조회)로만 사용되는 것이 좋다. 때문에 DTO를 반환하는 쿼리는 따로 이러한 쿼리를 모아두는 Repository 를 따로 두는 것이 좋다.
+
+### 🔑 성능 최적화 순서.
+    1. 엔티티를 DTO 로 변환하여 사용.
+    2. N + 1등 성능 이슈가 발생하면 Fetch Join 사용.
+    3. 필드가 매우 많아 그래도 해결되지 않는다면 DTO로 직접 조회하는 방법 사용.
+    4. JPA 가 제공하는 네이티브 SQL 이나 스프링 JDBC Template 를 사용하여 직접 SQL 사용.
+

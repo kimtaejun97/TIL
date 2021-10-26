@@ -1,11 +1,9 @@
 package jpabook.module.order;
 
-import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.EnumPath;
-import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jpabook.module.item.Item;
+import jpabook.module.delivery.QDelivery;
 import jpabook.module.member.QMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -35,8 +33,7 @@ public class OrderRepository {
         QOrder order = QOrder.order;
         QMember member = QMember.member;
 
-        return query
-                    .selectFrom(order)
+        return query.selectFrom(order)
                     .join(order.member, member)
                     .where(eqStatus(orderSearch.getOrderStatus(), order),
                             likeName(orderSearch.getMemberName(), order))
@@ -56,6 +53,20 @@ public class OrderRepository {
             return null;
         }
         return order.status.eq(searchOrderStatus);
+    }
+
+    public List<Order> findOrdersWithMemberAndDelivery(OrderSearch orderSearch) {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+        QDelivery delivery = QDelivery.delivery;
+
+        return query.selectFrom(order)
+                        .where(eqStatus(orderSearch.getOrderStatus(), order),
+                                likeName(orderSearch.getMemberName(), order))
+                        .join(order.member, member).fetchJoin()
+                        .join(order.delivery, delivery).fetchJoin()
+                        .fetch();
     }
 
 }
