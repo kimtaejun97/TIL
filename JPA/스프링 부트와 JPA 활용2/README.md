@@ -401,3 +401,72 @@ select
     3. 필드가 매우 많아 그래도 해결되지 않는다면 DTO로 직접 조회하는 방법 사용.
     4. JPA 가 제공하는 네이티브 SQL 이나 스프링 JDBC Template 를 사용하여 직접 SQL 사용.
 
+# 📌 주문 조회(orderItems 포함)
+***
+## 🧐 V1 - 엔티티 직접 노출
+```java
+@GetMapping("/api/v1/orders")
+public List<Order> ordersV1(){
+    List<Order> all = orderService.findOrders(new OrderSearch());
+
+    // 프록시 강제 초기화.
+   for (Order order : all) {
+        order.getMember().getName();
+        order.getDelivery().getAddress();
+        List<OrderItem> orderItems = order.getOrderItems();
+        orderItems.stream()
+                .forEach(o->o.getItem().getName());
+    }
+    return all;
+}
+```
+- 양방향 연관관계에는 @JsonIgnore 필수.
+- Hibernate5Module을 기본 옵션으로 생성한다면 프록시를 강제로 초기화하는 것이 필요하다.
+
+## 🧐 V2 - Dto 사용
+```java
+@GetMapping("/api/v2/orders")
+public Result<OrderDto> ordersV2(){
+    List<Order> orders = orderService.findOrders(new OrderSearch());
+    List<OrderDto> collect = orders.stream()
+            .map(o -> new OrderDto(o))
+            .collect(Collectors.toList());
+
+    return new Result(collect);
+}
+@Data
+static class OrderDto{
+    private Long orderId;
+    private String name;
+    private LocalDateTime orderDate;
+    private OrderStatus orderStatus;
+    private Address address;
+    private List<OrderItemDto> orderItems;
+
+    public OrderDto(Order order){
+        this.orderId = order.getId();
+        this.name = order.getMember().getName();
+        this.orderDate = order.getOrderDate();
+        this.orderStatus = order.getStatus();
+        this.address = order.getDelivery().getAddress();
+        this.orderItems = order.getOrderItems().stream()
+                .map(oi -> new OrderItemDto(oi))
+                .collect(Collectors.toList());;
+    }
+}
+@Data
+static class OrderItemDto{
+    private String itemName;
+    private int orderPrice;
+    private int count;
+
+    public OrderItemDto(OrderItem orderItem){
+        this.itemName = orderItem.getItem().getName();
+        this.orderPrice = orderItem.getOrderPrice();
+        this.count = orderItem.getCount();
+    }
+}
+```
+- Order 엔티티만을 Dto로 변환하는데 그치지 않고, Order 엔티티 내부에 있는 엔티티들 또한 Dto로 변경해주어야 한다.
+- 내부에 엔티티가 있으면 똑같이 프록시가 들어가 null이 들어가고, 강제 초기화를 시켜주어야 한다.
+- Order를 불러올때 N+1(delivery,member), OrderItems를 불러올때 N+1(item) 이 발생하여 무수히 많은 쿼리가 실행된다.
