@@ -61,4 +61,8 @@ public class OrderService {
     public List<SimpleOrderQueryDto> findOrderDto(OrderSearch orderSearch) {
         return orderQueryRepository.findOrderDto(orderSearch);
     }
+
+    public List<Order> findOrdersWithMemberDeliveryItem(OrderSearch orderSearch) {
+        return orderRepository.findOrdersWithMemberAndDeliveryAndItem(orderSearch);
+    }
 }

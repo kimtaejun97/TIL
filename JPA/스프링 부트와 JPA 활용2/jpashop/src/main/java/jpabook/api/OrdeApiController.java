@@ -44,6 +44,17 @@ public class OrdeApiController {
 
         return new Result(collect);
     }
+
+    @GetMapping("api/v3/orders")
+    public Result<OrderDto> ordersV3(){
+        List<Order> orders = orderService.findOrdersWithMemberDeliveryItem(new OrderSearch());
+        List<OrderDto> collect = orders.stream()
+                .map(o -> new OrderDto(o))
+                .collect(Collectors.toList());
+
+        return new Result(collect);
+    }
+
     @Data
     static class OrderDto{
         private Long orderId;

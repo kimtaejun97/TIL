@@ -4,7 +4,9 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jpabook.module.delivery.QDelivery;
+import jpabook.module.item.QItem;
 import jpabook.module.member.QMember;
+import jpabook.module.orderproduct.QOrderItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -69,4 +71,22 @@ public class OrderRepository {
                         .fetch();
     }
 
+    public List<Order> findOrdersWithMemberAndDeliveryAndItem(OrderSearch orderSearch) {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+        QDelivery delivery = QDelivery.delivery;
+        QOrderItem orderItem = QOrderItem.orderItem;
+        QItem item = QItem.item;
+
+        return query.selectFrom(order)
+                .where(eqStatus(orderSearch.getOrderStatus(), order),
+                        likeName(orderSearch.getMemberName(), order))
+                .join(order.member, member).fetchJoin()
+                .join(order.delivery, delivery).fetchJoin()
+                .join(order.orderItems, orderItem).fetchJoin()
+                .join(orderItem.item, item).fetchJoin()
+                .distinct()
+                .fetch();
+    }
 }

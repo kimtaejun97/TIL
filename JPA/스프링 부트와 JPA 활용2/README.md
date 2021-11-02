@@ -470,3 +470,36 @@ static class OrderItemDto{
 - Order 엔티티만을 Dto로 변환하는데 그치지 않고, Order 엔티티 내부에 있는 엔티티들 또한 Dto로 변경해주어야 한다.
 - 내부에 엔티티가 있으면 똑같이 프록시가 들어가 null이 들어가고, 강제 초기화를 시켜주어야 한다.
 - Order를 불러올때 N+1(delivery,member), OrderItems를 불러올때 N+1(item) 이 발생하여 무수히 많은 쿼리가 실행된다.
+
+## 🧐 V3 - FetchJoin
+```java
+public List<Order> findOrdersWithMemberAndDeliveryAndItem(OrderSearch orderSearch) {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+        QDelivery delivery = QDelivery.delivery;
+        QOrderItem orderItem = QOrderItem.orderItem;
+        QItem item = QItem.item;
+
+        return query.selectFrom(order)
+                .where(eqStatus(orderSearch.getOrderStatus(), order),
+                        likeName(orderSearch.getMemberName(), order))
+                .join(order.member, member).fetchJoin()
+                .join(order.delivery, delivery).fetchJoin()
+                .join(order.orderItems, orderItem).fetchJoin()
+                .join(orderItem.item, item).fetchJoin()
+                .distinct()
+                .fetch();
+    }
+```
+- orderItems 와 Item을 fetchJoin.
+- 컬렉션을 조인(OneToMany)하게 되면 데이터가 증가한다.(order id=1인 orderItem이 2개라면 order id=1인 데이터가 2번 조회된다.)
+- distinct()를 추가하여 중복된 데이터를 제거해준다.
+  - 실제 row는 join된 item이 다르기 때문에 DB상으로는 다르지만 java 엔티티 객체상으로는 같기 때문에(id가 동일) 제거된다.(원래의 distinct 기능 외에 JPA의 기능이 추가되어 있다.)
+  
+### 🖍 단점: 페이징이 불가능해진다.
+  - firstResult, maxResult를 설정해도, 메모리에서 실행할 것이라는 경고문구가 발생하고, 메모리에서 페이징 처리를 한다.
+    - 그러나 데이터의 수가 많아지면 OOM가 발생하고, 메모리로 이러한 데이터를 올린다는 것 자체가 위험하다.
+  - distinct 또한 제대로 적용되지 않기 때문에 내가 원하는 데이터를 가지고 페이징할 수 없다.(row의 데이터가 다름.)
+
+  - 컬렉션 fetch join은 1개만 사용할 수 있다.(1 : N : N 등 불가능.)
