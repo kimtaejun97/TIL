@@ -503,3 +503,23 @@ public List<Order> findOrdersWithMemberAndDeliveryAndItem(OrderSearch orderSearc
   - distinct 또한 제대로 적용되지 않기 때문에 내가 원하는 데이터를 가지고 페이징할 수 없다.(row의 데이터가 다름.)
 
   - 컬렉션 fetch join은 1개만 사용할 수 있다.(1 : N : N 등 불가능.)
+
+## 🧐 V3.1 컬렉션 조회 페이징과 한계 돌파
+1. -ToOne 관계는 데이터가 증가하지 않으므로, fetchJoin을 걸어준다.
+2. 컬렉션은 지연 로딩으로 조회.
+3. 지연로딩 성능 최적화를 위해 ```spring.jpa.properties.hibernate.default_batch_fetch_size``` 또는 @BatchSize(size = n)를 적용한다.(batchSize만큼 미리 가져온다.)
+   - in (?, ?, ... ?) 쿼리가 발생하며 설정한 수 만큼 미리 가져온다.
+    ```sql
+    where
+    orderitems0_.order_id in (
+        ?, ?
+    )  
+   /*params : 1,2, .. */
+    ```
+    #### ✏️ 결론
+        -️ 컬렉션 패치조인을 사용하지 않았으므로 당연히 페이징이 가능하다.
+        - 또한 컬렉션 패치조인에서 distinct 를 하더라도 DB 쿼리상에서는 더 늘어난 데이터를 조회한 후에 JPA에서 이를 제거하게 되는데,
+        이러한 과정이 빠져 성능최적화가 이루어진다. 
+        - size는 100~1000 사이를 선택하는 것을 권장. 데이터베이스에 따라 1000으로 제한하기도 한다.
+        대체적으로 1000개로 설정하는 것이 더 좋지만 순간 부하를 견딜수 없다면 더 낮은 수를 권장한다.
+

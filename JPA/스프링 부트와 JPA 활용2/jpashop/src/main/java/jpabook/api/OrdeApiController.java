@@ -55,6 +55,17 @@ public class OrdeApiController {
         return new Result(collect);
     }
 
+    //default_batch_fetch_size 사용
+    @GetMapping("api/v3.1/orders")
+    public Result<OrderDto> ordersV3_1(){
+        List<Order> orders = orderService.findOrdersWithMemberDelivery(new OrderSearch());
+        List<OrderDto> collect = orders.stream()
+                .map(o -> new OrderDto(o))
+                .collect(Collectors.toList());
+
+        return new Result(collect);
+    }
+
     @Data
     static class OrderDto{
         private Long orderId;
