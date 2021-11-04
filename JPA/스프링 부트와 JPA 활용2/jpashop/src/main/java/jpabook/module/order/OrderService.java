@@ -1,14 +1,16 @@
 package jpabook.module.order;
 
-import jpabook.api.OrderSimpleApiController;
 import jpabook.module.delivery.Delivery;
 import jpabook.module.item.Item;
 import jpabook.module.item.ItemRepository;
 import jpabook.module.member.Member;
 import jpabook.module.member.MemberRepository;
+import jpabook.module.order.query.OrderQueryDto;
+import jpabook.module.order.query.OrderQueryRepository;
+import jpabook.module.order.simplequery.SimpleOrderQueryRepository;
+import jpabook.module.order.simplequery.SimpleOrderQueryDto;
 import jpabook.module.orderproduct.OrderItem;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +22,10 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderQueryRepository orderQueryRepository;
+    private final SimpleOrderQueryRepository simpleOrderQueryRepository;
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     @Transactional
     public Long order(Long memberId, Long itemId, int count){
@@ -58,11 +61,16 @@ public class OrderService {
         return orderRepository.findOrdersWithMemberAndDelivery(orderSearch);
     }
 
-    public List<SimpleOrderQueryDto> findOrderDto(OrderSearch orderSearch) {
-        return orderQueryRepository.findOrderDto(orderSearch);
+    public List<SimpleOrderQueryDto> findSimpleOrderDto(OrderSearch orderSearch) {
+        return simpleOrderQueryRepository.findSimpleOrderDto(orderSearch);
     }
 
     public List<Order> findOrdersWithMemberDeliveryItem(OrderSearch orderSearch) {
         return orderRepository.findOrdersWithMemberAndDeliveryAndItem(orderSearch);
+    }
+
+    public List<OrderQueryDto> findOrderDto(OrderSearch orderSearch) {
+        return orderQueryRepository.findOrder(orderSearch);
+
     }
 }

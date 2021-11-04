@@ -2,9 +2,9 @@ package jpabook.api;
 
 import jpabook.module.member.Address;
 import jpabook.module.order.*;
+import jpabook.module.order.query.OrderQueryDto;
 import jpabook.module.orderproduct.OrderItem;
 import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +19,7 @@ public class OrdeApiController {
 
     private final OrderRepository orderRepository;
     private final OrderService orderService;
+
 
     @GetMapping("/api/v1/orders")
     public List<Order> ordersV1(){
@@ -65,6 +66,14 @@ public class OrdeApiController {
 
         return new Result(collect);
     }
+
+    @GetMapping("api/v4/orders")
+    public Result<OrderQueryDto> ordersV4(){
+        List<OrderQueryDto> orders = orderService.findOrderDto(new OrderSearch());
+
+        return new Result(orders);
+    }
+
 
     @Data
     static class OrderDto{

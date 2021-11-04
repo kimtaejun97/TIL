@@ -1,6 +1,8 @@
 package jpabook.module.order;
 
 import jpabook.module.member.Address;
+import jpabook.module.order.Order;
+import jpabook.module.order.OrderStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;

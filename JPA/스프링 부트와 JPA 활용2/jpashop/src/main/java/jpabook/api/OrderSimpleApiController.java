@@ -1,14 +1,14 @@
 package jpabook.api;
 
-import jpabook.module.member.Address;
 import jpabook.module.order.*;
+import jpabook.module.order.SimpleOrderDto;
+import jpabook.module.order.simplequery.SimpleOrderQueryDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +47,7 @@ public class OrderSimpleApiController {
 
     @GetMapping("/api/v4/simple-orders")
     public Result ordersV4(){
-        List<SimpleOrderQueryDto> orderDtos = orderService.findOrderDto(new OrderSearch());
+        List<SimpleOrderQueryDto> orderDtos = orderService.findSimpleOrderDto(new OrderSearch());
         return new Result(orderDtos);
     }
 
