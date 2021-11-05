@@ -20,7 +20,7 @@ public class OrdeApiController {
     private final OrderRepository orderRepository;
     private final OrderService orderService;
 
-
+    // 엔티티 노출.
     @GetMapping("/api/v1/orders")
     public List<Order> ordersV1(){
         List<Order> all = orderService.findOrders(new OrderSearch());
@@ -36,6 +36,7 @@ public class OrdeApiController {
         return all;
     }
 
+    // DTO로 조회.
     @GetMapping("/api/v2/orders")
     public Result<OrderDto> ordersV2(){
         List<Order> orders = orderService.findOrders(new OrderSearch());
@@ -46,6 +47,7 @@ public class OrdeApiController {
         return new Result(collect);
     }
 
+    // DTO로 조회 최적화
     @GetMapping("api/v3/orders")
     public Result<OrderDto> ordersV3(){
         List<Order> orders = orderService.findOrdersWithMemberDeliveryItem(new OrderSearch());
@@ -67,9 +69,18 @@ public class OrdeApiController {
         return new Result(collect);
     }
 
+    // DTO에 바로 담아 조회
     @GetMapping("api/v4/orders")
     public Result<OrderQueryDto> ordersV4(){
-        List<OrderQueryDto> orders = orderService.findOrderDto(new OrderSearch());
+        List<OrderQueryDto> orders = orderService.findOrderDto();
+
+        return new Result(orders);
+    }
+
+    // DTO로 바로 조회 최적화.
+    @GetMapping("api/v5/orders")
+    public Result<OrderQueryDto> ordersV5(){
+        List<OrderQueryDto> orders = orderService.findOrderDtoOptimization();
 
         return new Result(orders);
     }

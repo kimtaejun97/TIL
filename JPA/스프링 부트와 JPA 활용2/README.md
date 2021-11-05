@@ -523,3 +523,96 @@ public List<Order> findOrdersWithMemberAndDeliveryAndItem(OrderSearch orderSearc
         - size는 100~1000 사이를 선택하는 것을 권장. 데이터베이스에 따라 1000으로 제한하기도 한다.
         대체적으로 1000개로 설정하는 것이 더 좋지만 순간 부하를 견딜수 없다면 더 낮은 수를 권장한다.
 
+
+## 🧐 V4 - DTO로 바로 조회하기.
+
+```java
+public List<OrderQueryDto> findOrder() {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+        QDelivery delivery = QDelivery.delivery;
+
+        return query
+                .select(Projections.constructor(OrderQueryDto.class,
+                        order.id, member.name, order.orderDate, order.status, delivery.address))
+                .from(order)
+                .join(order.member, member)
+                .join(order.delivery, delivery)
+                .fetch();
+}
+```
+- order DTO에 담아 바로 조회한다.
+```java
+private List<OrderItemQueryDto> findOrderItems(OrderQueryDto o) {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrderItem orderItem = QOrderItem.orderItem;
+        QItem item = QItem.item;
+
+        return query
+                .select(Projections.constructor(OrderItemQueryDto.class,
+                       orderItem.order.id, item.name, orderItem.orderPrice, orderItem.count))
+                .from(orderItem)
+                .where(orderItem.order.id.eq(o.getOrderId()))
+                .join(orderItem.item, item)
+                .fetch();
+}
+
+public List<OrderQueryDto> findOrderDto(){
+        List<OrderQueryDto> orders = findOrder();
+
+        orders.stream()
+                .forEach(o-> o.setOrderItems(findOrderItems(o)));
+        return orders;
+}
+```
+- 이전에 조회한 order에 order의 id를 이용하여 orderItem 을 조회하여 넣어준다.
+- orderItem 또한 DTO에 담아서 조회한다.
+
+#### 🖍 N + 1 : foreach를 돌리며 각각 조회하기 때문에 N + 1 쿼리 문제가 발생한다.
+
+## 🧐 V5 - DTO로 바로 조회하기 - 최적화.
+```java
+public List<OrderQueryDto> findOrderDtoOptimization() {
+        List<OrderQueryDto> orders = findOrder();
+
+        Map<Long, List<OrderItemQueryDto>> orderItemMap = findOrderItemMap(getOrderIds(orders));
+        orders.forEach(o->o.setOrderItems(orderItemMap.get(o.getOrderId())));
+
+        return orders;
+    }
+```
+```java
+private List<Long> getOrderIds(List<OrderQueryDto> orders) {
+    List<Long> orderIds = orders.stream()
+            .map(o -> o.getOrderId())
+            .collect(Collectors.toList());
+    return orderIds;
+}
+
+private Map<Long, List<OrderItemQueryDto>> findOrderItemMap(List<Long> orderIds) {
+    JPAQueryFactory query = new JPAQueryFactory(em);
+    QOrderItem orderItem = QOrderItem.orderItem;
+    QItem item = QItem.item;
+    
+    List<OrderItemQueryDto> orderItems = query
+                    .select(Projections.constructor(OrderItemQueryDto.class,
+                            orderItem.order.id, item.name, orderItem.orderPrice, orderItem.count))
+                    .from(orderItem)
+                    .where(orderItem.order.id.in(orderIds))
+                    .join(orderItem.item, item)
+                    .fetch();
+
+    return DtoToMap(orderItems);
+}
+
+private Map<Long, List<OrderItemQueryDto>> DtoToMap(List<OrderItemQueryDto> orderItems) {
+    Map<Long, List<OrderItemQueryDto>> orderItemMap = orderItems.stream()
+            .collect(Collectors.groupingBy(orderItemQueryDto -> orderItemQueryDto.getOrderId()));
+    return orderItemMap;
+    }
+```
+- order를 미리 조회한 후 OrderItem을 in 절을 이용하여 조회한다.
+- in 절을 이용하여 모든 order id에 대해 한번에 조회가 되기 때문에 N+1 문제가 발생하지 않는다.
+- 그러나 조회한 OrderItem 은 모든 order에 대한 OrderItem이기 때문에 order에 맞게 분배해주는 전처리가 필요하다.
+    - orderId를 key로 Map으로 변환한 후에 order에 맞게 넣어준다.
