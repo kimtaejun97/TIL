@@ -616,3 +616,60 @@ private Map<Long, List<OrderItemQueryDto>> DtoToMap(List<OrderItemQueryDto> orde
 - in 절을 이용하여 모든 order id에 대해 한번에 조회가 되기 때문에 N+1 문제가 발생하지 않는다.
 - 그러나 조회한 OrderItem 은 모든 order에 대한 OrderItem이기 때문에 order에 맞게 분배해주는 전처리가 필요하다.
     - orderId를 key로 Map으로 변환한 후에 order에 맞게 넣어준다.
+    
+
+
+## 🧐 V6 - DTO로 한번에 모두 조회하기, Flat 데이터 최적화
+```java
+public List<OrderFlatDto> findOrderDtoFlatOptimization() {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrder order = QOrder.order;
+        QOrderItem oi = QOrderItem.orderItem;
+        QMember m = QMember.member;
+        QDelivery d = QDelivery.delivery;
+        QItem i = QItem.item;
+
+        return query
+                .select(Projections.constructor(OrderFlatDto.class, order.id, m.name, order.orderDate,
+                        order.status, d.address, i.name, oi.orderPrice, oi.count))
+                .from(order)
+                .join(order.member, m)
+                .join(order.delivery, d)
+                .join(order.orderItems, oi)
+                .join(oi.item, i)
+                .fetch();
+    }
+```
+- order와 orderItem 을 모두 담을 수있는 DTO 를 생성하여 한번에 조회.
+#### 🖍 컬렉션 조인을 사용하기 때문에 중복 데이터가 발생한다.
+- 애플리케이션 단에서 데이터 정제가 필요.
+```java
+@GetMapping("api/v6/orders")
+public Result<OrderQueryDto> ordersV6(){
+    List<OrderFlatDto> flats = orderService.findOrderDtoFlatOptimization();
+
+    // order와 OrderItem key, value로 묶기.
+    Map<OrderQueryDto, List<OrderItemQueryDto>> collect = flats.stream()
+            .collect(Collectors.groupingBy(o -> new OrderQueryDto(o.getOrderId(), o.getUsername(), o.getOrderDate(), o.getStatus(), o.getAddress()),
+                    Collectors.mapping(o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), Collectors.toList())));
+
+    // key에는 Order, value에서는 orderItem을 꺼내 사용할 수 있다.
+    List<OrderQueryDto> orderDtos = collect.entrySet().stream()
+            .map(e -> new OrderQueryDto(e.getKey().getOrderId(), e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getStatus(), e.getKey().getAddress(),
+                    e.getValue()))
+            .collect(Collectors.toList());
+
+
+    return new Result(orderDtos);
+}
+```
+- API 스펙에 맞춰 데이터 가공.
+- 플랫데이터를 그대로 반환하면 orderItem에 맞춰 데이터가 생성되기 때문에 member, address등에서 중복이 발생한다.
+    - (member1, member1 Address, item1), (member1, member1 Address, item2)... 
+
+### 🔑 정리
+- 장점 : 단 한번의 쿼리로 데이터를 가져온다.
+- 중복 데이터가 추가되므로 상황에 따라 V5보다 느릴 수 있다.
+- 애플리케이션에서 추가 작업이 크다.
+- 중복 데이터가 발생하기 때문에 order를 기준으로 페이징 할 수 없다.
+  

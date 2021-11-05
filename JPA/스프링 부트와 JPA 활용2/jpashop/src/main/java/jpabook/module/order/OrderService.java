@@ -5,6 +5,7 @@ import jpabook.module.item.Item;
 import jpabook.module.item.ItemRepository;
 import jpabook.module.member.Member;
 import jpabook.module.member.MemberRepository;
+import jpabook.module.order.query.OrderFlatDto;
 import jpabook.module.order.query.OrderQueryDto;
 import jpabook.module.order.query.OrderQueryRepository;
 import jpabook.module.order.simplequery.SimpleOrderQueryRepository;
@@ -77,5 +78,9 @@ public class OrderService {
     public List<OrderQueryDto> findOrderDtoOptimization() {
         return orderQueryRepository.findOrderDtoOptimization();
 
+    }
+
+    public List<OrderFlatDto> findOrderDtoFlatOptimization() {
+        return orderQueryRepository.findOrderDtoFlatOptimization();
     }
 }

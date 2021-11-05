@@ -5,7 +5,9 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jpabook.module.delivery.QDelivery;
 import jpabook.module.item.QItem;
+import jpabook.module.member.Address;
 import jpabook.module.member.QMember;
+import jpabook.module.order.OrderStatus;
 import jpabook.module.order.QOrder;
 import jpabook.module.orderproduct.OrderItem;
 import jpabook.module.orderproduct.QOrderItem;
@@ -23,6 +25,25 @@ import java.util.stream.Collectors;
 public class OrderQueryRepository {
 
     private final EntityManager em;
+
+    public List<OrderFlatDto> findOrderDtoFlatOptimization() {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrder order = QOrder.order;
+        QOrderItem oi = QOrderItem.orderItem;
+        QMember m = QMember.member;
+        QDelivery d = QDelivery.delivery;
+        QItem i = QItem.item;
+
+        return query
+                .select(Projections.constructor(OrderFlatDto.class, order.id, m.name, order.orderDate,
+                        order.status, d.address, i.name, oi.orderPrice, oi.count))
+                .from(order)
+                .join(order.member, m)
+                .join(order.delivery, d)
+                .join(order.orderItems, oi)
+                .join(oi.item, i)
+                .fetch();
+    }
 
     public List<OrderQueryDto> findOrderDto(){
         List<OrderQueryDto> orders = findOrder();
