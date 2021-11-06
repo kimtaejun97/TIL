@@ -1,15 +1,11 @@
 package jpabook.module.order.query;
 
-import com.querydsl.core.QueryFactory;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jpabook.module.delivery.QDelivery;
 import jpabook.module.item.QItem;
-import jpabook.module.member.Address;
 import jpabook.module.member.QMember;
-import jpabook.module.order.OrderStatus;
 import jpabook.module.order.QOrder;
-import jpabook.module.orderproduct.OrderItem;
 import jpabook.module.orderproduct.QOrderItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
