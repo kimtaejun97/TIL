@@ -702,3 +702,40 @@ public Result<OrderQueryDto> ordersV6(){
     - 그러나 여러 주문을 한번에 조회한다면 V4에서는 N+1 쿼리 문제가 발생하기 때문에 이를 최적화 한 V5가 훨씬 성능이 잘 나온다.
     - V6는 쿼리가 단 한번 나가기 때문에 성능이 좋아보이지만 Order를 기준으로 페이징이 불가능 하다는 단점이 있다. 또한 데이터가 많아진다면,
     그만큼 중복 데이터도 증가하기 때문에 성능 증가 또한 미비하다.
+
+
+# 📌 Open Session In View(OSIV)
+```
+WARN 20317 --- [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration :
+spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering.
+Explicitly configure spring.jpa.open-in-view to disable this warning
+```
+> JPA 에서는 Open EntityManager In View이지만 Hibernate에서 Open Session In View라고 했었기 때문에 관례상으로 사용.
+> 
+- Spring에서는 기본적으로 Open Session In View를 사용하는 것을 기본으로 한다. 때문에 위와같은 경고 메시지가 발생한다.
+    
+### ☝️ OSIV ON (default)
+- ```spring.jpa.open-in-view: true```
+- open-in-view가 켜져 있으면 Transaction 시작과 같은 최초 데이터베이스 커넥션의 시작 시점부터 API의 응답이 끝날때 까지 영속성 컨텍스트와 DB 커넥션을 유지한다.
+    > - 👍 장점: 때문에 영속성 컨텍스트를 이용하는 지연 로딩이 가능하다.
+    > - 👎 단점: DB 커넥션을 오랜시간 가지고 있기 때문에 실시간 트래픽이 많은 애플리케이션에서는 커넥션이 모자라게 되고, 장애로 이어진다.
+
+### ☝️ OSIV OFF
+```spring.jpa.open-in-view: false```
+- open0in-view가 꺼져있으면 Transaction을 종료할 때 영속성 컨텍스트를 닫고, DB 커넥션을 반환한다.
+    > - 👍 장점: DB 커넥션을 빠르게 반환하기 때문에 커넥션 리소스를 낭비하지 않고, 장애를 방지할 수 있다.
+    > - 👎 단점: 영속성 컨텍스트를 닫기 때문에 컨트롤러 단이나 View Template에서 지연 로딩이 불가능 하다.
+    > > - 때문에 Transaction 안에서 미리 강제 초기화를 하거나 패치조인을 하여 필요한 모든 데이터를 미리 가져와야 한다.     
+       
+## 🧐 OSIV를 끈 상태로 복잡성 관리.
+- 보통 비즈니스 로직은 특정 엔티티 몇개를 등록하거나 수정하는 것이므로 성능에 크게 영향을 주지 않는다.
+- 복잡한 화면을 출력하기 위한 쿼리는 스펙에 맞추어 성능을 최적화 하는 것이 필요하다. 그러나 이러한 쿼리는 비즈니스 로직에 크게 영향을 주지 않는다.
+- 이를 분리하게 되면 유지 보수 측면에서 이점을 얻을 수 있다.
+
+### ☝️ 비즈니스 로직과 쿼리의 분리.
+- Service: 핵심 비즈니스 로직
+- QueryService: 화면이나 API에 맞춘 서비스.
+    - Service 단에서는 Transaction을 유지하기 때문에 OSIV를 false로 한 후 Transaction 안에서 강제 초기화를 하는 역할을 QueryService에 위임.
+    
+### 🔑 정리
+- 고객 서비스와 같은 트래픽이 많은 실시간 API에서는 OSIV를 끄고, 커넥션을 많이 사용하지 않는 곳에서는 OSIV를 켜고 편하게 사용.
