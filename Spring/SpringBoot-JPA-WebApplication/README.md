@@ -27,7 +27,7 @@
 - #### [이메일 인증 경고창](#-이메일-인증-경고창)
 - #### [인증 이메일 재전송](#-인증-이메일-재전송)
 - #### [로그인, 로그아웃](#-로그인--로그아웃)
-- #### [로그인 기억하](#-로그인-기억하기)
+- #### [로그인 기억하기](#-로그인-기억하기)
 - #### [Profile View](#-profileview)
 - #### [RedirectAttribute : FlashAttribute](#-redirectattribute---flashattribute)
 - #### [@WithSecurityContext](#--withsecuritycontext)
@@ -844,7 +844,7 @@ public void addTag(Account account, Tag tag) {
 }
 ```
 - 자동으로 account_tags 테이블을 생성하고 조인이 발생.   
-![img.png](img.png)
+![img.png](img/img.png)
 
 
 
@@ -1013,7 +1013,7 @@ public class AppProperties {
 ```
 - .summernote 하면 적용,  옵션 추가 가능.
   
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 
 # 📌 th:classappend
@@ -1053,7 +1053,7 @@ public class AppProperties {
 </script>
 ```
 - 엘리먼트.tooltip, title 속성의 값이 툴팁 메시지가 된다.
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 
 # 📌 EntityGraph
 ****
@@ -1078,7 +1078,7 @@ Study findByPath(String path);
 > -  findByPath() 메서드가 호출 될 때 Study.withAll에 해당하는 릴레이션을 모두 조회한다.
 > - EntityGraphType.LOAD : 명시된 연관관계는 EAGER로, 나머지는 기본 설정( *ToOne->EAGER, *ToMany-> Lazy)에 따름.
 
-![img_2.png](img_2.png)   
+![img_2.png](img/img_2.png)   
      ...
 
 - ### 엔티티 그래프 이름을 정의하지 않고 사용.
@@ -1153,7 +1153,7 @@ private Study getStudy(String path) {
     </div>
 </div>
 ```
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 # 📌 날짜 형식 라이브러리 : Moment.Js
 ****
 ```npm install moment --save```

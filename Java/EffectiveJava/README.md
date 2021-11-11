@@ -19,7 +19,8 @@
 
 <br><br>
 
-## 🔑 CH2. 객체의 생성과 파괴
+# 🔑 CH2. 객체의 생성과 파괴
+***
 ## 📌 Item01. 생성자 대신 정적 팩터리 메서드를 고려하라.
 ***
 ### ☝️ ️장점 1. 이름을 가질 수 있다.
@@ -717,7 +718,7 @@ MyResource myResource1 = new MyResource();
         }
 ```
 :: 중첩이 생기면 코드가 복잡해진다.
-![img.png](img.png)     
+![img.png](img/img.png)     
 :: doSomething에서 FirstException이 발생하지만 다음에 발생하는 SecondException에 가려지게 된다.
 
 
@@ -730,7 +731,7 @@ try (MyResource myResource1 = new MyResource();
         myResource2.doSomething();
         }
 ```
-![img_1.png](img_1.png)      
+![img_1.png](img/img_1.png)      
 :: FirstException 또한 잘 볼 수 있고, myResource2의 close또한 잘 실행된 것을 확인할 수 있다.
 
 ## 🔑 핵심
@@ -738,7 +739,7 @@ try (MyResource myResource1 = new MyResource();
 > - 코드가 더 짧고 분명해지고 정확하고 쉽게 자원을 회수할 수 있다.
 
 # 🔑 Ch3. 모든 객체의 공통 메서드
-
+***
 ## 📌 Item10. equals는 일반 규약을 지켜 재정의하라.
 ***
 ### ☝️ 재정의하지 않는 것이 좋을 때.
