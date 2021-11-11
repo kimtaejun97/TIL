@@ -318,7 +318,7 @@ PC가 가지고 있던 명령어로 분기하여 프로그램을 실행한다.
 ### ☝️ 예방(prevention)
 - 교착상태 발생 조건중 하나를 제거.(자원 낭비가 있음)
 
-  - 상호 배제 부정 : 여러 프로세스가 공유자원을 사용.
+  - 상호 배제 부정 : 부정할 수 없다.
   - 점유 대기 부정 : 
     - 미리 점유하지 않고 프로세스 실행전 모든 자원을 한번에 할당.(자원 낭비)
     - 자원을 점유하지 않고 있을 때에만 다른 자원 요청 가능(기아 상태 발생 가능)
@@ -368,7 +368,7 @@ PC가 가지고 있던 명령어로 분기하여 프로그램을 실행한다.
 
 # 📌 경쟁 상태(Race Condition)
 ***
-> 동시 접근으로 원하는 결과가 발생하지 못한다.
+> 동시 접근으로 원하는 결과가 발생하지 못한다. 비 일관성.
 ## 🧐 발생
 ### ☝️ 커널 작업을 수행하는 중에 인터럽트 발생
 - 커널모드에서 작업을 수행하다가 인터럽트가 발생, 같은 데이터를 조작하는 경우.
@@ -383,54 +383,102 @@ PC가 가지고 있던 명령어로 분기하여 프로그램을 실행한다.
 - 데이터를 사용할 때 lock을 걸어둔다.
 
 ## 🧐 해결
+#### 🖍 임계 구역(Critical Section) : 공유 데이터에 접근하는 부분.
+- 공유 데이터에는 하나의 프로세스만 접근해야 한다.
+
+> - 상호 배제(Mutual Exclusion): 단 하나의 프로세스만 임계 구역에 접근.
+> - 진행 (Process): 임계 구역에 들어가고자 하는 프로세스는 무한정 대기할 수 없다.(임계 구역이 비어있다면 반드시 들어가야 한다.)
+> - 한계 대기(Bounded Wait): 언젠가는 자신의 차례가 돌아와 임게구역에 들어가야 한다.
 
 ### ☝️ 세마포어(Semaphore)
 > 멀티 환경에서 공유자원에 대한 접근 제한.
-#### 🖍 임계 구역(Critical Section) : 공유 데이터에 접근하는 부분.
-
-
-- 플래그를 두고 데이터에 접근할때 접근함을 표시.
-- 사용하고 나온 뒤에는 다시 플래그를 변경해두면 다른 프로세스가 이를 확인하고 접근.
-- while 문을 사용하여 flag를 확인한다.
-- Wait, Signal
-
-### 뮤텍스 알고리즘
-- flag와 turn을 이용하여 임계 구역에 들어갈 프로세스를 결정.
-- flag : 누가 임계 구역에 진입 할 것인지.
-- turn : 누가 임계 구역에 진입할 차례인지.
-
-#### - 데커(Dekker) 알고리즘
 ```java
-flag[i] = true; 
-while(flag[j]) { 
-    if(turn == j) { 
-        flag[i] = false; 
-        while(turn == j); 
-        flag[i] = true; 
-    }
+wait(s) {
+    // 임계 구역이 모두 차있으면 대기.
+	while(s <= 0);
+	s--;
 }
-//{Critical Section}
-turn = j; 
-flag[i] = false; 
+// 임계 구역에서 나왔을 때 실행. 
+signal(s) {
+	s++:
+}
 ```
-- j의 turn 이라면 기다리다가 j가 끝나고 turn을 i로 설정하면 진입.
-- 사용하고 나면 자신의 플래그를 false로 하고, turn 을 넘겨준다.
+- 플래그를 두고 데이터에 접근할때 접근함을 표시.
+- Wait, Signal 메서드 사용.
+- 사용하고 나온 뒤에는 다시 플래그를 변경해두면 다른 프로세스가 이를 확인하고 접근.
+- while 문을 사용하여 flag를 확인하며 대기한다.
+- int 형 변수를 사용하면 counting semaphore, binary를 사용하면 binary semaphore.
+- binary semaphore는 mutex Lock과 동일하다.
 
-#### - 피터슨(Peterson) 알고리즘
-- 다른 프로세스에게 진입 기회를 먼저 양보.
-- 다른 프로세스가 진입 시도중이라면 기다림.
+>#### 🖍 while문을 이용한 wait는 busy waiting이기 때문에 성능상 좋지 않다.
+> 때문에 대기열(Queue)를 이용하여 임계구역이 가득 찼다면 Queue에 해당 프로세스를 추가하여 대기하도록 구현할 수 있다.
 
+
+### ☝️ 뮤텍스 알고리즘
+> - Lock의 습득과 해제 두가지의 연산을 제공한다. Lock을 가진 프로세스만이 임계구역에 접근할 수 있다. 
+> - 누군가 Lock을 가지고 있다면 기다리고, Lock이 해제되면 자신이 Lock을 가지고 들어가 작업을 수행한 후 Lock을 해제한다.
+> - 소프트웨어적 해결은 성능이 좋지 않아 현재는 잘 사용하지 않는다.
 ```java
-flag[i] = true;
-turn = j;
-while(flag[j] && turn == j){}
-// { Critical Section}
-flag[i] = false;
+acquire() {
+    // 다른 프로세스가 들어가있으면 대기
+    while (!available);
+    abilable = false;
+}
+// 자원 해방 unlock
+release() {
+    abilable = true;    
+}
+ 
+do {
+    acquire(); //lock
+    //{critical section}
+    release() // unlock
+    // {remainder section}
+} while(true);
 ```
 
-### Bakery 알고리즘
-- 번호표를 발급받고 가장 적은 수의 번호표를 가진 프로세스가 먼저 접근.
+- #### ✏️️️ 데커(Dekker) 알고리즘
+  ```java
+  flag[i] = true; 
+  while(flag[j]) { 
+      if(turn == j) { 
+          flag[i] = false; 
+          while(turn == j); 
+          flag[i] = true; 
+      }
+  }
+  //{Critical Section}
+  turn = j; 
+  flag[i] = false; 
+  ```
+  - flag와 turn을 이용하여 임계 구역에 들어갈 프로세스를 결정.
+  - flag : 누가 임계 구역에 진입 할 것인지.
+  - turn : 누가 임계 구역에 진입할 차례인지.
+  - j의 turn 이라면 기다리다가 j가 끝나고 turn을 i로 설정하면 진입.
+  - 사용하고 나면 자신의 플래그를 false로 하고, turn 을 넘겨준다.
+  
+- #### ✏️️ 피터슨(Peterson) 알고리즘
+  - 다른 프로세스에게 진입 기회를 먼저 양보.
+  - 다른 프로세스가 진입 시도중이라면 기다림.
 
+  ```java
+  flag[i] = true;
+  turn = j;
+  while(flag[j] && turn == j){}
+  // { Critical Section}
+  flag[i] = false;
+  ```
+
+- #### ✏️ Bakery 알고리즘
+  - 번호표를 발급받고 가장 적은 수의 번호표를 가진 프로세스가 먼저 접근.
+
+### ☝️ Monitor
+> - 하나의 프로세스 내의 다른 쓰레드간의 동기화에 사용된다.
+> - 모니터는 주로 프레임워크나 라이브러리에서 제공.
+> - java에서는 synchronized, wait(), notify()를 사용.
+> - Mutual Exclusion Queue 와 Conditional Synchronized Queue 가 존재한다.
+> - Mutual Exclusion Queue 는 임계구역이 사용중일 때 다른 쓰레드가 대기하는 장소이고,
+> Conditional Queue는 임계구역에서 쓰레드가 wait()를 호출 했을 때 해당 쓰레드가 대기하는 장소이다. 후에 notify()로 깨어나 다시 하던 작업을 계속한다.
 
 # 📌 메모리
 ***
