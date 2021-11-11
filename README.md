@@ -6,7 +6,7 @@
 - ### [Spring Core](./Spring/SpringCore)
 - ### [Spring Boot](./Spring/SpringBoot)
 - ### [Spring Boot + JPA 웹 어플리케이션](./Spring/SpringBoot-JPA-WebApplication)
-- ### [Spring 과 AWS로 혼자 구현하는 웹 서비스](https://github.com/kimtaejun97/SpringBoot-AWS/tree/master/%EB%82%B4%EC%9A%A9%20%EC%A0%95%EB%A6%AC/ch5.%EC%8A%A4%ED%94%84%EB%A7%81%20%EC%8B%9C%ED%81%90%EB%A6%AC%ED%8B%B0%EC%99%80%20OAuth2.0%EC%9C%BC%EB%A1%9C%20%EB%A1%9C%EA%B7%B8%EC%9D%B8%20%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
+- ### [Spring 과 AWS로 혼자 구현하는 웹 서비스](https://github.com/kimtaejun97/SpringBoot-AWS)
 
 ## 📚 JPA
 ***
