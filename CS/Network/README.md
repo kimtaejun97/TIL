@@ -126,9 +126,21 @@
 
 # 📌 TCP
 ***
-- 신뢰적 네트워크 통신 프로토콜.
+- 연결 지향형 신뢰적 네트워크 통신 프로토콜.
 - 혼잡 회피(congestion avoidance) 알고리즘 사용.
 - 목적지를 출발지 IP,Port, 목적지 IP,Port 번호로 식별한다.
+- 헤더 필드와 데이터 필드로 이루어져 있다.
+
+## 🧐 헤더
+![img_10.png](img_10.png)
+> 이미지 출처: http://www.ktword.co.kr/test/view/view.php?m_temp1=1889
+> - 16 bit 출발지, 목적지 포트번호 필(IP는 하위 계층에서 담기때문에 아직 존재하지 않는다.)
+> - 32 bit 순서번호 필드, 확인 응답 번호 필드.
+> - 16 bit 수신 윈도우
+> - 4 bit header length
+> - 9개의 flag field
+> - 16 bit checksum
+> - option field
 
 ## 🧐 3 Way HandShake (연결)
 - 통신 이전에 논리적인 접속을 성립하기 위해 3 Way HandShake를 사용.
