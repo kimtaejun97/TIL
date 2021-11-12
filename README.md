@@ -31,9 +31,11 @@
 - ### [HTTP](./HTTP)
 - ### [WebSocket, WebRTC](webrtc)
 
-## ⚙️ Operating System
+## ⚙️ Computer Science
 ****
-- ### [OS](./CS/OS)
+- ### [Operating System](./CS/OS)
+- ### [Network](./CS/Network)
+- ### [Architecture](./CS/ComputerArchitecture)
 
 ## 💻 Code
 ****
