@@ -152,8 +152,8 @@
 > - 서버에서 ACK(sequence=y+1) 를 receive.
 
 ## 🧐 4 Way HandShake (연결 해제)
-![img.png](img/img.png)
-이미지 출처 :https://www.geeksforgeeks.org/tcp-connection-termination/
+![img.png](img/img.png)      
+이미지 출처 :https://www.geeksforgeeks.org/tcp-connection-termination/      
 
 > 1. 클라이언트가 서버에게 연결 종료를 요청 (FIN)
 > 2. 서버에서 ACK를 보내고 남은 데이터를 전송하기 위해 CLOSE WAIT 상태가 됨.
@@ -229,7 +229,7 @@
 ### ☝️ 포워딩 테이블
 > 어떤 포트로 패킷을 내보냈을 때 가장 빨리(저렴하게) 목적지 까지 도착하는지 계산하여 기록해둔 표.
 > 
-![img_1.png](img/img_13.png)
+![img_1.png](img/img_13.png)      
 이미지 출처: https://sanghoon9939.tistory.com/35
 
 - 라우터에서는 Network Topology를 입력받아 라우팅 알고리즘을 이용하여 포워딩 테이블을 만든다.
