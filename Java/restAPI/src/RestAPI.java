@@ -1,3 +1,6 @@
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,7 +12,7 @@ import java.util.List;
 
 
 public class RestAPI {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ScriptException {
         StringBuilder sb = new StringBuilder();
         sb.append("https://jsonmock.hackerrank.com/api/football_matches?")
                 .append("year=").append("2011")
@@ -77,6 +80,19 @@ public class RestAPI {
         }
         System.out.println("Response: "+ con.getResponseCode() +" "+ con.getResponseMessage());
         System.out.println(res.toString());
+
+        ScriptEngineManager engineManager = new ScriptEngineManager();
+        ScriptEngine engine = engineManager.getEngineByName("javascript");
+
+        StringBuilder script = new StringBuilder();
+        script.append("var res = JSON.parse('").append(res.toString()).append("');");
+        script.append("var totalPage = res.total_pages;");
+        script.append("var totalGoals = res.data.reduce(function(acc, curr){ return acc + parseInt(curr.")
+        .append("team1").append("goals);}, 0);");
+
+        engine.eval(script.toString());
+        System.out.println("Total Page: " + engine.get("totalPage"));
+        System.out.println("Total Goals: " + engine.get("totalGoals"));
 
 
     }

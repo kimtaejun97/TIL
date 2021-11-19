@@ -110,3 +110,31 @@ if(status > 299){
 else isr = new InputStreamReader(con.getInputStream());
 ```
 - 리다이렉션은 따로 처리하게 되면 4xx, 5xx 대 상태 코드일 때는 ErrorStream을 열어 에러를 읽어온다.
+
+
+## 🧐 ScriptEngine을 이용한 Json 파싱
+> 다른 외부 라이브러리를 사용하지 않고 Json 파싱.
+- javascript engine 생성.
+```java
+ScriptEngineManager engineManager = new ScriptEngineManager();
+ScriptEngine engine = engineManager.getEngineByName("javascript");
+```
+
+- script를 문자열로 작성
+```java
+StringBuilder script = new StringBuilder();
+script.append("var res = JSON.parse('").append(res.toString()).append("');");
+script.append("var totalPage = res.total_pages;");
+script.append("var totalGoals = res.data.reduce(function(acc, curr){ return acc + parseInt(curr.")
+.append("team1").append("goals);}, 0);");
+```
+- Script 실행
+```java
+engine.eval(script.toString());
+```
+
+- engine에서 변수값 가져오기.
+```java
+System.out.println("Total Page: " + engine.get("totalPage"));
+System.out.println("Total Goals: " + engine.get("totalGoals"));
+```
