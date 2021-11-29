@@ -135,6 +135,8 @@ GROUP BY b, c
 - 인덱스 컬럼 전체의 ASC 또는 DESC 스캔만 가능하다.
 - ORDER BY 와 GROUP BY 를 동시에 사용한다면 둘다 조건을 만족해야 인덱스를 탄다.
 
+<br><br><br>
 
-> https://jojoldu.tistory.com/243       
-> https://helloinyong.tistory.com/296    
+> https://jojoldu.tistory.com/243         
+> https://helloinyong.tistory.com/296       
+> https://jojoldu.tistory.com/476      
