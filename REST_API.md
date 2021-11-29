@@ -1,11 +1,11 @@
 # 🤔 REST API란?
 > - REpresentational State Transfer
-> - 컴퓨터 시스템 사이의 상호 운영성을 제공하는 방법중 하나.
+> - 컴퓨터 시스템 사이의 상호 운용성을 제공하는 방법중 하나.
 
 
 ### 🌐 1991년 WEB의 등장.
 > 어떻게 인터넷에서 정보를 공유할 것인가?
-> -  정보들을 하이퍼 텍스트로 연결.
+> - 정보들을 하이퍼 텍스트로 연결.
 > - 표현방식: HTML
 > - 식별자: URI
 > - 전송 방법: HTTP
@@ -25,7 +25,7 @@
 microsoft에서 발표한 REST API 가이드, 사람들이 말하는 REST API 는 REST를 만들어낸 Roy T.fielding과 달랐다.
 
 로이 필딩이 말하는 REST API는 반드시 hypertext-driven 이어야 한다고 설명한다.
-또한 #### REST란 분산 하이퍼 미디어 시스템(웹)을 위한 아키텍쳐 스타일 이라고 말한다.
+또한 <strong>REST란 분산 하이퍼 미디어 시스템(웹)을 위한 아키텍쳐 스타일 이라고 말한다.</strong>
 
 아키텍쳐 스타일은 제약조건의 집합이다. 즉 REST스럽다는 것은 해당하는 제약조건을 모두 지킨다는 것을 말한다.
 
@@ -90,7 +90,7 @@ HATEOAS는 애플리케이션 상태 전이의 late binding이 가능하도록 �
 2. HTTP 헤더로 : Link, Location 헤더를 활용. 
 
 
-
+<br><br><br>
 > #### https://www.youtube.com/watch?v=RP_f5dMoHFc (naver d2- 그런 REST API로 괜찮은가 - 이응준님)
 > #### https://restfulapi.net/rest-architectural-constraints/
 > 를 참고하였습니다.
