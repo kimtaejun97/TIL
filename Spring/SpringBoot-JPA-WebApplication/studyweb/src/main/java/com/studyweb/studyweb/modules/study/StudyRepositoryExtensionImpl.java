@@ -42,6 +42,7 @@ public class StudyRepositoryExtensionImpl extends QuerydslRepositorySupport impl
 
         JPQLQuery<Study> pageableQuery = getQuerydsl().applyPagination(pageable, findStudyByKeywordQuery);
         QueryResults<Study> fetchResults = pageableQuery.fetchResults();
+        System.out.println("=================================: "+ pageable.getPageSize() + "," + pageable.getPageNumber() +","+pageable.getOffset());
 
         return new PageImpl<>(fetchResults.getResults(), pageable, fetchResults.getTotal());
 

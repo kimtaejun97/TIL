@@ -1,4 +1,4 @@
-# 📌 HttpURLConnection 을 사용한 Rest API 호출
+# 📌 외부 라이브러리를 사용하지 않고 Rest API 호출
 ***
 
 ##  🧐 Connection 생성
