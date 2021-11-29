@@ -53,7 +53,8 @@
 - ### [Network](./CS/Network)
 - ### [Architecture](./CS/ComputerArchitecture)
 - ### [Database](./CS/Database)
-- ### [Database Index](./CS/Database/Index.md)
+  - ### [Index](./CS/Database/Index.md)
+  - ### [페이징 최적화](./CS/Database/페이징최적화.md)
 
 <br>
 
