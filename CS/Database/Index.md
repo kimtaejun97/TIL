@@ -96,7 +96,7 @@ B-Tree는 균형있는 트리이며 이진 트리와 달리 한 노드에서 여
 마지막으로 데이터의 저장,수정, 삭제시에도 O(lon n)의 시간복잡도를 가지기 때문에 B-Tree가 데이터베이스용 인덱스로 가장 적합한 자료구조라고 할 수 있겠다.
 
 ## 🧐 Clustered Key와 Non Clustered Key
-![img.png](img.png)      
+![img.png](img/img_11.png)      
 출처 : https://jojoldu.tistory.com/476     
 
 - Clustered Key는 PK 또는 PK없을 경우 유니크키, 둘다 없을 경우에는 6Byte로 생성되는 Hidden key(rowId)를 말한다.
