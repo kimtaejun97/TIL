@@ -153,15 +153,9 @@ public class Address {
 # 📌 @Transactional
 ***
 - #### @Transactional: EntityManager를 통한 모든 데이터 변경은 Transaction 안에서 이루어 져야 한다.
-  - Test 환경에서 @Transactional을 사용하게 되면, Test가 끝난 뒤 DB를 Rollback 시킨다.
-  -  @Rollback(false): 테스트를 종료한 후 Rollback 하지 않고 Commit
-- #### @Transactional(readOnly = true) : 읽기 전용 트랜젝션
-  - flush, 더티 채킹을 하지 않는다. -> 읽기만 할 때 성능이 더 좋다.
-  - 즉, 변경이 이루어지지 않는다.
-  - default = false
-  - 클래스에 선언된 Transactional 이 먼저 적용되고, 각 메서드에 선언된 Transactional 이 덮어 씌운다.
-    - 클래스에 @Transactional(readOnly =true), 변경이 가해지는 메서드에 @Transactional를 추가로 선언하는 식으로 사용 가능하다.
-
+- 스프링에서는 애노테이션을 이용한 선언적 트랜잭션을 사용한다. @Transactional이 추가되면 메소드나 클래스에 트랜잭션 기능이 추가된 프록시가 생성된다.
+- Test 환경에서 @Transactional을 사용하게 되면, Test가 끝난 뒤 DB를 Rollback 시킨다.
+  
 ```java
 @Test
 public void join_duplicate() throws Exception {
@@ -181,11 +175,55 @@ public void join_duplicate() throws Exception {
 ```
 - save하는 로직을 작성하고 쿼리를 보면 insert 쿼리가 나가지 않는다.
 - 테스트 코드에서는 테스트가 완료되면 Rollback을 시키기 때문에 Commit이 발생하지 않고, 때문에 쿼리가 발생하지 않는다.
-  - ```Rollback(false)``` : 롤백을 하지 않는다.
+  - ```@Rollback(false)``` : 롤백을 하지 않고 Commit 시킨다.
   - ```em.flush()``` : flush를 통해 쿼리는 발생하여 확인할 수 있지만, Rollback은 실행된다.
+  
 
+### 🧐 Transactional 옵션
+- #### ✏️ ReadOnly, 읽기 전용 트랜젝션
+  - ```@Transactional(readOnly = true)```
+  - flush, 더티 채킹을 하지 않는다. -> 읽기만 할 때 성능이 더 좋다.
+  - 즉, 변경이 이루어지지 않는다.
+  - default = false
+    
+  - 클래스에 선언된 Transactional 이 먼저 적용되고, 각 메서드에 선언된 Transactional 이 덮어 씌운다.
+    - 클래스에 @Transactional(readOnly =true), 변경이 가해지는 메서드에 @Transactional를 추가로 선언하는 식으로 사용 가능하다.
 
+- #### ✏️ Isolation Level 설정.
+- ```@Transactional(isolation=Isolation.XXX)```
+  - DEFAULT: 사용하는 DB의 기본 격리수준을 따른다.
+  - READ_UNCOMMITTED: 커밋되지 않은 데이터도 읽음.
+  - READ_COMMITTED: 커밋된 데이터만 읽음.
+  - REPEATABLE_READ: 하나의 트랜잭션은 하나의 스냅샷만을 사용, 항상 동일한 조회결과를 가져온다.
+  - SERIALIZABLE: 순차적으로 트랜잭션을 진행. 병렬 처리 성능이 떨어져 극도의 안정성이 필요한 경우에만 사용한다.
 
+- #### ✏️ Propagation 
+  - 트랜잭션의 동작도중 다른 트랙젝션 메소드를 호출하는 경우 어떤 정책을 사용할 지에 대한 정의.
+    기존 트랜잭션에 참여하거나 새로 생성하는 등의 동작을 지정할 수 있다.
+  - ```@Transactional(propagation = Propagation.xxx```
+    - REQUIRED: 기본값, 부모 트랜잭션이 존재할 경우 참여, 없다면 새로 생성한다.
+    - SUPPORTS: 부모 트랜잭션에 참여하고 없는 경우에는 Non-transactional 상태로 실행한다.(트랜잭션은 존재하지만 커밋, 롤백이 되지 않는다.)
+    - MANDATORY: 부모 트랜잭션에 참여하고, 없다면 예외를 발생시킨다. 혼자서 독립적은 트랜젝선을 진행하지 못하게 할 때 사용한다.
+    - REQUIRES_NEW: 부모 트랜잭션을 무시하고 항상 새로운 트랜잭션을 생성한다. 이미 진행중인 트랜잭션이 있다면 보류하고 대기.
+    - NOT_SUPPORTED: Non-transactional 상태로 실행. 이미 진행중인(부모) 트랜잭션이 있다면 일시정지 시킨다.
+    - NEVER: Non-transactional 상태로 실행. 부모 트랜잭션이 있다면 예외를 발생시킨다.
+    - NESTED:
+        - 부모 트랜잭션과 별개의 중첩된 트랜잭션을 만든다. 부모 트랜잭션 안에서 실행되고, 부모 트랜잭션의 커밋과 롤백의 영향을 받는다.
+              하지만 자식의 커밋과 롤백은 부모에게 영향을 주지 않는다. 자식 트랜잭션에서 롤백이 발생한 경우 자식 트랜잭션을 실행하기 전까지만 돌아가게 된다.
+        - 부모 트랜잭션이 존재하지 않는다면 새로 생성한다.
+    
+- #### ✏️ 롤백 관련 옵션
+  - 기본적으로 런타임 예외, Error는 롤백.
+  - ```@Transactional(rollbackFor = {Exception1.class, Exception2.class ...}```
+    - 선언된 예외가 발생할 때 강제로 Rollback
+  - ```@Transactional(noRollbackFor = {Exception1.class, Exception2.class ...}```
+    - 선언된 예외가 발생할 때에는 Rollback 처리하지 않음.
+  - rollbackForClassName, noRollbackForClassName 으로 예외의 이름을 넣을 수도 있다.
+
+- #### ✏️ TimeOut
+  - ```@Transactional(timeout = 10)```
+  - 기본 값은 -1, -1이면 timeout이 없다는 것을 뜻한다. 초단위로 지정.
+  - 지정한 시간내에 수행이 완료되지 않으면 JpaSystemException이 발생. -> 런타임 예외이므로 롤백 발생.
 # 📌 Cascade의 활용, 도메인 모델 패턴
 ***
 ## 🧐 Cascade의 활용
