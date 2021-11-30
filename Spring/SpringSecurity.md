@@ -28,12 +28,12 @@ ProviderManager에 의해 사용자 인증을 거친다. ProviderManager 는 Aut
 
 #### 4. AuthenticationProvider에 토큰 전달.
 제공된 인증 개체로 사용자를 인증한다. 인증전의 Authentication 객체를 받아 인증이 완료된 Authentication 객체를 반환한다.
-- CasAuthenticationProvider
-- JaasAuthenticationProvider
-- DaoAuthenticationProvider
+- CasAuthenticationProvider (Central Authentication Service)
+- JaasAuthenticationProvider (Java Authentication and Authorization Service)
+- DaoAuthenticationProvider (Data Access Object)
 - OpenIDAuthenticationProvider
 - RememberMeAuthenticationProvider
-- LdapAuthenticationProvider    
+- LdapAuthenticationProvider (Lightweight Directory Access Protocol)
 ...
 
 #### 5. UserDetailsService에 전달하고, 서비스에서는 받은 사용자 정보로 DB에서 사용자 정보를 찾아 UserDetails 객체 생성.
