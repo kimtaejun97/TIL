@@ -22,9 +22,8 @@ getCredentials(), getPrincipal(), setAuthenticated(), isAuthenticated() 등의 �
 - Token의 생성은 두가지로 나뉜다. 요청 토큰의 생성과 인증완료 후 토큰의 생성(다시 돌아올 때).
 
 #### 3. ProviderManager 에게 토큰 전달.
-- 만들어진 Token은 AuthenticationManager 의 인증 메서드를 호출하는데 사용된다. 이 때는 ProviderManager을 구현한
-ProviderManager에 의해 사용자 인증을 거친다. ProviderManager 는 AuthenticationManager 리스트를 가지고 있으며, 이를 순회하며
-인증을 시도한다.
+- 만들어진 Token은 AuthenticationManager 의 인증 메서드를 호출하는데 사용된다. 이 때는 AuthenticationManager 를 구현한
+ProviderManager 에 의해 사용자 인증을 거친다. ProviderManager 는 AuthenticationProvider 리스트를 가지고 있으며, 이를 순회하며 인증을 시도한다.
 
 #### 4. AuthenticationProvider에 토큰 전달.
 제공된 인증 개체로 사용자를 인증한다. 인증전의 Authentication 객체를 받아 인증이 완료된 Authentication 객체를 반환한다.
