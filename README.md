@@ -45,9 +45,9 @@
 ****
 - ### [HTTP](./HTTP)
 - ### [WebSocket, WebRTC](webrtc)
-- ### [REST API](REST_API.md)
-- ### [웹 서버와 WAS](WebServer&WAS.md)
-- ### [CSR&SSR&SPA](CSR&SSR&SPA.md)
+- ### [REST API](Web/REST_API.md)
+- ### [웹 서버와 WAS](Web/WebServer&WAS.md)
+- ### [CSR&SSR&SPA](Web/CSR&SSR&SPA.md)
 
 <br>
 
@@ -68,5 +68,5 @@
 
 ## 🗄 ETC
 ***
-- ### [Database Connection Pool](DBCP.md)
+- ### [Database Connection Pool](ETC/DBCP.md)
 
