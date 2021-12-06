@@ -1,3 +1,7 @@
+- ### [Servlet](#-servlet)
+  - #### [HttpServletRequest](#-httpservletrequest)
+  - #### [HttpServletResponse](#-httpservletresponse)
+ 
 # 📌 Servlet
 ****
 ## 🧐 Servlet 생성
@@ -168,3 +172,96 @@ HelloData helloData = objectMapper.readValue(messageBody, HelloData.class);
 ```
 데이터를 String으로 변환하는 것 까지는 일반 text/plain과 동일하다 하지만 Json 데이터는 사용하기 쉽게 객체로 변환하여 많이 사용한다.
 이때 사용되는 것이 Jackson 라이브러리의 ObjectMapper 이다. readValue() 메서드를 사용하여 JSON 형식의 데이터를 객체로 변환할 수 있다.
+
+
+## 🧐 HttpServletResponse
+response 객체는 응답 코드, 헤더 생성, 바디 생성의 역할을 담당한다.
+
+#### - Status
+```java
+// import javax.servlet.http.HttpServletResponse;
+response.setStatus(HttpServletResponse.SC_OK);
+```
+200, 302 등으로 적어도 되지만 더 명시적으로 값을 넣기 위해 사용한다.
+
+#### - Header
+```java
+// import org.springframework.http.HttpHeaders;
+
+response.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
+response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+response.setHeader(HttpHeaders.PRAGMA, "no-cache");
+response.setHeader("custom-Header", "my Header");
+```
+setHeader를 이용하여 Header를 추가할 수 있다. 마찬가지로 Content-Type 과 같이 문자열로 적어도 되지만 Spring framework에서 지원하는
+HttpHeaders 를 이용하여 오타 걱정없이 헤더를 지정할 수 있다. 이 외에도 Cookie, Redirect 도 동일한 방식으로 지정 가능하지만
+setHeader()를 이용한 방법 말고도 더 쉽게 값을 설정할 수 있는 편의 메서드를 제공한다.
+
+#### - Content
+```java
+response.setContentType("text/plain");
+response.setCharacterEncoding("utf-8");
+```
+Encoding 형식을 명시하지 않으면 Tomcat에서 자동으로 ISO-8859-1 로 지정해준다.    
+Content-Length는 지정하지 않으면 자동으로 넣어준다.
+#### - Cookie
+```java
+// response.setHeader("Set-Cookie", "myCookie=Umm it's delicious; Max-Age=600");
+
+Cookie cookie = new Cookie("myCookie",  "delicious");
+cookie.setMaxAge(600);
+response.addCookie(cookie); 
+```
+
+#### - Redirect
+```java
+response.sendRedirect("/basic/hello-form.html");
+```
+상태 코드를 변경해주지 않아도 자동으로 302 FOUND로 변경되고 Location 헤더에 url값이 들어가게 된다.    
+```Location: localhost:8080/basic/hello-form.html```
+
+#### - 응답 메세지
+```java
+response.getWriter().write(message);
+response.getWriter().println(message);
+response.getWriter().append(message);
+
+ServletOutputStream outputStream = response.getOutputStream();
+outputStream.println(message);
+```
+response 객체는 바디에 응답 메세지를 추가하는 다양한 메서드를 지원한다. 이를 이용해서 일반 텍스트, HTML, JSON 등의 응답을
+추가할 수 있다.
+
+- HTML
+```java
+response.setContentType("text/html");
+response.setCharacterEncoding("utf-8");;
+
+PrintWriter writer = response.getWriter();
+writer.println("<html>");
+writer.println("<body>");
+writer.println("    <div> Hello </div>");
+writer.println("</body>");
+writer.append("</html>");
+```
+Content-Type을 text/html 으로 설정하고, HTML 문법에 맞게 String 으로 응답을 돌려주면 브라우저에서 이를 렌더링해서 보여준다.
+
+
+
+- JSON
+```java
+response.setContentType("application/json");
+// response.setCharacterEncoding("utf-8");
+
+HelloData helloData = new HelloData();
+helloData.setUsername("kim");
+helloData.setAge(25);
+
+String result = objectMapper.writeValueAsString(helloData);
+ServletOutputStream outputStream = response.getOutputStream();
+outputStream.println(result);
+```
+응답 객체를 생성하고 Jackson 라이브러리의 ObjectMapper.writeValueAsString() 을 이용하여 객체를 JSON 형식의 String으로 변환해준다.
+JSON에서는 스펙상 utf-8 형식을 사용하도록 정의되어 있어, 인코딩을 지정해주는 추가 파라미터가 필요없다.
+하지만 ```response.getWriter().write()``` 를 이용한다면 자동으로 CharacterEncoding 을 넣어주게 된다.   
+```OutputStream``` 을 사용해 데이터를 추가한다면 자동으로 추가하지 않는다.
