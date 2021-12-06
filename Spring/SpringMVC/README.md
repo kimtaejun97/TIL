@@ -3,6 +3,7 @@
   - #### [HttpServletResponse](#-httpservletresponse)
     
 - ### [서블릿을 사용한 웹 애플리케이션](#-서블릿을-사용한-웹-애플리케이션)
+- ### [JSP를 사용한 웹 애플리케이션](#-jsp를-사용한-웹-애플리케이션)
  
 # 📌 Servlet
 ****
@@ -323,3 +324,56 @@ private void setBody(HttpServletResponse response, ArrayList<Member> members) th
 자바 코드로 작성되었지만, 자바로 작성하는 이점이 거의 없다. 그저 문자열로 다를 뿐이다. 그냥 HTML을 작성하는 것과
 다른점이 있다면 동적으로 데이터를 변경할 수 있다는 점이다.
 하지만 이렇게 HTML을 작성하는 것은 매우 번거롭고 비효율 적이다. 때문에 다음에는 템플릿 엔진을 이용하여 이를 해결해 본다.
+
+# 📌 JSP를 사용한 웹 애플리케이션
+***
+- JSP 문서의 시작: ```<%@ page contentType="text/html;charset=UTF-8" language="java" %>```
+- import: ```<%@ page import="com.servlet.domain.member.Member" %>```
+- Java 코드 작성: ```<% ... %>```
+- Java 값 출력 : ```<%=value%> ```
+
+#### - 멤버 리스트 조회(/jsp/members.jsp)
+url은 webapp 패키지부터 jsp 파일의 경로를 모두 적는다. 
+```java
+<%@ page import="com.servlet.domain.member.Member" %>
+<%@ page import="com.servlet.domain.member.MemberRepository" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+// 로직
+<%
+    MemberRepository memberRepository = MemberRepository.getInstance();
+    ArrayList<Member> result = memberRepository.findAll();
+%>
+
+// 뷰
+<html>
+<head>
+    <title>회원 목록</title>
+</head>
+<body>
+    <table>
+        <thead>
+            <th>id</th><th>username</th><th>age</th>
+        </thead>
+        <tbody>
+            <%
+                for(Member member : result){
+                    out.write("     <tr>\n");
+                    out.write("         <td>"+member.getId() + "</td>");
+                    out.write("         <td>"+member.getUsername() + "</td>");
+                    out.write("         <td>"+member.getAge() + "</td>\n");
+                    out.write("     </tr>\n");
+                }
+            %>
+        </tbody>
+    </table>
+</body>
+</html>
+```
+서블릿을 기반으로 동작하기 때문에 response, request, Writer 객체를 바로 사용할 수 있다. 이전에 비하면
+HTML을 작성하는 것이 조금 더 편리해졌다. 하지만 HTML과 Java 코드가 섞여 지저분 하고, 로직과 뷰가 분리되어 있지 않다.
+모든 코드가 하나의 파일에 포함되어 있고, 프로젝트가 커질 수록 유지보수는 힘들어진다.
+
+이를 해결하기 위해 등장한 것이 **MVC 패턴**이다. MVC 패턴은 모델, 뷰, 컨트롤러로 JSP는 화면을 그리는 일에 집중하고,
+Repository의 접근이나 비즈니스 로직은 각각에 집중 할 수 있도록 해주는 패턴이다.
