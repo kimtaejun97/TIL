@@ -150,3 +150,21 @@ application/x-www-form-urlencoded 가 된다.
 
 클라이언트에서는 구분되지만 서버 입장에서는 똑같이 위의 GET방식의 쿼리 파라미터와 동일한 메서드로 값을 얻을 수 있다.
 
+### ☝️ API 메시지 바디
+쿼리 파라미터 형식으로 전송되는 경우도 있지만 API 형식으로 사용되는 서버의 경우
+XML, TEXT, JSON 특히 JSON 형태의 데이터가 바디에 담겨오는 경우가 많다. 이를 어떻게 수신하고, 파싱할 수 있을지 알아보자.
+```java
+ServletInputStream inputStream = req.getInputStream();
+String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+```
+일반 text/plain 데이터의 조회는 InputStream과 StreamUtils의 메서드를 이용하여 쉽게 String으로 변환이 가능하다.
+그렇다면 JSON은 어떨까? 
+```java
+ServletInputStream inputStream = req.getInputStream();
+String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+
+// Convert to Dto
+HelloData helloData = objectMapper.readValue(messageBody, HelloData.class);
+```
+데이터를 String으로 변환하는 것 까지는 일반 text/plain과 동일하다 하지만 Json 데이터는 사용하기 쉽게 객체로 변환하여 많이 사용한다.
+이때 사용되는 것이 Jackson 라이브러리의 ObjectMapper 이다. readValue() 메서드를 사용하여 JSON 형식의 데이터를 객체로 변환할 수 있다.
