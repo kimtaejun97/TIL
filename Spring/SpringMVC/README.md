@@ -31,7 +31,8 @@ public class HelloServlet extends HttpServlet {
 퍼사드란 커다란 코드에 대한 간략화된 인터페이스를 제공하는 객체로, 클라이언트가 더 단순하게 사용할 수 있도록 만들어준다.
 
 요청 과정을 조금 더 상세히 말하자면 WAS에서 요청을 받아 요청, 응답 객체를 생성하고 이를 서블릿 컨테이너에 생성된 서블릿에 전달한다.
-서블릿에서는 개발자기 사용하기 쉽도록 요청메시지를 파싱하여 ServletRequest 객체를 만들어주고, service() 메서드를 호출하고, service() 메서드에서는 doGet(), doPost() 와 같은 요청에 해당하는 처리 메서드를 실행한다.
+서블릿에서는 개발자기 사용하기 쉽도록 요청메시지를 파싱하여 ServletRequest 객체를 만들어주고, service() 메서드를 호출한다.
+service() 메서드에서는 doGet(), doPost() 와 같은 요청에 해당하는 처리 메서드를 실행한다.
 응답으로 Response 객체를 WAS에 넘겨주면 WAS 에서는 이를 기반으로 HTTP Response를 생성하여 클라이언트에게 돌려준다.
 
 다음과 같이 request, response 객체를 사용할 수 있다.
@@ -105,4 +106,47 @@ System.out.println("request.getCharacterEncoding() = " + request.getCharacterEnc
 System.out.println();
 ```
 Server, Remote, Local 정보를 가져올 수 있고, Locale, 쿠키, Content 관련 값들을 가져올 수 있다.
+
+### ☝️ GET 쿼리 파라미터
+#### - getParameterNames()
+```java
+request.getParameterNames().asIterator()
+                .forEachRemaining(paramName -> System.out.println(paramName + " = " + request.getParameter(paramName)));
+```
+getParameterNames()로 파라미터이름을 모두 가져올 수 있고, getParameter(String name)으로 값을 가져올 수 있다.
+반복문을 이용하여 모든 파라미터를 조회할 수 있다. 하지만 실제로는 이렇게 모든 파라미터를 가져오는 경우는 거의 없을 것이다.
+때문에 아래와 같이 단일 파라미터를 조회하는 방법을 주로 사용한다.
+
+#### - getParameter(String name)
+```java
+request.getParameter("username");
+```
+ 하지만 ```?username=kim&username=kim2``` 처럼 username 이라는 이름으로 여러개의 값이 요청으로 들어올 수 도 있다.
+ 이 때 위와 같은 방식으로 조회하게 되면 첫 값만 가져오게 된다. 모든 값을 가져오고 싶다면 아래의 방법을 사용한다
+ 
+#### - getParameterValues(String name)
+```java
+String[] usernames = request.getParameterValues("username");
+for (String username : usernames) {
+    System.out.println("username = " + username);
+}
+```
+파라미터 이름에 해당하는 값을 배열로 가져온다. 키와 값(배열)로 모든 파라미터로 조회하는 방법도 있는데 아래와 같다.
+
+#### - getParameterMap()
+```java
+Map<String, String[]> parameterMap = request.getParameterMap();
+    for(Map.Entry<String, String[]> entry : parameterMap.entrySet()){
+        for(String value : entry.getValue()){
+            System.out.println(entry.getKey() + " = " + value);
+        }
+    }
+```
+Map으로 모든 파라미터를 가져온다. 이때 value는 String[] 배열 형태로 이름에 해당하는 값을 getParameterValues()와 같이 모두 가져온다.
+
+### ☝️ POST HTML Form 파라미터
+HTML의 Form 에서 POST 메서드로 전송되는 데이터는 요청의 Body에 담겨 쿼리 파라미터 형식으로 전송된다. 이 때 Content-Type은
+application/x-www-form-urlencoded 가 된다.
+
+클라이언트에서는 구분되지만 서버 입장에서는 똑같이 위의 GET방식의 쿼리 파라미터와 동일한 메서드로 값을 얻을 수 있다.
 
