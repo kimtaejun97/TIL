@@ -1,6 +1,8 @@
 - ### [Servlet](#-servlet)
   - #### [HttpServletRequest](#-httpservletrequest)
   - #### [HttpServletResponse](#-httpservletresponse)
+    
+- ### [서블릿을 사용한 웹 애플리케이션](#-서블릿을-사용한-웹-애플리케이션)
  
 # 📌 Servlet
 ****
@@ -265,3 +267,59 @@ outputStream.println(result);
 JSON에서는 스펙상 utf-8 형식을 사용하도록 정의되어 있어, 인코딩을 지정해주는 추가 파라미터가 필요없다.
 하지만 ```response.getWriter().write()``` 를 이용한다면 자동으로 CharacterEncoding 을 넣어주게 된다.   
 ```OutputStream``` 을 사용해 데이터를 추가한다면 자동으로 추가하지 않는다.
+
+
+# 📌 서블릿을 사용한 웹 애플리케이션
+***
+Servlet에 대해 알아보았으니 이를 이용하여 간단한 회원가입 웹 애플리케이션을 만들어보자.
+```java
+@Override
+protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    if(request.getMethod().equals("GET")){
+        doGet(response);
+        return;
+    }
+    doPost(request, response);
+}
+```
+동일한 URL로 GET, POST를 모두 지원하여 GET일 때는 회원가입 폼을, POST일 때에는 Save 할 수 있도록 만들기 위해
+요청의 메서드를 검사하고 각각 doGet(), doPost()를 호출하도록 만들었다.
+doGet() 에서는 text/html 타입으로 회원가입 폼을 보여주고 doPost() 에서는 HTML Form 형식으로 데이터를 받아 Repository에 저장한다.
+
+또한, 저장된 회원 목록을 볼 수 있도록 GET 방식으로 리스트를 조회했을 때 text/html 타입으로 돌려주도록 작성하였다.
+아래는 html을 작성하는 코드이다.
+```java
+private void setBody(HttpServletResponse response, ArrayList<Member> members) throws IOException {
+    PrintWriter w = response.getWriter();
+    w.write("<html>\n");
+    w.write("<head>\n");
+    w.write("    <meta charset=\"UTF-8\">\n");
+    w.write("    <title>Title</title>\n");
+    w.write("</head>\n");
+    w.write("<body>\n");
+    w.write("<a href=\"/index.html\">메인</a>\n");
+    w.write("<table>\n");
+    w.write("    <thead>\n");
+    w.write("       <th>id</th>\n");
+    w.write("       <th>username</th>\n");
+    w.write("       <th>age</th>\n");
+    w.write("    </thead>\n");
+    w.write("    <tbody>\n");
+
+    for(Member member : members){
+        w.write("       <tr>\n");
+        w.write("       <td>" + member.getId() + "</td>\n");
+        w.write("       <td>" + member.getUsername() + "</td>\n");
+        w.write("       <td>" + member.getAge() + "</td>\n");
+        w.write("       </tr>\n");
+    }
+
+    w.write("   </tbody>\n");
+    w.write("</table>\n");
+    w.write("</body>\n");
+    w.write("</html>\n");
+}
+```
+자바 코드로 작성되었지만, 자바로 작성하는 이점이 거의 없다. 그저 문자열로 다를 뿐이다. 그냥 HTML을 작성하는 것과
+다른점이 있다면 동적으로 데이터를 변경할 수 있다는 점이다.
+하지만 이렇게 HTML을 작성하는 것은 매우 번거롭고 비효율 적이다. 때문에 다음에는 템플릿 엔진을 이용하여 이를 해결해 본다.
