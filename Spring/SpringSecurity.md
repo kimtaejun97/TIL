@@ -29,11 +29,62 @@ ProviderManager 에 의해 사용자 인증을 거친다. ProviderManager 는 Au
 제공된 인증 개체로 사용자를 인증한다. 인증전의 Authentication 객체를 받아 인증이 완료된 Authentication 객체를 반환한다.
 - CasAuthenticationProvider (Central Authentication Service)
 - JaasAuthenticationProvider (Java Authentication and Authorization Service)
-- DaoAuthenticationProvider (Data Access Object)
+- **DaoAuthenticationProvider** (Data Access Object)
 - OpenIDAuthenticationProvider
 - RememberMeAuthenticationProvider
 - LdapAuthenticationProvider (Lightweight Directory Access Protocol)
 ...
+  
+주로 우리가 많이 사용하는 Provider은 DB를 이용한 인증인 DaoAuthenticationProvider 일 것이다. 다음 코드는 DaoAuthenticationProvider 에서 찾은
+유저 검증 부분이다.
+```java
+@Override
+protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
+        throws AuthenticationException {
+    prepareTimingAttackProtection();
+    try {
+        UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+        if (loadedUser == null) {
+            throw new InternalAuthenticationServiceException(
+                    "UserDetailsService returned null, which is an interface contract violation");
+        }
+        return loadedUser;
+    }
+    catch (UsernameNotFoundException ex) {
+        mitigateAgainstTimingAttack(authentication);
+        throw ex;
+    }
+    catch (InternalAuthenticationServiceException ex) {
+        throw ex;
+    }
+    catch (Exception ex) {
+        throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
+    }
+}
+```
+개발자는 UserDetails를 상속하고 loadUserByUsername() 에서 username으로 DB에 사용자가 있는지 찾게 된다.
+만약 존재하지 않는다면 UsernameNotFoundException을 발생시키면 되고, Provider에서는 이걸 잡아 던진다.
+코드를 보면 prepareTimingAttackProtection()과 mitigateAgainstTimingAttack()을 볼 수 있는데
+코드는 아래와 같다.
+```java
+private void prepareTimingAttackProtection() {
+		if (this.userNotFoundEncodedPassword == null) {
+			this.userNotFoundEncodedPassword = this.passwordEncoder.encode(USER_NOT_FOUND_PASSWORD);
+		}
+	}
+
+private void mitigateAgainstTimingAttack(UsernamePasswordAuthenticationToken authentication) {
+    if (authentication.getCredentials() != null) {
+        String presentedPassword = authentication.getCredentials().toString();
+        this.passwordEncoder.matches(presentedPassword, this.userNotFoundEncodedPassword);
+    }
+}
+
+private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
+
+```
+현재 패스워드와 userNotFoundExcodedPassword 를 비교하는 작업을 수행하는데 별 다른 작업이라기 보다는 악의적으로
+반복실행 하는것을 막기위한 조치가 아닌가 싶다.
 
 #### 5. UserDetailsService에 전달하고, 서비스에서는 받은 사용자 정보로 DB에서 사용자 정보를 찾아 UserDetails 객체 생성.
 - Provider는 사용자 이름을 기반으로 세부 정보를 검색하기 위해 UserDetailsService 를 사용한다.
@@ -46,6 +97,8 @@ UserDetailsService 에서는 DB에 저장된 회원의 비밀번호를 조회하
 - AuthenticationManager 는 완전한 인증객체를 관련 인증 필터로 다시 반환한다.
 - 인증에 실패하면 AuthenticationException 이 발생하고, AuthenticationEntryPoint 에 의해 처리된다.
 #### 8. AuthenticationFilter는 Authentication 객체를 SecurityContext에 저장.
+
+
 - ### 의존성 추가
 ```xml
 <dependency>
