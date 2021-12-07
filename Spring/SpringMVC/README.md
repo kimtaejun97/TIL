@@ -4,6 +4,8 @@
     
 - ### [서블릿을 사용한 웹 애플리케이션](#-서블릿을-사용한-웹-애플리케이션)
 - ### [JSP를 사용한 웹 애플리케이션](#-jsp를-사용한-웹-애플리케이션)
+- ### [MVC 패턴](#-mvc-패턴)
+- ### [MVC 프레임워크](#-mvc-프레임워크)
  
 # 📌 Servlet
 ****
@@ -274,17 +276,22 @@ JSON에서는 스펙상 utf-8 형식을 사용하도록 정의되어 있어, 인
 ***
 Servlet에 대해 알아보았으니 이를 이용하여 간단한 회원가입 웹 애플리케이션을 만들어보자.
 ```java
+ @Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Member member = makeMemberObj(request);
+        Member saveMember = saveMember(member);
+
+        setPostResponse(response, member);
+        }
+
 @Override
-protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    if(request.getMethod().equals("GET")){
-        doGet(response);
-        return;
-    }
-    doPost(request, response);
-}
+protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
+        setGetHeader(response);
+        setGetBody(response);
+        }
 ```
-동일한 URL로 GET, POST를 모두 지원하여 GET일 때는 회원가입 폼을, POST일 때에는 Save 할 수 있도록 만들기 위해
-요청의 메서드를 검사하고 각각 doGet(), doPost()를 호출하도록 만들었다.
+동일한 URL로 GET, POST를 모두 지원하여 GET일 때는 회원가입 폼을, POST일 때에는 Save 할 수 있도록 만들기 위해 
+doGet(), doPost() 오버라이딩 하였다. 요청이 들어오면 HTTP 메서드를 검사해 알맞은 메서드를 호출해준다.
 doGet() 에서는 text/html 타입으로 회원가입 폼을 보여주고 doPost() 에서는 HTML Form 형식으로 데이터를 받아 Repository에 저장한다.
 
 또한, 저장된 회원 목록을 볼 수 있도록 GET 방식으로 리스트를 조회했을 때 text/html 타입으로 돌려주도록 작성하였다.
@@ -377,3 +384,98 @@ HTML을 작성하는 것이 조금 더 편리해졌다. 하지만 HTML과 Java �
 
 이를 해결하기 위해 등장한 것이 **MVC 패턴**이다. MVC 패턴은 모델, 뷰, 컨트롤러로 JSP는 화면을 그리는 일에 집중하고,
 Repository의 접근이나 비즈니스 로직은 각각에 집중 할 수 있도록 해주는 패턴이다.
+
+
+# 📌 MVC 패턴
+***
+위에서 서블릿과 JSP를 가지고 웹 애플리케이션을 만들었지만 비즈니스 로직과 뷰 코드가 섞여있다는 문제점이 있었다.
+변경 라이프사이클 자체도 다르고, 하나의 파일에 모든 코드가 들어있기 때문에 유지보수가 매우 어렵다.   
+때문에, 로직과 뷰를 분리할 필요가 있고 이때 사용되는 것이 MVC 패턴이다.
+
+![img_1.png](img_1.png)    
+
+- 모든 요청은 컨트롤러를 통한다. 컨트롤러는 파라미터를 검증하고 비즈니스 로직을 실행한 후. 결과 데이터를 모델에 전달한다.
+- 모델은 뷰에 출력할 데이터를 담아두는 역할을 한다. 모델이 있기 때문에 비즈니스 로직과 뷰 코드를 분리할 수 있다.
+- 뷰는 모델에 담겨있는 데이터를 참조하여 화면을 그린다.(HTML)
+
+MVC 패턴을 사용하여 멤버를 저장하는 로직과 뷰를 작성해보자.
+```java
+@Override
+protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    saveMember(request);
+
+    RequestDispatcher dispatcher = request.getRequestDispatcher(SAVE_VIEW_PATH);
+    dispatcher.forward(request, response);
+}
+
+private void saveMember(HttpServletRequest request) {
+    String username = request.getParameter(USER_NAME);
+    int age = Integer.parseInt(request.getParameter(AGE));
+    Member newMember = memberRepository.save(new Member(username, age));
+
+    request.setAttribute("member", newMember);
+}
+```
+request.setAttribute()를 이용하여 뷰에 전달할 데이터를 모델에 담아둔다. key 이름을 이용하여 뷰에서 이를 참조할 수 있다.
+request의 dispatcher.forward()를 이용하여 다른 서블릿이나 JSP로 이동할 수 있다.(서버 내부에서 호출)
+
+forward()는 호출하는 역할이라는 점에서 redirect 와 비슷하다고 생각할 수 있지만. 둘은 다르다. redirect 같은 경우에는 
+클라이언트가 location 정보를 받아 다시 요청을 보내게 되지만(URL이 변경됨) forward는 서버 내부에서 호출되기 때문에
+재호출이 일어나지 않고, 당연히 URL 또한 변경되지 않는다(클라이언트는 인지하지 못함.)
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body> 성공
+<ul>
+    <li>id=${member.id}</li>
+    <li>username=${member.username}</li>
+    <li>age=${member.age}</li>
+</ul>
+<a href="/index.html">메인</a>
+</body>
+</html>
+```
+이전에 있던 자바코드가 모두 제거 되었고, 모델에서 데이터를 참조하는 부분과 HTML 코드만이 남았다.
+이렇게 비즈니스 로직과 뷰를 간단하게 분리할 수 있었다. jsp의 문법인 ```${}```를 이용하여 모델에 저장해둔(Attribute) 데이터를
+참조할 수 있다. ```${member.id}```는 내부적으로는 ```(Member)request.getAttribute(key).getId()```와 같은 동작을 한다.
+
+
+이번에는 멤버 목록을 조회하는 코드를 작성해 보자.
+```html
+
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<html>
+<head>
+    <title>멤버 리스트</title>
+</head>
+<body>
+    <table>
+        <thead>
+        <th>id</th><th>username</th><th>age</th>
+        </thead>
+        <tbody>
+            <c:forEach var="member" items="${members}">
+                <tr><td>${member.id}</td><td>${member.username}</td><td>${member.age}</td></tr>
+            </c:forEach>
+        </tbody>
+    </table>
+</body>
+</html>
+```
+비즈니스 코드는 비슷하므로 생략한다. 모든 멤버를 조회하여 모델에 담아두고 뷰에서는 jsp의 문법을 이용하여
+반복문을 통해 목록을 출력한다. prefix를 이용하여 태그를 정의하고, forEach 문을 사용하여 멤버를 순회하였다.
+
+MVC 패턴을 사용하여 비즈니스 로직과 뷰를 분리하는 것에 성공하였다. 하지만 아직 문제가 남아 있다.
+위의 코드에서 볼 수 있듯 비즈니스 로직 코드에서 Dispatcher를 가져오는 부분, forward()를 실행하는 부분 등 많은 코드 중복이 발생하고
+심지어 위의 로직에서는 request 만을 이용하지만 response 또한 같이 파라미터로 넘겨줘야 함을 확인 할 수 있다.
+
+이를 해결하기 위해서는 컨트롤러 호출 전에 이러한 공통적인 부분을 처리해주는 **프론트 컨트롤러**가 필요하다.
+프론트 컨트롤러 패턴은 MVC 프레임워크의 핵심이라고 할 수 있다.
+
+
+# 📌 MVC 프레임워크

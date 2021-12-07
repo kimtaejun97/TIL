@@ -19,24 +19,19 @@ public class MemberFormServlet extends HttpServlet {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if(request.getMethod().equals("GET")){
-            doGet(response);
-            return;
-        }
-        doPost(request, response);
-    }
-    protected void doGet(HttpServletResponse response) throws IOException {
-        setGetHeader(response);
-        setGetBody(response);
-    }
-
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Member member = makeMemberObj(request);
         Member saveMember = saveMember(member);
 
         setPostResponse(response, member);
     }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
+        setGetHeader(response);
+        setGetBody(response);
+    }
+
 
     private void setGetHeader(HttpServletResponse response) {
         response.setContentType("text/html");
