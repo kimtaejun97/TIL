@@ -479,3 +479,51 @@ MVC 패턴을 사용하여 비즈니스 로직과 뷰를 분리하는 것에 성
 
 
 # 📌 MVC 프레임워크
+***
+MVC 프레임워크의 핵심은 프론트 컨트롤러라고 말 할 수 있다.
+Spring MVC의 DispatcherServlet이 바로 프론트 컨트롤러 패턴으로 구현되어 있다.    
+
+![img_2.png](img_2.png)     
+개선해야할 것이 너무 많기 때문에 하나씩 개선해보도록 하자, 먼저기존 로직을 유지하며 구조만을 변경하기 위해
+Map 과 다형성을 이용하여 프론트 컨트롤러를 구현하였다.
+
+#### - 컨트롤러 인터페이스 
+```java
+public interface ControllerV1 {
+    void process(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException;
+}
+```
+
+#### - 프론트 컨트롤러
+```java
+@WebServlet(name = "frontControllerV1", urlPatterns = "/front-controller/v1/*")
+public class FrontControllerV1 extends HttpServlet {
+    private Map<String, ControllerV1> controllers = new HashMap<>();
+    private final String FORM_VIEW_PATH = "/front-controller/v1/members/new-form";
+    private final String LIST_VIEW_PATH = "/front-controller/v1/members";
+    private final String SAVE_VIEW_PATH = "/front-controller/v1/members/save";
+    
+    public FrontControllerV1() {
+        controllers.put(FORM_VIEW_PATH, new MemberFormControllerV1());
+        controllers.put(SAVE_VIEW_PATH, new MemberSaveControllerV1());
+        controllers.put(LIST_VIEW_PATH, new MemberListControllerV1());
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String requestURI = request.getRequestURI();
+
+        ControllerV1 controller = controllers.get(requestURI);
+        if(controller == null){
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        controller.process(request, response);
+    }
+}
+```
+프론트 컨트롤러에 미리 컨트롤러들을 등록해 둔 뒤 요청 URL에 따라 컨트롤러를 실행하게 된다.
+ulrPatterns 에서 * 을 사용하여 하위 모든 URL을 매핑한다. 이로서 프론트 컨트롤러가 맨 앞에서 가장 먼저 요청을 받은 후 
+적절한 컨트롤러를 찾아 해당 컨트롤러를 호출하고, 컨트롤러에서는 로직을 실행하게 된다.
+
