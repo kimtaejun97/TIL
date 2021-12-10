@@ -13,7 +13,7 @@
 
 # 📌 JPA와 DB 설정
 ****
-### 🧐 application 설정
+### 🧐 Application 설정
 ```yaml
 spring:
   datasource:
@@ -36,7 +36,7 @@ logging:
       type: TRACE
 ```
 - show_sql 과 logging level DEBUG 는 둘다 쿼리를 보여주는 역할을 하지만, show sql은 print이기 때문에 logging을 이용하는 것이 일반적으로 더 좋다.
-- format_sql 은 발생된 sql을 줄바꿈을 통해 보기 좋게 정렬해준다.
+- format_sql 은 발생된 sql 을 줄바꿈을 통해 보기 좋게 정렬해준다.
 - ```logging.level.org.hibernate.type: TRACE``` 는 바인딩된 파라미터의 값을 보여준다.
   - 바인딩 값을 보여주는 라이브러리 :p6spy 등을 사용해도 된다.
 ### 🧐 Repository
@@ -190,7 +190,7 @@ public void join_duplicate() throws Exception {
     - 클래스에 @Transactional(readOnly =true), 변경이 가해지는 메서드에 @Transactional를 추가로 선언하는 식으로 사용 가능하다.
 
 - #### ✏️ Isolation Level 설정.
-- ```@Transactional(isolation=Isolation.XXX)```
+  - ```@Transactional(isolation=Isolation.XXX)```
   - DEFAULT: 사용하는 DB의 기본 격리수준을 따른다.
   - READ_UNCOMMITTED: 커밋되지 않은 데이터도 읽음.
   - READ_COMMITTED: 커밋된 데이터만 읽음.
@@ -337,7 +337,7 @@ private BooleanExpression eqStatus(OrderStatus searchOrderStatus, QOrder order) 
 
 ### ☝️ 병합(merge) 사용
 ![img_1.png](img/img_1.png)
-- ```em.merge(entiry)```
+- ```em.merge(entity)```
 
 1. 파라미터로 넘어온 준영속 엔티티의 식별자 값으로 1차캐시, DB 순으로 엔티티를 조회한다.
     - DB에서 찾으면 1차 캐시에 저장.
