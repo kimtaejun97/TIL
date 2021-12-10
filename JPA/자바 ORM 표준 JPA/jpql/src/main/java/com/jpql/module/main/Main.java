@@ -5,6 +5,7 @@ import com.jpql.module.jpql.MemberDto;
 import com.jpql.module.jpql.Team;
 
 import javax.persistence.*;
+import java.lang.reflect.Member;
 import java.util.List;
 import java.util.Objects;
 
@@ -165,6 +166,8 @@ public class Main {
             int i = em.createQuery("delete from Member m where m.username='kim'")
                     .executeUpdate();
             System.out.println("i = " + i);
+
+
 
             tx.commit();
         }catch (Exception e){

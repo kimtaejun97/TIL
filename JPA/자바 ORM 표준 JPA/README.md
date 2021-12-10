@@ -1,4 +1,3 @@
-> 이미지 출처: 자바 ORM 표준 JPA 프로그래밍 - 기본편 김영한님.
 # 📃 목차
 - #### ✏️ [JPA란?](#-jpa)
 - #### ✏️[영속성 컨텍스트(Persistence Context)](#-영속성-컨텍스트-persistence-context)
@@ -139,6 +138,19 @@
     ![img_2.png](img/img_2.png)
     > - 동일한 트랜젝션에서 다시 조회를 하면 먼저 1차 캐시에서 조회.
     > - 캐시에 존재하면 캐시에서 가져오고 존재하지 않으면 DB에서 조회, 캐시에 저장.
+    > 
+    영속성 컨텍스트의 1차 캐시의 조회는 조회의 파라미터가 식별자일 경우에만 가능하다.(1차 캐시의 키가 식별자이기 때문)
+    
+    예를 들어 처음에 findById()를 이용하여 조회한 후에 findByUsername() 을 이용하여
+    usename 으로 엔티티를 조회하게 된다면, 동일한 것을 엔티티를 가져오더라도 1차 캐시에서 username을 키로 한 엔티티를
+    찾을 수 없어 새로 DB에서 조회해온다.
+    
+    그렇다면 반대의 순서로 조회한다면 어떨까? 이 경우에는 username 으로 조회된 엔티티의 식별자를 키로
+    엔티티를 1차 캐시에 보관하기 때문에 첫 username 으로 조회할 때만 한번의 쿼리가 발생한다.
+    
+    **그렇다면 Id로 엔티티를 조회한 다음에 JPQL을 이용하여 조회하게 된다면?**
+    2번의 쿼리가 발생한다. JPQL은 캐시를 거치지 않고 DB에 직접 쿼리하기 때문에 캐시의 여부와 상관없이
+    쿼리가 발생한다.
   
   - ### ☝️ 영속 엔티티의 동일성 보장
     > - 여러번 조회하여 같은 엔티티를 가져오면 == 동일성 비교 true
@@ -147,7 +159,7 @@
     > - commit 또는 flush 전까지 쓰기지연 저장소에 생성된 sql을 저장하다가 한번에 전송.
     
   - ### ☝️ 엔티티 변경 감지.
-    > - commit 시점에 flush가 실어되며 자동으로 엔티티 변경 사항을 감지(엔티티와 스냅샷 비교, 더티 체킹)
+    > - commit 시점에 flush 가 실행되며 자동으로 엔티티 변경 사항을 감지(엔티티와 스냅샷 비교, 더티 체킹)
     > - Update SQL을 생성, 쿼리 전송.
     > 
     > ![img_3.png](img/img_3.png)
@@ -155,7 +167,7 @@
 
 # 📌 flush
 ****
-- 변경 감지
+- 변경 감지(Dirty Checking)
 - 수정된 엔티티 쓰기 지연 SQL 저장소에 등록
 - 쓰기지연 SQL 저장소의 쿼리를 데이터베이스에 전송(등록, 수정, 삭제)
 - 영속성 컨텍스트를 비우지는 않는다. 동기화만. (쓰기 지연 저장소는 전송 후 비운다)
@@ -165,6 +177,35 @@
 > 3. JPQL 쿼리 실행 : flush 자동 호출.
 > > - FlushModeType.AUTO (defualt)
 > > - FlushModeType.COMMIT (commit 할때만 실행)
+
+#### 💡 JPQL 실행시 flush는 반드시 일어날까?
+JPQL 실행시 flush가 자동으로 호출되어 쓰기 지연되던 쿼리가 DB에 전달된다고 한다. 하지만 항상 그런것일까?
+결론부터 말하자면 항상 그런것은 아니다.
+
+예를들어 ```em.persist(member)``` 를 이용하여 member 엔티티를 저장하였다.
+그다음에 ```em.createQuery("select t from Team t");``` 를 실행한다면 어떻게 될까? 이때는 flush는 일어나지 않는다.
+```em.createQuery("select m from Member m");``` 를 실행해야 flush가 발생하는 것을 확인 할 수 있다.
+
+JPQL을 실행할 때 자동으로 flush가 되는것은 맞지만 정확히는 **대기 중인 엔티티 작업과 겹치는** JPQL 쿼리를 실행할 때 flush가 발생한다.
+
+
+#### 💡 remove 한 엔티티를 1차 캐시에서 조회한다면?
+다음과 같은 상황을 가정해보자.
+```java
+em.remove(member);
+em.find(Member.class, member.getId());
+```
+remove() 가 실행되었지만 아직 커밋이 되지 않았기 때문에, DB에는 반영이 되지 않았고 쓰기 지연 저장소에만 delete 쿼리를 저장한다.
+하지만, find()를 실행하면 엔티티가 아닌 null을 반환한다.
+
+find()가 실행되었을 때, 1차 캐시에서 엔티티를 찾을 수는 있지만, 해당 엔티티는 remove 상태로 예약이 되어 있는 상태고,
+이를 조회할 수 없기 때문에 null을 반환하고, 쿼리 또한 발생하지 않는다.
+
+#### 💡 Update 후 Delete 한다면 쿼리가 어떻게 발생할까?
+실제로 엔티티를 변경한 후 제거하면 커밋 되었을 때 더티체킹에 의해 Update 쿼리가 생성되고, Delete 쿼리가 생성될 것 같지만
+실제로는 두가지가 함께 발생하여 flush 되는 경우는 없다. 즉, 트랜잭션이 커밋될 시점이 상태 한번만 쿼리가 발생되므로 delete 쿼리만 발생한다.
+
+
 
 
 # 📌 엔티티 매핑
@@ -204,7 +245,7 @@
 ### ☝️ 기본키 매핑
   - @Id
   - @GeneratedValue : Id 자동 생성 
-    - ```strategy = GenerationType.Identity``` : 기본 키 생성을 DB에 위임
+    - ```strategy = GenerationType.Identity``` : 기본 키 생성을 DB에 위임(MySQL의 기)
     - ```strategy = GenerationType.SEQUENCE``` : Sequence Object를 따로 두고 기본키 생성을 관리.
       - 테이블 마다 따로 Sequence Object 둘 수도 있다.
         ```java
@@ -333,7 +374,7 @@ public class Team {
     - 객체의 두 관계중 하나를 연관관계의 주인으로 지정.
     - 연관관계의 주인이 외래키를 가진다.
     - <strong>주인이 아닌쪽은 데이터의 변경 불가, 읽기만 가능.</strong>
-      - 예를 들어 멤버가 연관관계의 주인일때 ```team.getMember().add(member);```을 실행하면 쿼리는 나가지만 <mark>실제 DB를 확인해보면 맴버의 외래키 값이 null로 설정된다.</mark>
+      - 예를 들어 멤버가 연관관계의 주인일때 ```team.getMembers().add(member);```을 실행하면 쿼리는 나가지만 <mark>실제 DB를 확인해보면 맴버의 외래키 값이 null로 설정된다.</mark>
       - ```member.setTeam(team)```으로 사용해야 한다.
     - 주인은 mappedBy 속성을 사용하지 않는다.
     - 주인이 아니면 mappedBy 속성으로 주인을 지정해준다.
@@ -436,7 +477,7 @@ private List<Product> products = new ArrayList<>();
 ```
 
 - 관계형 데이터베이스는 정규화된 테이블 두 개로 다대다 관계를 표현할 수 없다.
-- 추가적인 정보를 넣는것이 불가능하다.
+- JPA에서 다대다 관계 매핑으로 자동으로 생성된 테이블에 추가적인 정보를 넣는것이 불가능하다.
 - 생각지도 못한 쿼리가 발생하기도 한다.
 - 실무에서 사용 지양. <mark>일대다 + 다대일 + 일대다 관계로 풀어내야 한다.</mark>
 
@@ -641,9 +682,9 @@ public class Member extends BaseEntity{
 - 즉시 로딩을 적용하면 예상하지 못한 SQL이 발생.
 - JPQL 사용시 즉시 로딩은 N+1 쿼리 문제를 발생시킨다.
     - 전체 멤버를 조회할 때 멤버 한명당 팀 조회쿼리가 발생
-- <mark>@ManyToOne, @OneToOne은 기본이 즉시로딩이기 때문에 LAZY로 변경해 주어야 한다.</mark>
+- <mark>@ManyToOne, @OneToOne은 **기본이 즉시로딩**이기 때문에 LAZY로 변경해 주어야 한다.</mark>
 
-🤔 N + 1 문제의 해결       
+#### 💡 N + 1 문제의 해결       
     1. fetchJoin       
     2. Entity Graph   
 
@@ -670,7 +711,8 @@ public class Member extends BaseEntity{
     #### 🖍 CASCADE의 종류
     - ALL: 모두 적용, 라이프 싸이클이 유사할 때.
     - PERSIST: 영속. 저장할때만.
-    - REMOVE, MERGE, REFRESH, DETACH
+    - REMOVE, DETACH
+    - MERGE, REFRESH: 엔티티가 수정되었을 때 DB와의 동기화(MERGE는 객체->DB, REFRESH는 DB->객체) 
 
     #### 🖍 주로 한 부모가 여러 자식을 관리할 때 사용 (게시판, 첨부파일), 다른 엔티티와 연관이 없어야 한다. 즉 소유자가 하나일 때.
 
@@ -684,7 +726,12 @@ public class Member extends BaseEntity{
     #### 🖍 참조하는 곳이 하나일 때 사용(하나의 엔티티가 소유할 때.)
     #### 🖍 부모를 제거하면 모두 고아가 되기 때문에 CascadeType.REMOVE 처럼 동작.
 
-
+    #### 💡 Cascade.REMOVE 와 orphanRemoval은 뭐가 다를까?
+    명시적으로 remove 되는 경우에는 동일하지만 parent.setChildren(null)의 경우에는 동작이 달라진다.
+    Cascade.REMOVE 같은 경우에는 parent 와의 관계는 끊어지지만 부모가 삭제된 것이 아니므로 DB 에는 여전히 Children 엔티티가 존재한다.
+    하지만 orphanRemoval 은 참조 관계를 확인하기 때문에 부모와의 관계가 끊어지면 고아객체로 판단하고 DB에서도 Children 객체를 제거한다.
+  
+  
 ### 🔑 CascadeType.ALL + orphanRemovar
     - 두 옵션을 모두 활상화하면 자식의 생명주기를 부모 엔티티가 관리.
     - 도메인 주도 설계(DDD)의 *Aggregate Root 개념을 구현할 때 유용하다.
@@ -698,7 +745,6 @@ public class Member extends BaseEntity{
 ## 🧐️ 엔티티 타입
 - @Entity로 정의하는 객체. 
 - 데이터가 변해도 식별자로 지속해서 추적 가능. 
-
 
 ## 🧐️️ 값 타입
 - int, Integer, String 처럼 단순한 값, 자바 기본 타입이나 객체.
@@ -742,6 +788,7 @@ public class Member extends BaseEntity{
       ```
     - 기본 생성자 필수.
     - 주로 기본값 타입을 모아 만들어서 복합 값 타입이라고도 한다.
+    
     > 👍 장점
     > - 재사용 가능, 높은 응집도
     > - 값 타입만 사용하는 의미 있는 메소드를 만들 수 있다. (Point.moveLeft(1))
@@ -755,6 +802,7 @@ public class Member extends BaseEntity{
     - 멤버1 과 멤버2가 같은 Address 객체를 공유하게 되면 address 필드에서 값을 변경하면 둘다 함께 변경된다.
     - 의도적으로 공유하고 싶다면 임베디드 타입이 아닌 엔티티를 만들어 공유해야 한다.
     - 같은 값만을 사용하고 싶다면 참조가 아닌 객체를 복사하여 사용해야한다.
+      
         ```
         🤔 객체 타입의 한계 : 객체 타입의 참조값을 대입하는 것을 원천적으로 막을 방법이 없다.
             - 객체타입을 불변 객체로 설계해야 한다.
@@ -800,7 +848,7 @@ public class Member extends BaseEntity{
 
 - #### 🔑 값 타입 컬렉션의 제약 사항
     - 값 타입은 엔티티와 달리 식별자 개념이 없다. 때문에 값을 변경하면 추적이 어렵다.
-    - 값 타입 컬렉션을 변하면 주인 엔티티와 연관된 모든 데이터를 삭제한 후 현재 남은 값을 모두 다시 저장 -> 매우 비효율적.
+    - 값 타입 컬렉션을 변경하면 주인 엔티티와 연관된 모든 데이터를 삭제한 후 현재 남은 값을 모두 다시 저장 -> 매우 비효율적.
     - 값 타입 컬렉션을 매핑하는 테이블은 모든 컬럼을 묶어서 기본키를 구성.(null 안됨, 중복 저장 안됨.)
     
     #### ✏️ 실무에서는 값 타입 컬렉션 대신에 일대다 관계를 고려한다.(값 타입을 엔티티로 승급)
@@ -853,7 +901,7 @@ List<Member> members = query
   ex) 오라클의 CONNECT BY
 - SQL을 작성하고 ```em.createNativeQuery(query, Member.class)```    
 
-## 🧐 JDBC 직접 사용, SPringJdbcTemplate 등..
+## 🧐 JDBC 직접 사용, SpringJdbcTemplate 등..
 - JPA를 사용하면서 JDBC 커넥션을 직접 사용, 또는 스프링 JdbcTemplate, 마이바티스 등을 함께 사용.
 - 영속성 컨텍스트를 적절한 시점에 flush 필요.(JPA와 연관 없는 SQL을 실행할 때 - dbconnetcion 에서 execute로 쿼리 실행.)
 
@@ -891,7 +939,7 @@ List<Member> members = query
 
 - ### ☝️ 결과 조회 API
     - 결과가 컬렉션 : query.getResultList(), 리스트 반환
-        - 결과가 없으면 빈 리스트 반환.
+        - 결과가 없으면 **빈 리스트** 반환.
     - 결과가 정확히 하나 : query.getSingleResult()
         - 결과가 없으면 : javax.persistence.NoResultException
         - 결과가 두개 이상 : javax.persistence.NonUniqueResultException
@@ -914,7 +962,7 @@ List<Member> members = query
 - ### ☝️ 프로젝션 대상
     - 엔티티 프로젝션 : ```SELECT m FROM Member m```
     - 엔티티 프로젝션 : ```SELECT m.team FROM Member m```
-        - 실제 나가는 쿼리와 같게하기 위해 ```SELECT t FROM Member m join m.team t```로 사용하는 것이 좋다.
+        - 실제 나가는 쿼리와 같게하기 위해 ```SELECT t FROM Member m join m.team t``` 로 작성하는 것이 좋다.
     - 스칼라 프로젝션(숫자,문자 등 기본 데이터 타입)) : ```SELECT m.age, m.username FROM Member m```
     - 임베디드 프로젝션 : ```SELECT m.address FROM Member m```
     - DISTINCT로 중복 제거 : ```SELECT distinct m.username FROM Member m```
@@ -1227,7 +1275,7 @@ em.createQuery("select distinct t from Team t join fetch t.members", Team.class)
             -> N + 1 쿼리 발생.
         - 컬렉션에 @BatchSize(size = n) (n<=1000)
         - 또는 persistence.xml에  <property name="hibernate.default_batch_fetch_size" value="100"/>
-        - batch size의 크기만큼 쿼리가 묶어서 나간다 (where team_id = (? ,?, ? ..)
+        - batch size의 크기만큼 쿼리가 묶어서 나간다 (where team_id in (? ,?, ? ..))
             - ex) Team 과 member의 관계에서 batch size만큼의 team.members 한 쿼리에서 조회.
         - N + 1 -> 2번의 쿼리로 감소(팀 조회쿼리, 멤버 조회쿼리)
 
@@ -1326,8 +1374,14 @@ int count = em.createQuery("delete from Member m where m.username='kim'")
 - count는 영향을 받은 연산 횟수.
 
 ### 🤔 주의 할 점.
-- 벌크 연산은 영속성 컨텍스트를 무시하고 데이터베이스에 직접 쿼리
+- 벌크 연산은 영속성 컨텍스트를 무시하고 **데이터베이스에 직접 쿼리**
   (영속성 컨텍스트에 이미 있다면 변경된 값을 가져오지 못한다.)   
     해결: 
     - 영속성 컨텍스트 저장 전에 벌크 연산을 먼저 실행.
     - 벌크 연산 수행 후 영속성 컨텍스트 초기화.
+    
+
+<br><br><br>
+> - https://www.inflearn.com/course/ORM-JPA-Basic
+> - https://msolo021015.medium.com/jpa-persistence-context-deep-dive-2f36f9bd6214
+> - https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=heops79&logNo=220734819674
