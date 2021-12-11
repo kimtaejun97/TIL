@@ -311,29 +311,26 @@ public List<Order> findOrdersWithMemberAndDelivery(OrderSearch orderSearch) {
 
 ```sql
  select
-        order0_.order_id as order_id1_6_0_,
-        member1_.member_id as member_i1_4_1_,
-        delivery2_.delivery_id as delivery1_2_2_,
-        order0_.delivery_id as delivery4_6_0_,
-        order0_.member_id as member_i5_6_0_,
-        order0_.order_date as order_da2_6_0_,
-        order0_.status as status3_6_0_,
-        member1_.city as city2_4_1_,
-        member1_.street as street3_4_1_,
-        member1_.zipcode as zipcode4_4_1_,
-        member1_.name as name5_4_1_,
-        delivery2_.city as city2_2_2_,
-        delivery2_.street as street3_2_2_,
-        delivery2_.zipcode as zipcode4_2_2_,
-        delivery2_.status as status5_2_2_ 
-    from
-        orders order0_ 
-    inner join
-        member member1_ 
-            on order0_.member_id=member1_.member_id 
-    inner join
-        delivery delivery2_ 
-            on order0_.delivery_id=delivery2_.delivery_id
+    order0_.order_id as order_id1_6_0_,
+    member1_.member_id as member_i1_4_1_,
+    delivery2_.delivery_id as delivery1_2_2_,
+    order0_.delivery_id as delivery4_6_0_,
+    order0_.member_id as member_i5_6_0_,
+    order0_.order_date as order_da2_6_0_,
+    order0_.status as status3_6_0_,
+    member1_.city as city2_4_1_,
+    member1_.street as street3_4_1_,
+    member1_.zipcode as zipcode4_4_1_,
+    member1_.name as name5_4_1_,
+    delivery2_.city as city2_2_2_,
+    delivery2_.street as street3_2_2_,
+    delivery2_.zipcode as zipcode4_2_2_,
+    delivery2_.status as status5_2_2_ 
+from orders order0_ 
+inner join member member1_ 
+        on order0_.member_id=member1_.member_id 
+inner join delivery delivery2_ 
+        on order0_.delivery_id=delivery2_.delivery_id
 ```
 
 
@@ -359,7 +356,6 @@ return em.createQuery(
                 .getResultList();
 ```
 
-
 - ### ✏️ Querydsl 사용
 ```java
 JPAQueryFactory query = new JPAQueryFactory(em);
@@ -384,36 +380,33 @@ return query.select(Projections.constructor(SimpleOrderQueryDto.class,
 - Projection.constructor : 생성자를 이용. 파라미터의 순서, 타입이 맞아야 한다.
 - Projection.bean : 기본 생성자를 이용하여 객체를 생성한 후 Setter 를 이용하여 값을 셋팅.
 - Projection.fields : 리플렉션 API를 사용하여 필드에 직접 값 주입(기본 생성자 필요)
-- order.id.as("orderId)와 같이 별칭 가능.
+- order.id.as("orderId")와 같이 별칭 가능.
 ```sql
 select
-        order0_.order_id as col_0_0_,
-        member1_.name as col_1_0_,
-        order0_.order_date as col_2_0_,
-        order0_.status as col_3_0_,
-        delivery2_.city as col_4_0_,
-        delivery2_.street as col_4_1_,
-        delivery2_.zipcode as col_4_2_ 
-    from
-        orders order0_ 
-    inner join
-        member member1_ 
-            on order0_.member_id=member1_.member_id 
-    inner join
-        delivery delivery2_ 
-            on order0_.delivery_id=delivery2_.delivery_id 
+    order0_.order_id as col_0_0_,
+    member1_.name as col_1_0_,
+    order0_.order_date as col_2_0_,
+    order0_.status as col_3_0_,
+    delivery2_.city as col_4_0_,
+    delivery2_.street as col_4_1_,
+    delivery2_.zipcode as col_4_2_ 
+from orders order0_ 
+inner join member member1_ 
+        on order0_.member_id=member1_.member_id 
+inner join delivery delivery2_ 
+        on order0_.delivery_id=delivery2_.delivery_id 
 ```
 
 - fetch join을 이용했을때는 테이블 전체를 Select 하기 때문에 필요없는 데이터 또한 조회하게 된다.
-- DTO 를 이용하면 필요한 데이터만을 조회하여 가져올 수 있다. Select 절에서 조회하는 데이터가 줄어든 것을 확인 할 수 있다.
+- DTO 를 이용하면 필요한 데이터만을 조회하여 가져올 수 있다. 이전에 비해 Select 절에서 조회하는 데이터가 줄어든 것을 확인 할 수 있다.
 - DTO 를 사용하여 반환받으면 성능은 조금 더 최적화될 수 있지만, 재사용성이 거의 없다.(member 의 이름이 아니라 전화번호가 필요하다면?)
 - 필요에 따라 어떤것을 사용할지 결정.
 - Repository 는 객체 그래프를 탐색하는 용도(엔티티 조회)로만 사용되는 것이 좋다. 때문에 DTO를 반환하는 쿼리는 따로 이러한 쿼리를 모아두는 Repository 를 따로 두는 것이 좋다.
 
 ### 🔑 성능 최적화 순서.
-    1. 엔티티를 DTO 로 변환하여 사용.
+    1. 엔티티를 DTO 로 변환하여 사용. (Lazy Loading 사용)
     2. N + 1등 성능 이슈가 발생하면 Fetch Join 사용.
-    3. 필드가 매우 많아 그래도 해결되지 않는다면 DTO로 직접 조회하는 방법 사용.
+    3. 필드가 매우 많아 그래도 해결되지 않는다면 DTO로 직접 조회하여 핏하게 가져오는 방법 사용.
     4. JPA 가 제공하는 네이티브 SQL 이나 스프링 JDBC Template 를 사용하여 직접 SQL 사용.
 
 # 📌 주문 조회(orderItems 포함)
@@ -484,7 +477,7 @@ static class OrderItemDto{
 ```
 - Order 엔티티만을 Dto로 변환하는데 그치지 않고, Order 엔티티 내부에 있는 엔티티들 또한 Dto로 변경해주어야 한다.
 - 내부에 엔티티가 있으면 똑같이 프록시가 들어가 null이 들어가고, 강제 초기화를 시켜주어야 한다.
-- Order를 불러올때 N+1(delivery,member), OrderItems를 불러올때 N+1(item) 이 발생하여 무수히 많은 쿼리가 실행된다.
+- Order를 불러올때 N+1(delivery,member), OrderItems를 불러올때 N+1(item) 이 발생하여 무수히 많은 쿼리가 실행되기 때문에 주의하자.
 
 ## 🧐 V3 - FetchJoin
 ```java
@@ -510,19 +503,20 @@ public List<Order> findOrdersWithMemberAndDeliveryAndItem(OrderSearch orderSearc
 - orderItems 와 Item을 fetchJoin.
 - 컬렉션을 조인(OneToMany)하게 되면 데이터가 증가한다.(order id=1인 orderItem이 2개라면 order id=1인 데이터가 2번 조회된다.)
 - distinct()를 추가하여 중복된 데이터를 제거해준다.
-  - 실제 row는 join된 item이 다르기 때문에 DB상으로는 다르지만 java 엔티티 객체상으로는 같기 때문에(id가 동일) 제거된다.(원래의 distinct 기능 외에 JPA의 기능이 추가되어 있다.)
+  - 실제 row는 join된 item이 다르기 때문에 DB상으로는 다르지만 java 엔티티 객체상으로는 같기 때문에(식별자가 동일) 제거된다.
+    (원래의 distinct 기능 외에 JPA 에서는 애플리케이션 단에서 중복을 제거하는 기능이 추가되어 있다.)
   
 ### 🖍 단점: 페이징이 불가능해진다.
-  - firstResult, maxResult를 설정해도, 메모리에서 실행할 것이라는 경고문구가 발생하고, 메모리에서 페이징 처리를 한다.
+  - firstResult, maxResult를 설정해도, 메모리에서 실행할 것이라는 경고문구가 발생하고, **메모리에서 페이징 처리를 한다.**
     - 그러나 데이터의 수가 많아지면 OOM가 발생하고, 메모리로 이러한 데이터를 올린다는 것 자체가 위험하다.
   - distinct 또한 제대로 적용되지 않기 때문에 내가 원하는 데이터를 가지고 페이징할 수 없다.(row의 데이터가 다름.)
 
   - 컬렉션 fetch join은 1개만 사용할 수 있다.(1 : N : N 등 불가능.)
 
-## 🧐 V3.1 컬렉션 조회 페이징과 한계 돌파
+## 🧐 V3.1 컬렉션 조회 페이징 한계 해결.
 1. -ToOne 관계는 데이터가 증가하지 않으므로, fetchJoin을 걸어준다.
 2. 컬렉션은 지연 로딩으로 조회.
-3. 지연로딩 성능 최적화를 위해 ```spring.jpa.properties.hibernate.default_batch_fetch_size``` 또는 @BatchSize(size = n)를 적용한다.(batchSize만큼 미리 가져온다.)
+3. 지연로딩 성능 최적화를 위해 ```spring.jpa.properties.hibernate.default_batch_fetch_size``` 또는 ```@BatchSize(size = n)``` 를 적용한다.(batchSize만큼 한번에 가져온다.)
    - in (?, ?, ... ?) 쿼리가 발생하며 설정한 수 만큼 미리 가져온다.
     ```sql
     where
@@ -540,7 +534,17 @@ public List<Order> findOrdersWithMemberAndDeliveryAndItem(OrderSearch orderSearc
 
 
 ## 🧐 V4 - DTO로 바로 조회하기.
+```java
+public List<OrderQueryDto> findOrderDto(){
+        List<OrderQueryDto> orders = findOrder();
 
+        orders.stream()
+                .forEach(o-> o.setOrderItems(findOrderItems(o)));
+        return orders;
+}
+```
+Order에 존재하는 OrderItem 또한 Dto로 변환해 주어야 한다.
+Order를 DTO에 담아 바로 조회하고, Order를 순회하면서 order id를 이용하여 OrderItem을 조회하여 넣어준다.
 ```java
 public List<OrderQueryDto> findOrder() {
         JPAQueryFactory query = new JPAQueryFactory(em);
@@ -557,7 +561,7 @@ public List<OrderQueryDto> findOrder() {
                 .fetch();
 }
 ```
-- order DTO에 담아 바로 조회한다.
+Order를 DTO에 담아 바로 조회한다.
 ```java
 private List<OrderItemQueryDto> findOrderItems(OrderQueryDto o) {
         JPAQueryFactory query = new JPAQueryFactory(em);
@@ -572,17 +576,8 @@ private List<OrderItemQueryDto> findOrderItems(OrderQueryDto o) {
                 .join(orderItem.item, item)
                 .fetch();
 }
-
-public List<OrderQueryDto> findOrderDto(){
-        List<OrderQueryDto> orders = findOrder();
-
-        orders.stream()
-                .forEach(o-> o.setOrderItems(findOrderItems(o)));
-        return orders;
-}
 ```
-- 이전에 조회한 order에 order의 id를 이용하여 orderItem 을 조회하여 넣어준다.
-- orderItem 또한 DTO에 담아서 조회한다.
+OrderItem 또한 DTO에 담아서 조회한다.
 
 #### 🖍 N + 1 : foreach를 돌리며 각각 조회하기 때문에 N + 1 쿼리 문제가 발생한다.
 
@@ -630,7 +625,7 @@ private Map<Long, List<OrderItemQueryDto>> DtoToMap(List<OrderItemQueryDto> orde
 - order를 미리 조회한 후 OrderItem을 in 절을 이용하여 조회한다.
 - in 절을 이용하여 모든 order id에 대해 한번에 조회가 되기 때문에 N+1 문제가 발생하지 않는다.
 - 그러나 조회한 OrderItem 은 모든 order에 대한 OrderItem이기 때문에 order에 맞게 분배해주는 전처리가 필요하다.
-    - orderId를 key로 Map으로 변환한 후에 order에 맞게 넣어준다.
+    - Map<OrderId, OrderItem> 의 형태로 담고, Order을 순회하면서 orderId로 Map에서 OrderItem을 꺼내 넣어준다.
     
 
 
@@ -668,7 +663,7 @@ public Result<OrderQueryDto> ordersV6(){
             .collect(Collectors.groupingBy(o -> new OrderQueryDto(o.getOrderId(), o.getUsername(), o.getOrderDate(), o.getStatus(), o.getAddress()),
                     Collectors.mapping(o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), Collectors.toList())));
 
-    // key에는 Order, value에서는 orderItem을 꺼내 사용할 수 있다.
+    // Order 필드 값들과 List<orderItemQueryDto>을 가지고 있는 객체
     List<OrderQueryDto> orderDtos = collect.entrySet().stream()
             .map(e -> new OrderQueryDto(e.getKey().getOrderId(), e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getStatus(), e.getKey().getAddress(),
                     e.getValue()))
@@ -679,8 +674,9 @@ public Result<OrderQueryDto> ordersV6(){
 }
 ```
 - API 스펙에 맞춰 데이터 가공.
-- 플랫데이터를 그대로 반환하면 orderItem에 맞춰 데이터가 생성되기 때문에 member, address등에서 중복이 발생한다.
-    - ![img.png](img.png)
+- 플랫데이터를 그대로 반환하면 orderItem에 맞춰 데이터가 생성되기 때문에 member, address 등에서 중복이 발생한다.   
+  
+    ![img.png](img.png)
 
 ### 🔑 정리
 - 장점 : 단 한번의 쿼리로 데이터를 가져온다.
@@ -694,11 +690,11 @@ public Result<OrderQueryDto> ordersV6(){
     - 엔티티를 조회해서 그대로 반환
     - 엔티티로 조회후 DTO로 반환
     - 패치 조인으로 쿼리 수 최적화(xToOne)
-    - 컬렉션과 페이징
+    - 컬렉션(xToMany)과 페이징
         - 컬렉션은 패치 조인시 페이징이 불가능.(메모리에서 페이징, 데이터 증가.)
         - ToOne 관계는 패치 조인으로 쿼리 수를 최적화하고, 컬렉션은 지연 로딩으로 설정 후 batch size 를 이용하여 최적화.
             - ```spring.jpa.properties.hibernate.default_batch_fetch_size: ```
-            - ```@BatchSize(size =)``` 
+            - ```@BatchSize(size = n)``` 
     
 - ### DTO 로 바로 조회
     - JPA에서 DTO를 직접 조회.(jpql의 new 또는 querydsl의 Projections)
