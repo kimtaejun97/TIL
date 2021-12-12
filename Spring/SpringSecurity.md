@@ -1,5 +1,11 @@
-# 📌 Spring Security
-****
+# 📃 목차
+- ### [Security 인증 과정](#-spring-security-인증과정)
+- ### [Spring Security Custom](#-spring-security-custom)
+- ### [인증 객체 가져오기](#-인증-객체-가져오기)
+- ### [Remember-Me](#remember-me)
+- ### [테스트에서 사용자 인증](#-테스트에서-사용자-인증)
+## 📌 Spring Security 인증과정
+***
 ![img.png](img/img.png)
 
 ### 🤔 인증(Authorization)과 인가(Authetication)
@@ -149,7 +155,7 @@ class or Method
 > 유저 정보를 직접 넣어주어 테스트.
 
 
-# 📌 Spring Security Custom
+## 📌 Spring Security Custom
 ***
 
 ## 1. extends WebSecurityConfigurerAdapter
@@ -270,12 +276,16 @@ bcrypt는 blowfish 암호를 기반으로 설계된 암호화 함수이다. blow
 > > hash(12344567+salt)-> cafcabaekkb
 > > 매번 다른 값이 나옴.
 
+- password의 비교.
+```java
+passwordEncoder.matches(String rawPassword, String encodedPassword)
+```
 
-
-## 🧐 @AuthenticationPrincipal
+## 📌 인증 객체 가져오기
 ***
 현재 인증되어있는 사용자를 가져오기 위해서는 Principal 이나 @AuthenticationPrincipal 를 사용할 수 있다
 
+### 🧐 Principal
 ```java
 @GetMapping("/test")
 public String principal(Principal principal){
@@ -287,6 +297,7 @@ Principal은 자바 표준 객체이다. 하지만 우리가 해당 객체에서
  @AuthenticationPrincipal을 이용하면 UserDetailsService 에서 반환하는
 객체를 받아 사용할 수 있다. 
 
+### 🧐 @AuthenticationPrincipal
 ```java
 @GetMapping("/test")
 public String principal(@AuthenticationPrincipal User user){
@@ -344,7 +355,7 @@ public @interface CurrentUser {
 }
 ```
 
-## 🧐 Remember-Me
+## 📌 Remember-Me
 ***
 기본적으로 Session의 타임 아웃은 30분으로 설정되어 있다.
 ```properties
@@ -441,6 +452,59 @@ public class PersistentLogins {
 자동 로그인을 설정하면 Persistent_login 테이블에 정보가 저장된다.
 username, 토큰, 시리즈가 저장된 것을 확인 할 수 있다. 토큰을 탈취 당하게 되면
 사용자는 username과 시리즈, 유효하지 않은 토큰으로 접속을 시도하고, 이 때 모든 토큰 정보를 제거해 해커가 접속하지 못하도록 막는다.
+
+## 📌 테스트에서 사용자 인증
+***
+테스트의 진행을 위해서 사용자의 인증이 필요할 때가 있다 이 때 사용되는 어노테이션이
+```@WithMockUser```이다.
+
+```java
+@WithMockUser(username = "kimtaejun", password = "123123123", roles = "USER")
+```
+하지만 이외에 다른 정보를 커스텀하게 설정하고 싶다면 ```@WithSecurityContext``` 를 사용할 수 있다.
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@WithSecurityContext(factory = WithAccountSecurityContextFactory.class )
+public @interface WithAccount {
+    String value();
+}
+```
+value : username
+```java
+@RequiredArgsConstructor
+public class WithAccountSecurityContextFactory implements WithSecurityContextFactory<WithAccount> {
+
+    private final AccountService accountService;
+
+    @Override
+    public SecurityContext createSecurityContext(WithAccount withAccount) {
+
+        // {-- DB에 새 계정 저장 --}
+        
+        // UserDetails 객체 생성
+        UserDetails principal = accountService.loadUserByUsername(withAccount.value());
+        
+        // Authetication 객체 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
+        
+        // Context에 인증 객체 저장.(로그인)
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+
+        return context;
+    }
+}
+```
+- 테스트를 진행할 때 특정 컨택스트가 등록되어 있어야하는 테스트의 경우(로그인) Securitycontext를 생성하여 등록한 후 테스트를 진행할 수 있다.
+> 1. 계정 생성
+> 2. UserDetails 객체 생성. (구현체인 springSecurity.core.User)
+> 3. 인증 토큰 생성(principal, password, Authorities)
+> 4. Security Context를 생성하고 인증토큰을 등록.
+
+class 단위로 ```WithMockUser``` , ```WithSecurityContext```를 사용하고 특정 메서드에서는 인증이 되지 않은 상태로 테스트 하고 싶다면
+메서드에서 ```@WithAnonymousUser```를 사용할 수 있다.
+
 
 <br><br><br>
 > - https://doozi0316.tistory.com/entry/Spring-Security-Spring-Security%EC%9D%98-%EA%B0%9C%EB%85%90%EA%B3%BC-%EB%8F%99%EC%9E%91-%EA%B3%BC%EC%A0%95
