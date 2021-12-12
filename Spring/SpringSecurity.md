@@ -12,7 +12,7 @@
 스프링 시큐리티에서는 인증 과정을 먼저 거친 후에 인가 절차를 진행하게 된다. 인증 과정에서는 사용자의 여부를, 인가 과정에서는
 리소스에 대한 접근 권한을 확인한다.
 
-### 🤔 Authetication
+### 🤔 Authetication 객체
 Authentication은 현재 접근 하는 주체의 정보와 권한을 담는 인터페이스 이다. 해당 객체는 Security Context에 저장하여 보관한다.
 getCredentials(), getPrincipal(), setAuthenticated(), isAuthenticated() 등의 메소드가 있다.
 
@@ -20,7 +20,7 @@ getCredentials(), getPrincipal(), setAuthenticated(), isAuthenticated() 등의 �
 #### 1. 로그인 정보 Http Request
 - 스프링 시큐리티는 연결된 일련의 필터들을 가지고 있다. 요청은 인증과 권한 부여를 위해 필터들을 통과하게 되고,
 해당 요청과 관련된 인증 필터에 도착할때 까지 진행된다.
-- 로그인 폼 서브밋 요청은 UsernamePasswordAuthenticationFiliter에 도달할 대까지 필터체인을 통과하게 된다.
+- 로그인 폼 서브밋 요청은 UsernamePasswordAuthenticationFiliter에 도달할 때 까지 필터체인을 통과하게 된다.
 - AutheticationFilter 에서는 사용자의 JSESSIONID가 Context에 있는지 확인하고 없다면 로직을 수행한다.
 
 #### 2. AuthenticationFilter 에서 요청을 가로채 UsernamePasswordAuthenticationToken 생성.
@@ -117,8 +117,7 @@ UserDetailsService 에서는 DB에 저장된 회원의 비밀번호를 조회하
     - 웹 시큐리티
     - 메소드 시큐리티
     - 다양한 인증 밥법 지원 : LDAP, 폼 인증, Basic 인증, OAuth, ...
-
-
+    
 - ### 스프링 부트 시큐리티 자동 설정
     - SecurityAutoConfiguration : 사실상 spring boot 에서 변경한 부분은 별로 없다.
     - UserDetatilsSeviceAutoConfiguration :
@@ -130,8 +129,7 @@ UserDetailsService 에서는 DB에 저장된 회원의 비밀번호를 조회하
     - password : application을 실행 할 때 마다 생성되는 랜던 값(console에 출력됨.)
     - spring.security.username
     - spring.security.password
-
-
+    
 - ## 스프링 시큐리티 Test
 ```xml
 <dependency>
@@ -185,8 +183,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 }
 ```
-> - confugure 메소드를 오버라이딩 하여 접근 권한, 로그인 폼 등 설정.을
-> > hasRole 에서 자동으로 앞에 ROLE_ 을 붙여주기 때문에 .name()으로 가져옴.
+- configure 메소드를 오버라이딩 하여 접근 권한, 로그인 폼 등 설정. @EnableWebSecurity에 @Configuration이 포함되어 있다. 
+- hasRole 에서 자동으로 앞에 ROLE_ 을 붙여주기 때문에 .name()으로 가져옴.
 
 ## 1-1 @EnableGlobalMethodSecurity()
 1번과 같이 HttpSecurity를 이용하여 한번에 접근 권한을 지정할수도 있지만 애노테이션을 이용하여 따로 접근 권한을 지정할 수 있다.
@@ -200,11 +198,10 @@ public void adminPage(){...}
 
 @Secured("ROLE_ADMIN")
 public void adminPage(){...}
-
 ```
 
 
-## 2. implements UserDatailsService
+## 2. implements UserDetailsService
 ```java
 @Service
 public class AccountService implements UserDetailsService {
@@ -236,8 +233,10 @@ public class AccountService implements UserDetailsService {
     }
 }
 ```
-> - 유저에 대한 클래스인 User을 Spring Security에서 지원. 사용자가 입력한 정보와 DB에 저장된 유저 정보를 비교하고 존재하면 ROLE 부여.
-> - getKey()값으로 권한을 생성.
+- UserDetails를 구현한 User 클래스를 SpringSecurity에서 지원.
+  사용자가 입력한 정보와 DB에 저장된 유저 정보를 비교하고 존재하면 ROLE 부여.
+- 개발자는 UserDetailsServicedml loadUserByUsername() 메서드를 구현하여 DB에서 username 으로 정보를 찾는다.
+    Provider 에서는 반환받은 User 객체를 이용하여 사용자가 입력한 패스워드와 비교. 
 
 ## 3.Password Encode
 ```java
@@ -448,7 +447,7 @@ public class PersistentLogins {
 - JdbcTokenRepositoryImpl에서 토큰을 저장할 PersistentLogin 테이블을 생성해준다.
 - JdbcTokenRepositoryImpl class 에서 확인할 수 있다.
 
-![img.png](img.png)
+![img.png](img.png)     
 자동 로그인을 설정하면 Persistent_login 테이블에 정보가 저장된다.
 username, 토큰, 시리즈가 저장된 것을 확인 할 수 있다. 토큰을 탈취 당하게 되면
 사용자는 username과 시리즈, 유효하지 않은 토큰으로 접속을 시도하고, 이 때 모든 토큰 정보를 제거해 해커가 접속하지 못하도록 막는다.
@@ -509,6 +508,6 @@ class 단위로 ```WithMockUser``` , ```WithSecurityContext```를 사용하고 �
 <br><br><br>
 > - https://doozi0316.tistory.com/entry/Spring-Security-Spring-Security%EC%9D%98-%EA%B0%9C%EB%85%90%EA%B3%BC-%EB%8F%99%EC%9E%91-%EA%B3%BC%EC%A0%95
 > - https://mangkyu.tistory.com/7
-> - 인프런 백기선님 SpringBoot 강의.
+> - https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8#curriculum
 > - https://jusths.tistory.com/158
 > - https://ncucu.me/137
