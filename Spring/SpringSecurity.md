@@ -271,8 +271,82 @@ bcrypt는 blowfish 암호를 기반으로 설계된 암호화 함수이다. blow
 > > 매번 다른 값이 나옴.
 
 
+
+## 🧐 @AuthenticationPrincipal
+
+현재 인증되어있는 사용자를 가져오기 위해서는 Principal 이나 @AuthenticationPrincipal 를 사용할 수 있다
+
+```java
+@GetMapping("/test")
+public String principal(Principal principal){
+    String principalName = principal.getName();
+    ...
+}
+```
+Principal은 자바 표준 객체이다. 하지만 우리가 해당 객체에서 가져올 수 있는 것은 name 밖에 없다.
+ @AuthenticationPrincipal을 이용하면 UserDetailsService 에서 반환하는
+객체를 받아 사용할 수 있다. 
+
+```java
+@GetMapping("/test")
+public String principal(@AuthenticationPrincipal User user){
+    user.getUsername();
+    user.getPassword();
+    user.getAuthorities();
+    ...
+}
+```
+User 객체를 가져오기 때문에 name 이외에 password, 권한 등도 가져올 수 있다.
+하지만 이런 정보보다 보통 원하는 것은 DB에 저장된 사용자의 정보일 것이다.
+엔티티 객체는 다음과 같이 가져올 수 있다.
+
+
+```java
+@AuthenticationPrincipal(expression = "#this =='anonymousUser' ? null :account")
+```
+User인증이 되지 않으면 Principal 은 "anonymousUser"라는 문자열이다.
+인증이 되어있지 않다면 null을 인증이 되어있다면 principal에서 account 객체를 꺼내 넘겨준다.
+
+```java
+@Getter
+public class UserAccount extends User {
+
+    private Account account;
+
+    public UserAccount(Account account) {
+        super(account.getNickName(), account.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        this.account =account;
+    }
+}
+```
+- account 라는 필드명은 @AuthenticationPrincipal의 account 와 매핑된다.
+- @AuthenticationPrincipal은 UserDetailsService에서 반환하는 객체는 UserDetails 타입의 객체이다.
+때문에 이를 구현한 클래스인 User를 상속받는다.
+
+```java
+@Override
+public UserDetails loadUserByUsername(String nameOrEmail) throws UsernameNotFoundException {
+        Account account = accountRepository.findByNameOrEmail(nameOrEmail);
+        checkIfAccountExists(nameOrEmail, account);
+        return new UserAccount(account);
+}
+```
+userDetailsService의 loadUserByUsername() 에서 반환도 UserAccount 객체를 반환하도록 변경한다.   
+
+Account 객체를 주입받기위한 @AuthenticationPrincipal(...)이 너무 길다. 이를 따로 애노테이션으로 생성해주자.
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+@AuthenticationPrincipal(expression = "#this =='anonymousUser' ? null :account")
+public @interface CurrentUser {
+
+}
+```
+
 <br><br><br>
 > - https://doozi0316.tistory.com/entry/Spring-Security-Spring-Security%EC%9D%98-%EA%B0%9C%EB%85%90%EA%B3%BC-%EB%8F%99%EC%9E%91-%EA%B3%BC%EC%A0%95
 > - https://mangkyu.tistory.com/7
-> -  인프런 백기선님 SpringBoot 강의.
-> -  https://jusths.tistory.com/158
+> - 인프런 백기선님 SpringBoot 강의.
+> - https://jusths.tistory.com/158
+> - https://ncucu.me/137
