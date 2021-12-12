@@ -680,7 +680,7 @@ public class PersistentLogins {
     </button>
 </div>
 ```
-- RedirectAttribute 를 이용하여 리다이렉트 할 때 데이터를 전달할 수 있다.
+- redirect할 때는 Model에 데이터를 담아도 넘어가지 않는다. 이때 RedirectAttribute 를 이용하여 리다이렉트 할 때 데이터를 전달할 수 있다.
 - FlashAttribute 는 한번 사용하고 사라지는 일회성 데이터.
 - model에 추가된 어트리뷰트처럼 사용하면 된다.
 
@@ -726,8 +726,6 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
 > 4. Security Context를 생성하고 인증토큰을 등록.
 
 
-
-
 # 📌 프로필 이미지
 ***
 ```html
@@ -742,12 +740,6 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
 - String 타입으로 이미지를 받을 수 있다.  HTML의 DataURL 이미지는 data:image로 시작
 - ``` if (!e.target.result.startsWith("data:image"))``` 처럼 이미지인지 확인 가능.
 - server.tomcat.max-http-form-post-size=5MB 와같이 설정하여 form으로 전송가능한 이미지 크기 변경가능.
-
-# 📌 패스워드 비교
-****
-```java
-passwordEncoder.matches(String rawPassword, String encodedPassword)
-```
 
 # 📌 체크박스 값 전달
 ****
@@ -854,7 +846,6 @@ grant all privileges on database {dbname} to {username};
 
 # 📌 sql debug
 ****
-
 ```properties
 spring.jpa.properties.hibernate.format_sql=true
 logging.level.org.hibernate.SQL = DEBUG
@@ -872,7 +863,7 @@ logging.level.org.hibernate.type.descriptor.sql.BasicBinder = TRACE
 spring.mail.host = smtp.gmail.com
 spring.mail.port=587
 spring.mail.username =kimtaejun9705@gmail.com
-spring.mail.password = ntszbexsramcvvvs
+spring.mail.password ={생성된 패스워드}
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.timeout=5000
 spring.mail.properties.mail.smtp.starttls.enable=true
@@ -881,7 +872,7 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 
 
 ### 대체 서비스
-- https//mailchimp.com/
+- https://mailchimp.com/
 - https://sendgrid.com/
 - https://www.mailgun.com/ 
 - https://aws.amazon.com/ses/
@@ -911,13 +902,12 @@ public class HtmlEmailService implements EmailService{
 
         }catch (MessagingException e){
             log.error("failed to send email : ",e);
-
         }
-
     }
 }
 ```
-- MimeMessage를 생성하고, 이를 Helper로 감싼 후  TO, Subject,Text를 설정, text의 두번째 인자값은 html 여부.
+- MimeMessage를 생성하고, 이를 Helper로 감싼 후 To, Subject, Text 등 기본 정보값 세팅.
+- Helper 생성자의 두번째 인자는 Multipart의 여부이고, text의 두번째 인자값은 html인지.
 
 
 ```java
@@ -934,6 +924,7 @@ public class EmailMessage {
 - Email data를 넣을 클래스를 생성하였고, 이를 send의 파라미터로 전달해준다.
 
 ```java
+// Context 세팅
 Context context = new Context();
 context.setVariable("nickName",account.getNickName() );
 context.setVariable("link" ,"/check-email-token?token="+ account.getEmailCheckToken()
@@ -942,14 +933,17 @@ context.setVariable("linkName","이메일 인증하기.");
 context.setVariable("message","이메일 인증을 완료하려면 아래 링크를 클릭하세요.");
 context.setVariable("host",appProperties.getHost());
 
+// context 값이 들어간 html 파일 생성.
 String message = templateEngine.process("mail/simple-link", context);
 
+// EmailMessage 생성
 EmailMessage emailMessage = EmailMessage.builder()
         .to(account.getEmail())
         .subject("스터디 웹 회원 인증")
         .text(message)
         .build();
 
+// EmailServie의 구현체의 send 실행.
 emailService.send(emailMessage);
 ```
 - 템플릿 엔진을 사용하여 html 파일을 만들고, TemplateEngine.process("html", context)
@@ -1030,7 +1024,7 @@ public class AppProperties {
     })
 </script>
 ```
-- 엘리먼트.tooltip, title 속성의 값이 툴팁 메시지가 된다.
+- 엘리먼트.tooltip, title 속성의 값이 툴팁 메시지가 된다.    
 ![img_3.png](img/img_3.png)
 
 # 📌 EntityGraph
@@ -1106,7 +1100,8 @@ private Study getStudy(String path) {
     return study;
 }
 ```
--url로 권한이 없는 사용자가 접근하거나, 잘못된 Path로 접근하는 것을 처리.
+- url로 권한이 없는 사용자가 접근하거나, 잘못된 Path로 접근하는 것을 처리.
+- @ExceptionHandler에서 예외 처리가 가능하다.
 
 # 📌 BootStrap:Modal
 ***
@@ -1169,7 +1164,10 @@ private Study getStudy(String path) {
 - 서버의 형식인 YYYY-MM-DD`T`hh:mm 을 포매팅해준다.
 - 상대 시간 ( 25분전 )도 가능.
 - https://momentjs.com/ 참조.
-
+```java
+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
+```
+로 서버에 저장되는 날짜 형식도 변경할 수 있다.
 
 # 📌 타임리프 : 객체의 타입 변환
 ****
@@ -1205,7 +1203,7 @@ private List<Enrollment> enrollments;
     List<Event> findByStudyOrderByStartDateTime(Study study);
 ```
 - EntityGraph를 이용하여 Event들이 조회될 때 enrollments를 같이 가져오도록 한다.
-- #### [leftjoin](#-페이징) 으로도 해결할 수 있다.  
+- #### [fetchJoin](#-페이징) 으로도 해결할 수 있다.  
 
 # 📌 Form Delete Method
 ***
@@ -1247,7 +1245,7 @@ public String acceptUser(@PathVariable("eventId") Event event, @PathVariable("en
 # 📌 패키지 구조 정리
 ****
 
-### - 아키텍쳐 테스트 유틸리
+### - 아키텍쳐 테스트 유틸리티 : ArchUnit
 ```xml
 <dependency>
     <groupId>com.tngtech.archunit</groupId>
