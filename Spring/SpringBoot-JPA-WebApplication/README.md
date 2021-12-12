@@ -256,28 +256,6 @@ JavaMailSender javaMailSender;
     }
 ```
 
-# 📌 패스워드 인코딩
-****
-> - 스프링 시큐리티에서 권장하는 PasswordEncoder는 bycrypt 해시 알고리즘을 사용.
-> - 솔트(salt) : 해커가 이미 여러개의 해싱 알고리즘을 사용하여 저장해놓고, 해시값에서 비밀번호를 추론할 수 있기 때문에 이를 방지하기 위해 고안. 
-> > hash(12345678) -> aaaabbbb    
-> > hash(12344567+salt)-> aacabaebb    
-> > hash(12344567+salt)-> cafcabaekkb
-> > 매번 다른 값이 나옴.
-```java
-@Bean
-public PasswordEncoder passwordEncoder(){
-    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-}
-```
-- Test
-```java
-Account account =accountRepository.findByEmail("correct@email.com");
-
-assertNotEquals(account.getPassword(), "12345678");
-```
-
-
 # 📌 인증 메일 확인
 *****
 ```java
