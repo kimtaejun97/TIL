@@ -273,7 +273,7 @@ bcrypt는 blowfish 암호를 기반으로 설계된 암호화 함수이다. blow
 
 
 ## 🧐 @AuthenticationPrincipal
-
+***
 현재 인증되어있는 사용자를 가져오기 위해서는 Principal 이나 @AuthenticationPrincipal 를 사용할 수 있다
 
 ```java
@@ -343,6 +343,104 @@ public @interface CurrentUser {
 
 }
 ```
+
+## 🧐 Remember-Me
+***
+기본적으로 Session의 타임 아웃은 30분으로 설정되어 있다.
+```properties
+server.servlet.session.timeout=30m
+```
+RememberMe는 세션이 만료 되더라도 로그인을 유지하기 위해 사용하는 방법이다.
+쿠키에 인증 정보를 남겨두고 세션이 만료되면 쿠키에 남아있는 정보로 인증을 시도한다.
+
+- 해시 기반의 쿠키
+> - UserName
+> - Password
+> - 만료기간
+> - Key
+> - 쿠키를 탈취당하면 그 계정을 탈취당한 것과 같다.
+
+- 조금 더 안전하게 관리하기
+> - 쿠키 안에 랜덤한 token을 만들어 같이 저장하고 인증 때마다 변경.
+> - Username, 토큰
+> - 해당 방법도 취약, 해커가 쿠키로 인증을 하게되면 원 사용자는 인증할 수 없게 됨.
+
+- 개선된 방법
+> - UserName, Token(랜덤, 매번 변경), 시리즈(랜덤,고정)
+> - 쿠키를 탈취 당하면 원 사용자는 유효하지 않은 토큰과 유효한 시리즈,UserName 으로 접속하게 되고, 이 경우, 모든 토큰을 삭제하여 해커가 더이상 쿠키를 사용하지 못하도록 방지할 수 있다.
+
+
+- ### 스프링 시큐리티 설정 : 해시 기반
+```java
+http.rememberMe().key("랜덤 키값");
+```
+
+- ### 스프링 시큐리티 설정: 개선된 영속화 기반 설정.
+
+```html
+<div class="form-grop form-check">
+    <input type="checkbox" class="form-check-input" id="rememberMe", name="remember-me" checked>
+    <label class="form-check-label" for="rememberMe" aria-describedby="rememberMeHelp">로그인 유지</label>
+</div>
+```
+- name 을 remember-me로 주고 check box가 true 값이면 remember-me 기능 실행.
+
+```java
+@RequiredArgsConstructor
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final UserDetailsService userDetailsService;
+    private final DataSource dataSource;
+
+    @Override
+    protected void configure(HttpSecurity http) {
+        
+        http.rememberMe()
+                .userDetailsService(userDetailsService)
+                .tokenRepository(tokenRepository());
+    }
+
+    private PersistentTokenRepository tokenRepository() {
+        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+        tokenRepository.setDataSource(dataSource);
+
+        return tokenRepository;
+    }
+}
+
+```
+- RememerMe를 사용하기 위해서는 userDetailsService와 TokenRepository를 넘겨주어야 한다.\
+  여기서는 UserDetilasService를 구현한 AccountService를 넘겨 주었다.
+
+```java
+@Getter @Setter
+@Table(name = "persistent_logins")
+@Entity
+public class PersistentLogins {
+
+    @Id
+    @Column(length = 64)
+    private String series;
+
+    @Column(nullable = false, length = 64)
+    private String username;
+
+    @Column(nullable = false, length = 64)
+    private String token;
+
+    @Column(name = "last_used",nullable = false, length = 64)
+    private LocalDateTime lastUsed;
+}
+```
+- JdbcTokenRepositoryImpl에서 토큰을 저장할 PersistentLogin 테이블을 생성해준다.
+- JdbcTokenRepositoryImpl class 에서 확인할 수 있다.
+
+![img.png](img.png)
+자동 로그인을 설정하면 Persistent_login 테이블에 정보가 저장된다.
+username, 토큰, 시리즈가 저장된 것을 확인 할 수 있다. 토큰을 탈취 당하게 되면
+사용자는 username과 시리즈, 유효하지 않은 토큰으로 접속을 시도하고, 이 때 모든 토큰 정보를 제거해 해커가 접속하지 못하도록 막는다.
 
 <br><br><br>
 > - https://doozi0316.tistory.com/entry/Spring-Security-Spring-Security%EC%9D%98-%EA%B0%9C%EB%85%90%EA%B3%BC-%EB%8F%99%EC%9E%91-%EA%B3%BC%EC%A0%95
