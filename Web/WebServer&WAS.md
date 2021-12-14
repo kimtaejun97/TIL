@@ -92,11 +92,12 @@ WAS를 수평적으로 증설할 수 있게된다.
 
 하지만 서버가 API만 제공하는 서버라면 굳이 웹 서버를 구축할 필요성이 없다.
 
-![img_2.png](img/img_4.png)    
+![img_2.png](img/img_4.png)
+
 동적인 컨텐츠를 제공해야 한다면 클라이언트의 요청을 웹 서버에서 받아 이를 WAS에게 위임한다.
-WAS 에서는 Thread Pool 에서 서블릿에 대한 스레드를 생성하게 되고, HttpServletRequest와 HttpServletResponse 객체를 생성해 서블릿에게 전달한다.
-스레드는 서블릿이 service() 메서드를 호출하고, service 메서드에서는 요청에 따라 doGet() 또는 doPost() 메서드를 호출한다.
-두 메서드에서는 실행 결과로 발생한 동적 컨텐츠를 Response 객체에 담아 WAS에 전달하게 되고, WAS 에서는 이를 HttpResonse 형태로 변경하여 웹 서버로 전달한다.
+WAS는 Thread Pool 에서 Thread 를 할당받아 서블릿을 실행시키고, HttpServletRequest와 HttpServletResponse 객체를 생성해 서블릿에게 전달한다.
+스레드는 서블릿의 service() 메서드를 호출한다. service 메서드에서는 요청에 따라 doGet() 또는 doPost() 등의 메서드를 호출한다.
+메서드에서는 실행 결과로 발생한 동적 컨텐츠를 Response 객체에 담아 WAS에 전달하게 되고, WAS 에서는 이를 HttpResonse 형태로 변경하여 웹 서버로 전달한다.
 
 
 
