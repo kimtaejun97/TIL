@@ -147,7 +147,7 @@
 - 통신 이전에 논리적인 접속을 성립하기 위해 3 Way HandShake를 사용.
 
 > 1. 클라이언트가 서버에 SYN 패킷 전송.(sequence=x) -> 서버야 들려?
-> 2. 서버에서 SYN(sequence=x) 패킷을 수신 하고 응답으로 SYN(sequence=y, ack=x+1)을 전송. -> 응 들려, 너도 들려?
+> 2. 서버에서 SYN(sequence=x) 패킷을 수신 하고 응답으로 ACK(sequence=y, ack=x+1)를 전송. -> 응 들려, 너도 들려?
 > 3. 클라이언트에서 SYN(seqence=y, ack=x+1)을 수신하고 ACK(sequence=y+1)을 전송.
 > - 서버에서 ACK(sequence=y+1) 를 receive.
 
