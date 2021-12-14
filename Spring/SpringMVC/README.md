@@ -276,6 +276,18 @@ JSON에서는 스펙상 utf-8 형식을 사용하도록 정의되어 있어, 인
 ***
 Servlet에 대해 알아보았으니 이를 이용하여 간단한 회원가입 웹 애플리케이션을 만들어보자.
 ```java
+@Override
+    protected void service(HttpServletRequest reqest, HttpServletResponse response) throws ServletException, IOException {
+        String method = reqest.getMethod();
+        if(method.equals(METHOD_POST) ){
+            doPost(reqest,response);
+        }
+        else if(method.equals(METHOD_GET)){
+            doGet(reqest, response);
+        }
+    }
+```
+```java
  @Override
 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Member member = makeMemberObj(request);
@@ -294,7 +306,13 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 doGet(), doPost() 오버라이딩 하였다. 요청이 들어오면 HTTP 메서드를 검사해 알맞은 메서드를 호출해준다.
 doGet() 에서는 text/html 타입으로 회원가입 폼을 보여주고 doPost() 에서는 HTML Form 형식으로 데이터를 받아 Repository에 저장한다.
 
-또한, 저장된 회원 목록을 볼 수 있도록 GET 방식으로 리스트를 조회했을 때 text/html 타입으로 돌려주도록 작성하였다.
+
+요청이 발생하면 먼저 service()가 실행되게 된다. 실제로 HandlerAdapter가 컨트롤러의
+메서드를 실행하면 service() 메서드를 실행하게 되고, service() 에서는 메서드에 맞게 doGet(), doPost()를 실행해준다.
+오버라이딩 하지 않아도 상위 클래스의 service() 메서드에서도 HttpMethod에 맞게 메서드를 실행시켜 주지만
+눈으로 확인할 수 있도록 오버라이딩 해주었다. 위의 코드에서 service() 메서드를 빼도 정상적으로 작동한다.
+
+저장된 회원 목록을 볼 수 있도록 GET 방식으로 리스트를 조회했을 때 text/html 타입으로 돌려주도록 작성하였다.
 아래는 html을 작성하는 코드이다.
 ```java
 private void setBody(HttpServletResponse response, ArrayList<Member> members) throws IOException {

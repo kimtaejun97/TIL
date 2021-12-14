@@ -3,6 +3,7 @@ package com.servlet.web.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.servlet.domain.member.Member;
 import com.servlet.domain.member.MemberRepository;
+import org.springframework.http.HttpMethod;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,6 +18,19 @@ public class MemberFormServlet extends HttpServlet {
 
     private MemberRepository memberRepository = MemberRepository.getInstance();
     private ObjectMapper objectMapper = new ObjectMapper();
+    private final String METHOD_POST = "POST";
+    private final String METHOD_GET = "GET";
+
+    @Override
+    protected void service(HttpServletRequest reqest, HttpServletResponse response) throws ServletException, IOException {
+        String method = reqest.getMethod();
+        if(method.equals(METHOD_POST) ){
+            doPost(reqest,response);
+        }
+        else if(method.equals(METHOD_GET)){
+            doGet(reqest, response);
+        }
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
