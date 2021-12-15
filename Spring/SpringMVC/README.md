@@ -1245,3 +1245,48 @@ private MyView viewResolver(String viewName) {
 ```
 프론트 컨트롤러에서는 request 객체에 담긴 파라미터를 Map으로 변환하고 컨트롤러에게는 이를 파라미터로 전달한다.
 컨트롤러에서 ModelAndView 객체를 반환하면 ViewResolver 를 통해 뷰의 물리적 이름을 알아내고, 뷰를 랜더링한다.
+
+
+
+### ☝️ ModelAndView 대신 ViewName으로 반환
+지금까지 서블릿의 종속성과 뷰 경로의 중복 등을 제거하였다. 하지만 인터페이스를 구현해야하는 개발자 입장에서
+항상 ModelAndView 객체를 생성하고, 반환하는 부분은 조금 번거롭게 느껴진다. 이러한 부분을 String인 ViewName을 반환하는 것으로
+변경해보자.
+
+대부분 비슷하지만 몇 가지가 달라진다. 컨트롤러에서는 ViewName을 반환할 것이고 이를 위해서는 Model객체를 파라미터로 전달해야 한다.
+```java
+public interface ControllerV4 {
+    /**
+     * @param params
+     * @param model
+     * @return viewName
+     */
+
+    String process(Map<String, String> params, Map<String, Object> model);
+}
+```
+인터페이스에 2번째 파라미터인 model이 추가된 것을 확인할 수 있다. 개발자는 이제 ModelAndView 객체를 생성하여 결과값을 넣어 반환하는 것이 아니라.
+파라미터로 전달받은 model에 결과겂을 넣어주기만 하면 된다.
+
+
+```java
+ @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    
+        ...
+        
+        Map<String, String> params = createParamMap(request);
+        HashMap<String, Object> model = new HashMap<>();
+        String viewName = controller.process(params, model);
+
+        MyView view = viewResolver(viewName);
+        view.render(model, request, response);
+    }
+```
+프론트 컨트롤러의 역할도 거의 동일하다. 달라진 점이라면 Model을 생성하여 process의 인자로 넣어주고 컨트롤러에게서는 viewName 만을 받는다.
+
+간단한 변경만으로 조금 더 사용하기 쉬운 인터페이스로 변경되었다.   
+점점 우리가 알던 Spring MVC와 가까워지고 있다. 아직 다른점이 있다면 지금 만들어진 프레임워크는 유연성이 떨어진다.
+Spring 에서는 String 으로 ViewName 만을 반환하는 것이 아니라 다양한 반환값을 사용할 수 있다. 이를 위해서는 Adapter를 이용하여
+개선하게 된다.
+
