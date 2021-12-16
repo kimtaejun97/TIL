@@ -85,7 +85,7 @@ request.getHeaderNames().asIterator()
 ```
 getHeaderNames()를 이용하여 모든 헤더네임을 가져올 수 있고, getHeader(String name)으로 해당 이름의 헤더값을 가져올 수 있다.    
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 
 ```java
@@ -415,7 +415,7 @@ Repository의 접근이나 비즈니스 로직은 각각에 집중 할 수 있�
 변경 라이프사이클 자체도 다르고, 하나의 파일에 모든 코드가 들어있기 때문에 유지보수가 매우 어렵다.   
 때문에, 로직과 뷰를 분리할 필요가 있고 이때 사용되는 것이 MVC 패턴이다.
 
-![img_1.png](img_1.png)    
+![img_1.png](img/img_1.png)    
 
 - 모든 요청은 컨트롤러를 통한다. 컨트롤러는 파라미터를 검증하고 비즈니스 로직을 실행한 후. 결과 데이터를 모델에 전달한다.
 - 모델은 뷰에 출력할 데이터를 담아두는 역할을 한다. 모델이 있기 때문에 비즈니스 로직과 뷰 코드를 분리할 수 있다.
@@ -507,7 +507,7 @@ MVC 프레임워크의 핵심은 프론트 컨트롤러라고 말 할 수 있다
 Spring MVC의 DispatcherServlet이 바로 프론트 컨트롤러 패턴으로 구현되어 있다.    
 
 ### ☝️ 구조의 변경
-![img_2.png](img_2.png)     
+![img_2.png](img/img_2.png)     
 개선해야할 것이 너무 많기 때문에 하나씩 개선해보도록 하자, 먼저기존 로직을 유지하며 구조만을 변경하기 위해
 Map 과 다형성을 이용하여 프론트 컨트롤러를 구현하였다.
 
@@ -552,7 +552,7 @@ ulrPatterns 에서 * 을 사용하여 하위 모든 URL을 매핑한다. 이로�
 적절한 컨트롤러를 찾아 해당 컨트롤러를 호출하고, 컨트롤러에서는 로직을 실행하게 된다.
 
 ### ☝️ View 분리
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 구조는 개선하였지만 아직 중복 코드가 남아있다 dispatcher 에서 forward()를 호출하는 부분이 각 컨트롤러에서
 실행되고 있기 때문에 모든 컨트롤러에서 동일한 코드가 등장한다. 이를 View 객체에서 실행 할 수 있도록 개선한다.
 
@@ -579,7 +579,7 @@ forward()를 호출한다..
 
 
 ### ☝️ Model 객체 추가
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 
 모든 컨트롤러는 HttpServletRequest와 사용하지도 않았던 HttpServletResponse 를 파라미터로 받았었다.
 때문에 컨트롤러는 서블릿에 종속적이었고, Request 객체 의 사용법 또한 알았어야 했다.    
@@ -714,7 +714,7 @@ request.getHeaderNames().asIterator()
 ```
 getHeaderNames()를 이용하여 모든 헤더네임을 가져올 수 있고, getHeader(String name)으로 해당 이름의 헤더값을 가져올 수 있다.
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 
 ```java
@@ -1026,7 +1026,7 @@ Repository의 접근이나 비즈니스 로직은 각각에 집중 할 수 있�
 변경 라이프사이클 자체도 다르고, 하나의 파일에 모든 코드가 들어있기 때문에 유지보수가 매우 어렵다.   
 때문에, 로직과 뷰를 분리할 필요가 있고 이때 사용되는 것이 MVC 패턴이다.
 
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 - 모든 요청은 컨트롤러를 통한다. 컨트롤러는 파라미터를 검증하고 비즈니스 로직을 실행한 후. 결과 데이터를 모델에 전달한다.
 - 모델은 뷰에 출력할 데이터를 담아두는 역할을 한다. 모델이 있기 때문에 비즈니스 로직과 뷰 코드를 분리할 수 있다.
@@ -1118,7 +1118,7 @@ MVC 프레임워크의 핵심은 프론트 컨트롤러라고 말 할 수 있다
 Spring MVC의 DispatcherServlet이 바로 프론트 컨트롤러 패턴으로 구현되어 있다.
 
 ### ☝️ 구조의 변경
-![img_2.png](img_2.png)     
+![img_2.png](img/img_2.png)     
 개선해야할 것이 너무 많기 때문에 하나씩 개선해보도록 하자, 먼저기존 로직을 유지하며 구조만을 변경하기 위해
 Map 과 다형성을 이용하여 프론트 컨트롤러를 구현하였다.
 
@@ -1163,7 +1163,7 @@ ulrPatterns 에서 * 을 사용하여 하위 모든 URL을 매핑한다. 이로�
 적절한 컨트롤러를 찾아 해당 컨트롤러를 호출하고, 컨트롤러에서는 로직을 실행하게 된다.
 
 ### ☝️ View 분리
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 구조는 개선하였지만 아직 중복 코드가 남아있다 dispatcher 에서 forward()를 호출하는 부분이 각 컨트롤러에서
 실행되고 있기 때문에 모든 컨트롤러에서 동일한 코드가 등장한다. 이를 View 객체에서 실행 할 수 있도록 개선한다.
 
@@ -1190,7 +1190,7 @@ forward()를 호출한다..
 
 
 ### ☝️ Model 객체 추가
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 
 모든 컨트롤러는 HttpServletRequest와 사용하지도 않았던 HttpServletResponse 를 파라미터로 받았었다.
 때문에 컨트롤러는 서블릿에 종속적이었고, Request 객체 의 사용법 또한 알았어야 했다.    
@@ -1299,7 +1299,7 @@ Spring 에서는 String 으로 ViewName 만을 반환하는 것이 아니라 다
 어떤 개발자는 ModelAndView 객체를 반환하도록 개발하고 싶고, 어떤 개발자는 ViewName을 반환하도록 개발하고 싶다면 어떻게 해야할까?
 두 컨트롤러는 다른 인터페이스이기 때문에 호환이 불가능하다. 이때 어댑터 패턴을 사용해서 다양한 방식의 컨트롤러를 처리할 수 있도록 변경할 수 있다.
 
-![img_7.png](img_7.png)
+![img_7.png](img/img_7.png)
 요청을 받으면 프론트 컨트롤러 서블릿에서는 핸들러를 조회하고, 해당 핸들러를 처리할 수 있는 핸들러 어댑터를 목록에서 조회한다.
 이 때 support() 메서드를 호출하여 처리 가능한지 확인한다.
 
@@ -1383,3 +1383,8 @@ protected void service(HttpServletRequest request, HttpServletResponse response)
 처리 가능여부는 support() 메서드를 호출하여 확인한다.
 
 이로서 여러 URL로 오는 요청을 받아 다양한 타입의 컨트롤러로 유연하게 처리해주는 프레임워크가 완성되었다.
+
+
+<br><br><br>
+
+> - https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-mvc-1

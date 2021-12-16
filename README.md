@@ -13,7 +13,7 @@
 - ### [Spring 과 AWS로 혼자 구현하는 웹 서비스](https://github.com/kimtaejun97/SpringBoot-AWS)
 - ### [Spring Security](./Spring/SpringSecurity.md)
 - ### [AOP](./Spring/AOP.md)
-- ### [Spring MVC](./Spring/MVC.md)
+- ### [Spring MVC](Spring/SpringMVC/MVC.md)
 <br>
 
 ## 📚 JPA
@@ -47,6 +47,7 @@
 - ### [WebSocket, WebRTC](webrtc)
 - ### [REST API](Web/REST_API.md)
 - ### [웹 서버와 WAS](Web/WebServer&WAS.md)
+- ### [Servlet과 간단한 MVC 프레임워크](Spring/SpringMVC/Servlet과MVC프레임워크.md)
 - ### [CSR&SSR&SPA](Web/CSR&SSR&SPA.md)
 
 <br>

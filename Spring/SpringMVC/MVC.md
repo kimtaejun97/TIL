@@ -1,5 +1,5 @@
 # 📌 Spring MVC
-![img.png](img/img_2.png)     
+![img.png](../img/img_2.png)     
 > Spring MVC의 동작 흐름도.
 
 처리 순서는 다음과 같다
