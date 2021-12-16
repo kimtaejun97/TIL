@@ -10,6 +10,7 @@ import com.servlet.web.frontcontroller.v4.MemberListControllerV4;
 import com.servlet.web.frontcontroller.v4.MemberSaveControllerV4;
 import com.servlet.web.frontcontroller.v5.adapter.ControllerV3HandlerAdapter;
 import com.servlet.web.frontcontroller.v5.adapter.ControllerV4HandlerAdapter;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -78,6 +79,7 @@ public class FrontControllerV5 extends HttpServlet {
         }
         throw new IllegalArgumentException("요청을 처리할 수 있는 HandlerAdapter를 찾을 수 없습니다. handler = " + handler);
     }
+    DispatcherServlet
 
     private MyView viewResolver(String viewName) {
         return new MyView("/WEB-INF/views/" + viewName + ".jsp");

@@ -19,17 +19,102 @@
 클라이언트의 요청을 가장 앞에서 처리하는 중앙 서블릿이다. 여러가지 컴포턴트들을 가지고 있으며, 이들에게 처리를 위임한다.
 클라이언트의 요청을 받아 HandlerMapping에게 Handler를 찾아줄 것을 요청한다.
 
-### ☝️ HandlerMapping
-HandlerMapping 에서는 요청을 처리할 수 있는 컨트롤러를 찾아 오고 미리 등록된 HandlerAdapter 목록을 순회하며, 이를 처리할 HadlerAdapter 를 찾는다. 
+DispatcherServlet -> FrameworkSerblet -> HttpServletBen -> HttpServlet 의 구조로 상속되어 있다.    
+결국 중요한 것은 DispatcherServlet은 HttpServlet을 상속받았다는 것이다. 때문에 HttpSevlet의 기능을 모두 사용할 수 있다.
+기본적으로 모든 경로에 대해 매핑되어 있다. 다른 서블릿도 함께 동작하는데 이는 자세한 경로가 더 우선순위가 높기 때문이다.
 
+서블릿이 호출되면 HttpServlet이 제공하는 service()가 호출된다. 여러 로직들이 실행되는데 가장 중요한 것은
+doDispatch() 메서드이다.
+다음은 doDispach() 메서드의 일부이다.
+```java
+protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    try {
+        // Determine handler for the current request.
+        mappedHandler = getHandler(processedRequest);
+        if (mappedHandler == null) {
+            noHandlerFound(processedRequest, response);
+            return;
+        }
+
+        // Determine handler adapter for the current request.
+        HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
+        
+
+        if (!mappedHandler.applyPreHandle(processedRequest, response)) {
+            return;
+        }
+
+        // Actually invoke the handler.
+        mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+
+        if (asyncManager.isConcurrentHandlingStarted()) {
+            return;
+        }
+
+        mappedHandler.applyPostHandle(processedRequest, response, mv);
+        
+        processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
+    }
+}
+```
+큰 흐름만을 보기 위해 예외 처리와 같은 다른 부수적인 코드는 제거하였다.   
+처음에 getHandler() 메서드를 실행하여 요청에 맞는 핸들러를 찾아온다. 그 다음에 해당 핸들러를 처리할 수 있는 어댑터를 getHandlerAdapter()메서드를 이용하여 가져온다.
+가져온 핸들러의 handle() 메서드를 실행하여 핸들러에서 요청을 처리한다. 결과 값으로는 ModelAndView 객체를 반환 받는다.
+실행전에 HandlerInterceptor 인 PreHandler()를 실행하는 것도 확인할 수 있다.
+
+반환받은 ModelAndView 객체에서 ViewName을 가져오고 processDispatchResult() 메서드를 실행한다.
+실행전에 PostHandler()를 실행 한다. processDispatchResult()를 확인해보면 View를 랜더링 하는 부분을 확인할 수 있다.    
+```render(mv, request, response);```
+
+
+### ☝️ HandlerMapping
+HandlerMapping 에서는 요청을 처리할 수 있는 컨트롤러를 찾아 오고 미리 등록된 HandlerAdapter 목록을 순회하며, 이를 처리할 HadlerAdapter 를 찾는다.
+
+DispatcherServlet은 다양한 HandlerMapping을 리스트로 가지고 있다.
+
+```java
+// matchingBeans.values()는 HandlerMapping Interface 타입. HandlerMapping 들은 이를 구현한다.
+this.handlerMappings = new ArrayList<>(matchingBeans.values());
+```
+1. RequestMappingHandlerMapping
+    > - 스프링의 기본 핸들러 맵핑, @RequestMapping, @Controller 애노테이션이 붙은 컨트롤러를 처리한다. 
+2. SimpleUrlHandlerMapping
+    > - URL과 Controller를 직접 맵핑
+3. BeanNameUrlHandlerMapping
+    > - URL과 Bean 이름을 가지고 컨트롤러와 맵핑
+4. ControllerBeanNameHandlerMapping
+    > - Bean의 아이디나 이름을 이용해 맵핑    
+    > - ex) @Component("test") -> /test 와 맵핑.
+5. ControllerClassNameHandlerMapping
+    > - URL과 Controller 명을 일정한 규칙으로 맵핑
+    > - ex) main/* -> MainController에서 처리.
+6. DefaultAnnotaitonHandlerMapping
+    > - @RequestMapping 어노테이션을 이용하여 요청을 처리할 컨트롤러를 구현한다.
+    > - ex) RequestMapping("/test")
+    > RequestMappingHandlerMapping이 나오면서 Deprecated 되어간다. 
+
+
+HandlerMapping은 Handler들의 Map을 가진다.
+```java
+// RequestMappingHandlerMapping, prefixe Map을 가진다.
+private Map<String, Predicate<Class<?>>> pathPrefixes = Collections.emptyMap();
+
+// SimpleUrlHandlerMapping, <URL, Handler>의 Map을 가진다.
+private final Map<String, Object> urlMap = new LinkedHashMap<>();
+```
 ### ☝️ HandlerAdapter
 핸들러 어댑터는 컨트롤러의 메서드를 실행하여 실제 요청을 처리한다. 이를 위해 다양한 핸들러 어댑터가 서블릿에 미리 등록되어 있다.
+```java
+//matchingBeans.values()는 HandlerAdapters Interface 타입. Adapter 들은 해당 인터페이스를 구현한다.
+this.handlerAdapters = new ArrayList<>(matchingBeans.vaues());
+```
+
 - HttpRequestHandlerAdapter
 - SimpleControllerHandlerAdapter
 - **RequestMappingHandlerAdapter**
 - HandlerFunctionAdapter
 
-이중 주로 스프링에서 사용하는 @RequestMapping 애노테이션에서 동작하는 어댑터는 3번쨰 RequestMappingHandlerAdapter 이다.    
+이중 주로 스프링에서 사용하는 @RequestMapping 애노테이션에서 동작하는 어댑터는 이름에서도 알 수 있듯 3번째 RequestMappingHandlerAdapter 이다.    
 @GetMapping, @PostMapping 등의 어노테이션에도 @RequestMapping 이 포함되어 있다.
 
 핸들러 어댑터는 먼저 요청을 받아 HTTP Method값을 확인하여 처리 가능한지 확인하고, 없다면 예외를 발생시킨다.
@@ -92,3 +177,4 @@ public class ExceptionAdvice {
 > - https://codingnotes.tistory.com/28
 > - https://velog.io/@jihoson94/Spring-MVC-HandlerAdapter-%EB%B6%84%EC%84%9D%ED%95%98%EA%B8%B0
 > - https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-exceptionhandlers
+> - http://www.mungchung.com/xe/spring/21278
