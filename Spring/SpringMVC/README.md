@@ -6,6 +6,11 @@
 - ### [JSP를 사용한 웹 애플리케이션](#-jsp를-사용한-웹-애플리케이션)
 - ### [MVC 패턴](#-mvc-패턴)
 - ### [MVC 프레임워크](#-mvc-프레임워크)
+    - #### FrontController
+    - #### View의 분리
+    - #### Model 객체 추가
+    - #### ViewName으로 반환
+    - #### Adapter 사용
  
 # 📌 Servlet
 ****
@@ -1290,3 +1295,91 @@ public interface ControllerV4 {
 Spring 에서는 String 으로 ViewName 만을 반환하는 것이 아니라 다양한 반환값을 사용할 수 있다. 이를 위해서는 Adapter를 이용하여
 개선하게 된다.
 
+### ☝️ Adapter 사용
+어떤 개발자는 ModelAndView 객체를 반환하도록 개발하고 싶고, 어떤 개발자는 ViewName을 반환하도록 개발하고 싶다면 어떻게 해야할까?
+두 컨트롤러는 다른 인터페이스이기 때문에 호환이 불가능하다. 이때 어댑터 패턴을 사용해서 다양한 방식의 컨트롤러를 처리할 수 있도록 변경할 수 있다.
+
+![img_7.png](img_7.png)
+요청을 받으면 프론트 컨트롤러 서블릿에서는 핸들러를 조회하고, 해당 핸들러를 처리할 수 있는 핸들러 어댑터를 목록에서 조회한다.
+이 때 support() 메서드를 호출하여 처리 가능한지 확인한다.
+
+처리 가능한 핸들러 어댑터를 찾으면 핸들러 어댑터에서 핸들러를 호출하여 요청을 처리한다. 반환값은 모든 핸들러에서 공통적으로
+ModelAndView 객체를 반환하도록 한다. 프론트 컨트롤러에서는 ModelAndView 객체를 받아 ViewResolver에서 View를 찾아오고
+이를 랜더링하여 응답으로 보여준다.
+
+```java
+public interface MyHandlerAdapter {
+    /***
+     * @param handler
+     * @return ModelView
+     */
+    boolean supports(Object handler);
+
+    ModelView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws ServletException, IOException;
+}
+```
+### - HandlerAdapter
+```java
+@Override
+public boolean supports(Object handler) {
+    return handler instanceof ControllerV4;
+}
+
+@Override
+public ModelView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws ServletException, IOException {
+    ControllerV4 controller = (ControllerV4) handler;
+
+    Map<String, String> params = createParamMap(request);
+    Map<String, Object> model = new HashMap<>();
+    String viewName = controller.process(params, model);
+
+    return createModelView(model, viewName);
+}
+```
+핸들러 어댑터에서는 핸들러를 받아 요청을 처리하고 ModelAndView 객체를 반환한다.
+
+
+```java
+@Override
+protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    Object handler = getHandler(request);
+    if(handler == null){
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        return;
+    }
+
+    MyHandlerAdapter handlerAdapter = getHandlerAdapter(handler);
+
+    ModelView modelView = handlerAdapter.handle(request, response, handler);
+    MyView view = viewResolver(modelView.getViewName());
+
+    view.render(modelView.getModel(), request, response);
+}
+```
+
+### - FrontControllerServlet
+```java
+private final Map<String, Object> handlerMappings = new HashMap<>();
+private final List<MyHandlerAdapter> handlerAdapters = new ArrayList<>();
+
+@Override
+protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    Object handler = getHandler(request);
+    if(handler == null){
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        return;
+    }
+
+    MyHandlerAdapter handlerAdapter = getHandlerAdapter(handler);
+
+    ModelView modelView = handlerAdapter.handle(request, response, handler);
+    MyView view = viewResolver(modelView.getViewName());
+
+    view.render(modelView.getModel(), request, response);
+}
+```
+프론트 컨트롤러에서는 미리 등록된 핸들러 맵핑 정보와 핸들러 어댑터 목록에서 각각 핸들러와 핸들러 어댑터를 조회한다.
+핸들러는 요청 URL에 따라 선택되고, 선택된 핸들러를 처리할 수 있는 핸들러 어댑터를 가져온다.
+처리 가능여부는 support() 메서드를 호출하여 확인한다.
+
+이로서 여러 URL로 오는 요청을 받아 다양한 타입의 컨트롤러로 유연하게 처리해주는 프레임워크가 완성되었다.

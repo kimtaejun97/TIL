@@ -27,8 +27,6 @@ public class FrontControllerV4 extends HttpServlet {
         controllers.put(LIST_VIEW_PATH, new MemberListControllerV4());
     }
 
-   ㅊ
-
     private Map<String, String> createParamMap(HttpServletRequest request) {
         Map<String, String> params = new HashMap<>();
         request.getParameterNames().asIterator()
