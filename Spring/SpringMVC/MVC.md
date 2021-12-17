@@ -84,7 +84,7 @@ this.handlerMappings = new ArrayList<>(matchingBeans.values());
     > - URL과 Bean 이름을 가지고 컨트롤러와 맵핑
 4. ControllerBeanNameHandlerMapping
     > - Bean의 아이디나 이름을 이용해 맵핑    
-    > - ex) @Component("test") -> /test 와 맵핑.
+    > - ex) @Component("/test") -> /test 와 맵핑.
 5. ControllerClassNameHandlerMapping
     > - URL과 Controller 명을 일정한 규칙으로 맵핑
     > - ex) main/* -> MainController에서 처리.
@@ -106,13 +106,17 @@ private final Map<String, Object> urlMap = new LinkedHashMap<>();
 핸들러 어댑터는 컨트롤러의 메서드를 실행하여 실제 요청을 처리한다. 이를 위해 다양한 핸들러 어댑터가 서블릿에 미리 등록되어 있다.
 ```java
 //matchingBeans.values()는 HandlerAdapters Interface 타입. Adapter 들은 해당 인터페이스를 구현한다.
-this.handlerAdapters = new ArrayList<>(matchingBeans.vaues());
+this.handlerAdapters = new ArrayList<>(matchingBeans.values());
 ```
 
 - HttpRequestHandlerAdapter
+  > HttpRequestHandler Interface 처리.
 - SimpleControllerHandlerAdapter
+  > Controller Interface 처리.
 - **RequestMappingHandlerAdapter**
+  > @RequestMapping 애노테이션 처리.
 - HandlerFunctionAdapter
+    > Web Flux 요청 처리.
 
 이중 주로 스프링에서 사용하는 @RequestMapping 애노테이션에서 동작하는 어댑터는 이름에서도 알 수 있듯 3번째 RequestMappingHandlerAdapter 이다.    
 @GetMapping, @PostMapping 등의 어노테이션에도 @RequestMapping 이 포함되어 있다.
@@ -169,8 +173,20 @@ public class ExceptionAdvice {
 ### ☝️ ViewResolver
 실제 뷰를 랜더링 하고 반환한다.
 
-- UrlBasedViewResolver: redirect 등 ViewName이 아닌 URL로 뷰를 설정한다.
-- InternalResourceViewResolver: JSP를 뷰 기술로 이용할 경우 등록한다. 가장 마지막에 오는 리졸버. 
+- BeanNameViewResolver
+  > 빈 이름으로 뷰를 찾아 반환한다.
+- UrlBasedViewResolver
+  > redirect 등 ViewName이 아닌 URL로 뷰를 설정한다.
+- ThymeleafViewResolver
+  > 타임리프 이용시 사용되는 리졸버.
+- InternalResourceViewResolver
+  > - JSP를 뷰 기술로 이용할 경우 등록한다. 가장 마지막에 오는 리졸버.
+  > ```properties
+  > # 아래와 같이 설정 정보를 사용해서 등록한다.
+  > spring.bvc.view.prefix=/WEB-INF/view/
+  > spring.mvc.view.suffix=.jsp
+  > ```
+  > - View Interface를 구현한 InternalResourceView 를 반환한다. -> forward() 호출.
 
 
 <br><br><br>

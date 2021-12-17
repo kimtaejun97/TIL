@@ -79,7 +79,6 @@ public class FrontControllerV5 extends HttpServlet {
         }
         throw new IllegalArgumentException("요청을 처리할 수 있는 HandlerAdapter를 찾을 수 없습니다. handler = " + handler);
     }
-    DispatcherServlet
 
     private MyView viewResolver(String viewName) {
         return new MyView("/WEB-INF/views/" + viewName + ".jsp");
