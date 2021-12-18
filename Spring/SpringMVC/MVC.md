@@ -1,4 +1,5 @@
-# 📌 Spring MVC
+
+# 📌 Spring MVC 구조
 ![img.png](../img/img_2.png)     
 > Spring MVC의 동작 흐름도.
 
@@ -198,6 +199,69 @@ public class ExceptionAdvice {
   > spring.mvc.view.suffix=.jsp
   > ```
   > - View Interface를 구현한 InternalResourceView 를 반환한다. -> forward() 호출.
+
+
+# 📌 Spring MVC 기본 기능
+
+## 🧐 요청 매핑
+
+### ☝️ 기본 매핑
+```java
+@RequestMapping(value = {"/hello", "/hello2"})
+```
+기본 적인 RequestMapping ```{}``` 를 이용하여 여러개의 url을 매핑할 수도 있다.
+
+### ☝️ 메서드 지정
+```java
+@RequestMapping(value = "/mapping-get", method = RequestMethod.GET)
+
+@GetMapping("/mapping-get")
+```
+@RequestMapping 의 method 속성값을 이용하여 메서드를 지정할 수 있다.
+Spring 에서는 이를 합쳐둔 @GetMapping과 같은 애노테이션을 지원해준다. 실제로 @GetMapping 애노테이션의 선언부분을 보면
+다음과 같은 부분을 확인 할 수 있다.```@RequestMapping(method = RequestMethod.GET)```
+Post, Delete, Put, Patch 또한 존재한다.
+
+### ☝️ PathVariable
+```java
+@GetMapping("/mapping/{userId}")
+public String mappingPath(@PathVariable String userId){
+    ...
+}
+```
+경로에 ```{}``` 와 같이 쓰고, 파라미터 명을 일치시키면 해당 자리에 들어간 값을 파라미터에 넣어준다.
+```@PathVariable("userId") String id``` 와 같이 사용하여 파라미터명을 다르게 설정할 수도 있다.
+
+### ☝️ Params 조건
+```java
+@GetMapping(value = "/mapping-param", params = "mode=debug")
+public String mappingParam(@RequestParam("mode") String mode){
+    ...
+}
+```
+```params``` 속성을 이용하여 쿼리 파라미터의 조건을 지정한다. '=', '!=', '!' 와 같이 지정할 수 있으며, mode와 같이 쿼리 파라미터의
+이름만을 적으면 해당 파라미터 이름이 있는지를 본다. 조건에 맞지 않으면 요청을 받지 않는다.(400 Bad Request 발생.)
+
+
+### ☝️ Headers 조건
+```java
+@GetMapping(value = "/mapping-header", headers = "mode=debug")
+public String mappingHeader(@RequestHeader("mode") String mode){
+    ...
+}
+```
+Params와 유사하다. Headers 에서는 헤더의 조건을 검사한다.
+
+### ☝️ Content-Type, Accept 헤더 조건
+```java
+@PostMapping(value = "/mapping-consume", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_HTML_VALUE)
+public String mappingConsumes(){
+    ...
+}
+```
+```consumes``` 는 Content-Type 을, ```produces``` 는 Accept 헤더에 조건을 건다.   
+consumes 와 일치하지 않으면 415 Unsupported Media Type 에러가, produces와 일치하지 않으면 406 Not Acceptable 에러가 발생한다.
+
 
 
 <br><br><br>
