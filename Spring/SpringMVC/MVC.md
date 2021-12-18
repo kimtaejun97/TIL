@@ -76,8 +76,17 @@ DispatcherServlet은 다양한 HandlerMapping을 리스트로 가지고 있다.
 // matchingBeans.values()는 HandlerMapping Interface 타입. HandlerMapping 들은 이를 구현한다.
 this.handlerMappings = new ArrayList<>(matchingBeans.values());
 ```
-1. RequestMappingHandlerMapping
-    > - 스프링의 기본 핸들러 맵핑, @RequestMapping, @Controller 애노테이션이 붙은 컨트롤러를 처리한다. 
+1. **RequestMappingHandlerMapping**
+    > - 스프링의 기본 핸들러 맵핑, @RequestMapping, @Controller 애노테이션이 붙은 컨트롤러를 처리한다.
+    ```java
+    @Override
+    protected boolean isHandler(Class<?> beanType) {
+        return (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class) ||
+                AnnotatedElementUtils.hasAnnotation(beanType, RequestMapping.class));
+    }
+    ```
+    > - RequestMappingHandlerMapping 은 ```@Controller``` 나 ```@Component(빈 등록용) + @RequestMapping```
+    가 클래스 레벨에서 사용될때 선택된다.
 2. SimpleUrlHandlerMapping
     > - URL과 Controller를 직접 맵핑
 3. BeanNameUrlHandlerMapping
@@ -109,17 +118,19 @@ private final Map<String, Object> urlMap = new LinkedHashMap<>();
 this.handlerAdapters = new ArrayList<>(matchingBeans.values());
 ```
 
+- **RequestMappingHandlerAdapter**
+  > @RequestMapping 애노테이션 처리.
 - HttpRequestHandlerAdapter
   > HttpRequestHandler Interface 처리.
 - SimpleControllerHandlerAdapter
   > Controller Interface 처리.
-- **RequestMappingHandlerAdapter**
-  > @RequestMapping 애노테이션 처리.
 - HandlerFunctionAdapter
     > Web Flux 요청 처리.
 
 이중 주로 스프링에서 사용하는 @RequestMapping 애노테이션에서 동작하는 어댑터는 이름에서도 알 수 있듯 3번째 RequestMappingHandlerAdapter 이다.    
 @GetMapping, @PostMapping 등의 어노테이션에도 @RequestMapping 이 포함되어 있다.
+
+ex) ```@GetMapping``` == ```@RequestMapping(method = RequestMethod.GET)```, 편리하게 사용하기 위한 애노테이션을 위한 애노테이션.
 
 핸들러 어댑터는 먼저 요청을 받아 HTTP Method값을 확인하여 처리 가능한지 확인하고, 없다면 예외를 발생시킨다.
 또한 세션을 이용하는지 확인하여 세션이 존재한다면 mutex 를 이용하여 Thread-Safe하게 처리할 수 있도록 한다.    
