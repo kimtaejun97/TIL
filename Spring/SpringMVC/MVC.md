@@ -264,6 +264,109 @@ consumes 와 일치하지 않으면 415 Unsupported Media Type 에러가, produc
 
 
 
+## 🧐 Method Arguments
+```java
+@GetMapping("/headers")
+public String headers(HttpServletRequest request,
+                      HttpServletResponse response,
+                      HttpMethod httpMethod,
+                      Locale locale,
+                      @RequestHeader MultiValueMap<String, String> headers, /* MultiValueMap: 하나의 키에 여러 값을 받을 수 있다(배열)*/
+                      @RequestHeader("host") String host,
+                      @CookieValue(value = "cookieName", required = false) String cookie){
+
+    ...
+}
+```
+HttpMethod, Locale, cookie, Content-Type 등의 헤더 정보를 가져올 수 있다. MultiValueMap을 이용하여 한번에 가져올 수도 있으며,
+각각을 받거나 ```@RequestHeader("headerName")``` 로 특정 헤더를 받아올 수 있다.
+
+스프링에서는 Request, Response, HttoSession, Principal 등을 메서드 인자로 사용할 수 있도록 지원해준다.
+InputStream, OutputStream 을 이용하여 요청 본문의 전체를 읽을 수도 있고, 응답을 작성할 수도 있다.
+이 외에도 다양한 애노테이션과 파라미터, 응답 형식을 지원한다. 자세한 내용은 아래 스프링 공식 문서에서 확인 할 수 있다.
+
+> - https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-arguments
+
+
+### ☝️ 요청 파라미터
+GET 메서드 방식에서의 쿼리 파라미터, POST 방식의 HTML Form 전송은 동일한 형식을 가지고, 이를 요청 파라미터라고 한다.
+Spring MVC에서 요청 파라미터를 받는 방법을 알아보자.
+
+### - HttpServletRequest
+```java
+@RequestMapping("/request-param")
+public void requestParam(HttpServletRequest request, HttpServletResponse response) throws IOException{
+    String username=request.getParameter("username");
+    int age=Integer.parseInt(request.getParameter("age"));
+
+    ...
+}
+```
+Servlet 에서와 동일하게 HttpServletRequest 객체에서 파라미터 이름으로 조회할 수 있다.
+
+### - @RequestParam
+```java
+@RequestMapping("/request-param")
+public String requestParam(@RequestParam("username") String name,
+                           @RequestParam("age") int age){
+    ...
+}
+```
+```@RequestParam``` 애노테이션을 이용한다. 요청 파라미터의 이름과 메서드 파라미터의 이름을 동일하게 한다면 요청 파라미터 이름은 생략이 가능하고(```@RequestParam String username```),
+@RequestParam 애노테이션 도한 생략이 가능하다.(```String username```)
+
+```java
+@RequestMapping("/request-param")
+public String requestParam(@RequestParam Map<String, Object> params){
+    ...
+}
+```
+Map으로 받을 수도 있고, MultiValueMap 으로 한 파라미터 이름에 여러개의 값을 받을 수도 있다.   
+참고로 ```@RequestParam String username``` 에서 ```username=kim1&username=kim2``` 같은 여러개의 값을 받을 수는 있다.
+이때는 ```kim1,kim2``` 와 같은 String 값이 된다.
+
+### - @RequestParam 속성(required, defaultValue)
+```java
+@RequestMapping("/request-param")
+public String requestParamAttribute(@RequestParam(required = true, defaultValue = "GUEST") String username,
+                                   @RequestParam(required = false) Integer age){
+    ...
+}
+```
+**required** 속성은 반드시 들어와야 하는지에 대한 지정이다. 기본은 **true**로 설정되어 있으며, 값이 들어오지 않으면 **400 BadRequest** 가 발생한다.
+빈 문자열("") 또한 값이 들어오지 않은 것으로 간주하니 주의가 필요하다.    
+**false**로 설정되어 있으면 값이 들어오지 않아도 에러가 발생하지 않는다. 이때는 파라미터 값을 **null**로 채운다.
+때문에 원시형 자료형을 사용한다면 null을 넣을 수 없어 서버 에러가 발생한다. Wrapper 클래스 타입으로 선언하도록 하자.
+
+**defaultValue**는 값이 들어오지 않았을 때 파라미터에 들어가게 되는 값을 설정한다. 이 때는 빈 문자열 또한 기본값으로 세팅해준다.
+
+
+### - @ModelAttribute
+```java
+@RequestMapping("/model-attribute")
+public String requestParamMap(@ModelAttribute("data") HelloData helloData, Model model){
+    HelloData helloData1 = (HelloData)model.getAttribute("data");
+    
+    ...
+}
+```
+@ModelAttribute 를 이용하여 바로 요청 파라미터 값을 담은 객체를 생성할 수 있다.
+스프링 MVC 에서 대상 객체를 생성하고, 요청 파라미터의 이름으로 객체에서 프로퍼티를 찾는다. 그리고 해당 프로퍼티의 Setter를 호출하여
+값을 바인딩 한다.(필드명과 파라미터 이름이 동일해야 한다.)   
+
+애노테이션은 생략이 가능하다. 애노테이션을 생략하게 되면 int, String, Integer 과 같은 단순 타입은 @RequestParam 으로 적용되고,
+나머지는 @ModelAttribute가 적용된다.(argument resolver로 예외 지정 가능.)
+
+한가지 기능이 더 있는데 @ModelAttribute 의 타겟 객체는 자동으로 Model 객체에 들어간다. 속성값을 주지 않으면 클래스의 카멜케이스로 어트리뷰트 이름이 지정되고,
+속성으로 이름을 지정해줄 수 있다.(위의 예시에서 data와 같이)
+
+
+
+
+
+
+
+
 <br><br><br>
 > - https://codingnotes.tistory.com/28
 > - https://velog.io/@jihoson94/Spring-MVC-HandlerAdapter-%EB%B6%84%EC%84%9D%ED%95%98%EA%B8%B0
