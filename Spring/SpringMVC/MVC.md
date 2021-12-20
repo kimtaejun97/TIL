@@ -362,10 +362,76 @@ public String requestParamMap(@ModelAttribute("data") HelloData helloData, Model
 
 
 
+### ☝️ 요청 메시지
+Http Message Body에 데이터를 직접 담아서 요청한다. 주로 HTTP API 에서 사용된다.
 
+### - HttpServletRequest
+```java
+@PostMapping("/request-body-string")
+public void requestBodyString(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    ServletInputStream inputStream = request.getInputStream();
+    
+    // Stream 은 바이트이기 때문에 항상 인코딩을 지정해 주는 것이 좋다.
+    String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8); 
 
+    response.getWriter().write("OK");
+}
+```
+Servlet 때와 동일하게 HttpServletRequest 객체에서 InputStream 을 얻어와 MessageBody 를 읽어온다.
 
+### - InputStream
+```java
+@PostMapping("/request-body-string")
+public void requestBodyStream(InputStream inputStream, Writer writer) throws IOException {
+    String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
 
+    writer.write("OK");
+}
+```
+스프링의 지원을 받아 InputStream을 바로 파라미터로 받아 이를 사용한다.
+
+### - HttpEntity
+```java
+@PostMapping("/request-body-string")
+public HttpEntity<String> requestBodyEntityV1(HttpEntity<String> httpEntity) throws IOException {
+
+    String messageBody = httpEntity.getBody();
+    HttpHeaders headers = httpEntity.getHeaders();
+
+    return new HttpEntity<>("OK");
+}
+```
+HttpEntity를 사용하여 메시지 본문이나 헤더를 가져올 수 있다. 응답의 본문 또한 설정 가능하다.
+HttpMessageConverter에 의해 동작한다. Http 메시지 <-> String
+
+### - RequestEntity
+```java
+@PostMapping("/request-body-string")
+public HttpEntity<String> requestBodyEntityV2(RequestEntity<String> requestEntity) throws IOException {
+
+    String messageBody = requestEntity.getBody();
+    HttpHeaders headers = requestEntity.getHeaders();
+    String requestMethod = requestEntity.getMethod();
+    String requestUrl = requestEntity.getUrl();
+    
+    return new ResponseEntity<>("OK", HttpStatus.OK);
+}
+```
+HttpEntity를 상속받는다. HttpEntity보다 더 많은 기능(특화된)을 제공한다. 
+
+### - @RequestBody
+```java
+@ResponseBody
+@PostMapping("/request-body-string-v5")
+public String requestBodyAnnotation(@RequestBody String messageBody, @RequestHeader Map<String, Object> headers) throws IOException {
+
+    log.info("message Body = {}", messageBody);
+    log.info("headers = {}", headers);
+
+    return "OK";
+}
+```
+스프링에서 지원하는 @RequestBodym @RequestHeader 애노테이션을 이용하여 본문과 헤더의 내용을 가져온다.
 
 <br><br><br>
 > - https://codingnotes.tistory.com/28

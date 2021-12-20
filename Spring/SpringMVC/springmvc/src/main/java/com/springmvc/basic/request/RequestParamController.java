@@ -1,5 +1,6 @@
 package com.springmvc.basic.request;
 
+import com.springmvc.basic.HelloData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

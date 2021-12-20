@@ -1,4 +1,4 @@
-package com.springmvc.basic.request;
+package com.springmvc.basic;
 
 import lombok.Data;
 
