@@ -1,3 +1,9 @@
+# 📃 목차
+- ### [Spring MVC 구조](#-spring-mvc-구조)
+- ### [Spring MVC 기본기능](#-spring-mvc-기본기능)
+    - #### [요청 매핑](#-요청-매핑)
+    - #### [Method Argument](#-method-argument)
+
 
 # 📌 Spring MVC 구조
 ![img.png](../img/img_2.png)     
@@ -288,7 +294,7 @@ InputStream, OutputStream 을 이용하여 요청 본문의 전체를 읽을 수
 > - https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-arguments
 
 
-### ☝️ 요청 파라미터
+### ☝️ 요청 파라미터 처리
 GET 메서드 방식에서의 쿼리 파라미터, POST 방식의 HTML Form 전송은 동일한 형식을 가지고, 이를 요청 파라미터라고 한다.
 Spring MVC에서 요청 파라미터를 받는 방법을 알아보자.
 
@@ -362,7 +368,7 @@ public String requestParamMap(@ModelAttribute("data") HelloData helloData, Model
 
 
 
-### ☝️ 요청 메시지
+### ☝️ 요청 메시지 처리 - String
 Http Message Body에 데이터를 직접 담아서 요청한다. 주로 HTTP API 에서 사용된다.
 
 ### - HttpServletRequest
@@ -431,7 +437,59 @@ public String requestBodyAnnotation(@RequestBody String messageBody, @RequestHea
     return "OK";
 }
 ```
-스프링에서 지원하는 @RequestBodym @RequestHeader 애노테이션을 이용하여 본문과 헤더의 내용을 가져온다.
+스프링에서 지원하는 @RequestBody, @RequestHeader 애노테이션을 이용하여 본문과 헤더의 내용을 가져온다.
+
+
+### ☝️ 요청 메시지 처리 - JSON
+
+#### - @RequestBody String
+```java
+@ResponseBody
+@PostMapping("/request-body-json")
+private String requestBodyJson(@RequestBody String messageBody) throws JsonProcessingException {
+
+    HelloData helloData = objectMapper.readValue(messageBody, HelloData.class);
+
+    return "OK";
+}
+```
+@RequestBOdy 애노테이션을 이용하여 메시지 바디를 JsonString 으로 받고, ObjectMapper를 이용하여 이를 객체로 변환한다.
+
+#### - @RequestBody Dto
+```java
+@ResponseBody
+@PostMapping("/request-body-json-v3")
+private HelloData requestBodyJsonV3(@RequestBody HelloData helloData){
+    log.info("helloData = {}", helloData);
+
+    return helloData;
+}
+```
+@RequestBody를 이용하여 바로 Dto 객체에 데이터를 담 는다. 이땐 MappingJackson2HttpMessageConverter 가 동작하여 이를 변환해준다.
+@RequestParam과는 달리 애노테이션을 생략할 수 없다. 위에서 설명 했듯 애노테이션을 생략하게 되면 int, String과 같은 타입은 @RequestParam 으로, 나머지는 @ModelAttribute 로
+동작하게 된다.
+
+따라서 애노테이션을 생략하게 되면 요청 파라미터를 처리하게 되므로, 메시지의 바디를 처리할 수 없게 된다.
+해당 객체의 필드는 null, 0 등 필드의 기본값이 된다.
+
+@ResponseBody 애노테이션은 String 뿐만 아니라 객체도 컨버터를 이용하여 Json 형식으로 변환하여 응답을 작성해준다.
+
+
+#### - HttpEntity<Dto>
+```java
+@ResponseBody
+@PostMapping("/request-body-json-v4")
+private String requestBodyJsonV4(HttpEntity<HelloData> entity) throws JsonProcessingException {
+    log.info("helloData = {}", entity.getBody());
+    log.info("headers = {}", entity.getHeaders());
+
+    return "OK";
+}
+```
+애노테이션을 사용하지 않는 방법이 있다. HttpEntity의 제네릭 타입으로 Dto를 사용하는 방법이다.
+getBody(), getHeaders()를 이용하여 데이터를 꺼낼 수 있다.
+
+
 
 <br><br><br>
 > - https://codingnotes.tistory.com/28
