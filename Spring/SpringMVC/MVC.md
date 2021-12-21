@@ -2,7 +2,7 @@
 - ### [Spring MVC 구조](#-spring-mvc-구조)
 - ### [Spring MVC 기본기능](#-spring-mvc-기본기능)
     - #### [요청 매핑](#-요청-매핑)
-    - #### [Method Argument](#-method-argument)
+    - #### [Method Argument](#-method-arguments)
 
 
 # 📌 Spring MVC 구조
@@ -287,209 +287,325 @@ public String headers(HttpServletRequest request,
 HttpMethod, Locale, cookie, Content-Type 등의 헤더 정보를 가져올 수 있다. MultiValueMap을 이용하여 한번에 가져올 수도 있으며,
 각각을 받거나 ```@RequestHeader("headerName")``` 로 특정 헤더를 받아올 수 있다.
 
-스프링에서는 Request, Response, HttoSession, Principal 등을 메서드 인자로 사용할 수 있도록 지원해준다.
+스프링에서는 Request, Response, HttpSession, Principal 등을 메서드 인자로 사용할 수 있도록 지원해준다.
 InputStream, OutputStream 을 이용하여 요청 본문의 전체를 읽을 수도 있고, 응답을 작성할 수도 있다.
 이 외에도 다양한 애노테이션과 파라미터, 응답 형식을 지원한다. 자세한 내용은 아래 스프링 공식 문서에서 확인 할 수 있다.
 
 > - https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-arguments
 
+이중 요청과 응답에 관련한 Argument 들을 알아보자.
+
+    - 요청
+        - 요청 파라미터 처리
+        - 요청 메시지(Body) 처리 - String
+        - 요청 메시지 처리(Body) - JSON
+    - 응답
+        - 정적 리소스
+        - 동적 리소스(템플릿 등)
+        - HTTP 메시지(API)
 
 ### ☝️ 요청 파라미터 처리
 GET 메서드 방식에서의 쿼리 파라미터, POST 방식의 HTML Form 전송은 동일한 형식을 가지고, 이를 요청 파라미터라고 한다.
 Spring MVC에서 요청 파라미터를 받는 방법을 알아보자.
 
-### - HttpServletRequest
-```java
-@RequestMapping("/request-param")
-public void requestParam(HttpServletRequest request, HttpServletResponse response) throws IOException{
-    String username=request.getParameter("username");
-    int age=Integer.parseInt(request.getParameter("age"));
-
-    ...
-}
-```
-Servlet 에서와 동일하게 HttpServletRequest 객체에서 파라미터 이름으로 조회할 수 있다.
-
-### - @RequestParam
-```java
-@RequestMapping("/request-param")
-public String requestParam(@RequestParam("username") String name,
-                           @RequestParam("age") int age){
-    ...
-}
-```
-```@RequestParam``` 애노테이션을 이용한다. 요청 파라미터의 이름과 메서드 파라미터의 이름을 동일하게 한다면 요청 파라미터 이름은 생략이 가능하고(```@RequestParam String username```),
-@RequestParam 애노테이션 도한 생략이 가능하다.(```String username```)
-
-```java
-@RequestMapping("/request-param")
-public String requestParam(@RequestParam Map<String, Object> params){
-    ...
-}
-```
-Map으로 받을 수도 있고, MultiValueMap 으로 한 파라미터 이름에 여러개의 값을 받을 수도 있다.   
-참고로 ```@RequestParam String username``` 에서 ```username=kim1&username=kim2``` 같은 여러개의 값을 받을 수는 있다.
-이때는 ```kim1,kim2``` 와 같은 String 값이 된다.
-
-### - @RequestParam 속성(required, defaultValue)
-```java
-@RequestMapping("/request-param")
-public String requestParamAttribute(@RequestParam(required = true, defaultValue = "GUEST") String username,
-                                   @RequestParam(required = false) Integer age){
-    ...
-}
-```
-**required** 속성은 반드시 들어와야 하는지에 대한 지정이다. 기본은 **true**로 설정되어 있으며, 값이 들어오지 않으면 **400 BadRequest** 가 발생한다.
-빈 문자열("") 또한 값이 들어오지 않은 것으로 간주하니 주의가 필요하다.    
-**false**로 설정되어 있으면 값이 들어오지 않아도 에러가 발생하지 않는다. 이때는 파라미터 값을 **null**로 채운다.
-때문에 원시형 자료형을 사용한다면 null을 넣을 수 없어 서버 에러가 발생한다. Wrapper 클래스 타입으로 선언하도록 하자.
-
-**defaultValue**는 값이 들어오지 않았을 때 파라미터에 들어가게 되는 값을 설정한다. 이 때는 빈 문자열 또한 기본값으로 세팅해준다.
-
-
-### - @ModelAttribute
-```java
-@RequestMapping("/model-attribute")
-public String requestParamMap(@ModelAttribute("data") HelloData helloData, Model model){
-    HelloData helloData1 = (HelloData)model.getAttribute("data");
+- ### HttpServletRequest
+    ```java
+    @RequestMapping("/request-param")
+    public void requestParam(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        String username=request.getParameter("username");
+        int age=Integer.parseInt(request.getParameter("age"));
     
-    ...
-}
-```
-@ModelAttribute 를 이용하여 바로 요청 파라미터 값을 담은 객체를 생성할 수 있다.
-스프링 MVC 에서 대상 객체를 생성하고, 요청 파라미터의 이름으로 객체에서 프로퍼티를 찾는다. 그리고 해당 프로퍼티의 Setter를 호출하여
-값을 바인딩 한다.(필드명과 파라미터 이름이 동일해야 한다.)   
+        ...
+    }
+    ```
+    Servlet 에서와 동일하게 HttpServletRequest 객체에서 파라미터 이름으로 조회할 수 있다.
 
-애노테이션은 생략이 가능하다. 애노테이션을 생략하게 되면 int, String, Integer 과 같은 단순 타입은 @RequestParam 으로 적용되고,
-나머지는 @ModelAttribute가 적용된다.(argument resolver로 예외 지정 가능.)
+- ### @RequestParam
+    ```java
+    @RequestMapping("/request-param")
+    public String requestParam(@RequestParam("username") String name,
+                               @RequestParam("age") int age){
+        ...
+    }
+    ```
+    ```@RequestParam``` 애노테이션을 이용한다. 요청 파라미터의 이름과 메서드 파라미터의 이름을 동일하게 한다면 요청 파라미터 이름은 생략이 가능하고(```@RequestParam String username```),
+    @RequestParam 애노테이션 도한 생략이 가능하다.(```String username```)
+    
+    ```java
+    @RequestMapping("/request-param")
+    public String requestParam(@RequestParam Map<String, Object> params){
+        ...
+    }
+    ```
+    Map으로 받을 수도 있고, MultiValueMap 으로 한 파라미터 이름에 여러개의 값을 받을 수도 있다.   
+    참고로 ```@RequestParam String username``` 에서 ```username=kim1&username=kim2``` 같은 여러개의 값을 받을 수는 있다.
+    이때는 ```kim1,kim2``` 와 같은 String 값이 된다.
 
-한가지 기능이 더 있는데 @ModelAttribute 의 타겟 객체는 자동으로 Model 객체에 들어간다. 속성값을 주지 않으면 클래스의 카멜케이스로 어트리뷰트 이름이 지정되고,
-속성으로 이름을 지정해줄 수 있다.(위의 예시에서 data와 같이)
+- ### @RequestParam 속성(required, defaultValue)
+    ```java
+    @RequestMapping("/request-param")
+    public String requestParamAttribute(@RequestParam(required = true, defaultValue = "GUEST") String username,
+                                       @RequestParam(required = false) Integer age){
+        ...
+    }
+    ```
+    **required** 속성은 반드시 들어와야 하는지에 대한 지정이다. 기본은 **true**로 설정되어 있으며, 값이 들어오지 않으면 **400 BadRequest** 가 발생한다.
+    빈 문자열("") 또한 값이 들어오지 않은 것으로 간주하니 주의가 필요하다.    
+    **false**로 설정되어 있으면 값이 들어오지 않아도 에러가 발생하지 않는다. 이때는 파라미터 값을 **null**로 채운다.
+    때문에 원시형 자료형을 사용한다면 null을 넣을 수 없어 서버 에러가 발생한다. Wrapper 클래스 타입으로 선언하도록 하자.
+    
+    **defaultValue**는 값이 들어오지 않았을 때 파라미터에 들어가게 되는 값을 설정한다. 이 때는 빈 문자열 또한 기본값으로 세팅해준다.
+
+
+- ### @ModelAttribute
+    ```java
+    @RequestMapping("/model-attribute")
+    public String requestParamMap(@ModelAttribute("data") HelloData helloData, Model model){
+        HelloData helloData1 = (HelloData)model.getAttribute("data");
+        
+        ...
+    }
+    ```
+    @ModelAttribute 를 이용하여 바로 요청 파라미터 값을 담은 객체를 생성할 수 있다.
+    스프링 MVC 에서 대상 객체를 생성하고, 요청 파라미터의 이름으로 객체에서 프로퍼티를 찾는다. 그리고 해당 프로퍼티의 Setter를 호출하여
+    값을 바인딩 한다.(필드명과 파라미터 이름이 동일해야 한다.)   
+    
+    애노테이션은 생략이 가능하다. 애노테이션을 생략하게 되면 int, String, Integer 과 같은 단순 타입은 @RequestParam 으로 적용되고,
+    나머지는 @ModelAttribute가 적용된다.(argument resolver로 예외 지정 가능.)
+    
+    한가지 기능이 더 있는데 @ModelAttribute 의 타겟 객체는 자동으로 Model 객체에 들어간다. 속성값을 주지 않으면 클래스의 카멜케이스로 어트리뷰트 이름이 지정되고,
+    속성으로 이름을 지정해줄 수 있다.(위의 예시에서 data와 같이)
 
 
 
 ### ☝️ 요청 메시지 처리 - String
 Http Message Body에 데이터를 직접 담아서 요청한다. 주로 HTTP API 에서 사용된다.
-
-### - HttpServletRequest
-```java
-@PostMapping("/request-body-string")
-public void requestBodyString(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    ServletInputStream inputStream = request.getInputStream();
     
-    // Stream 은 바이트이기 때문에 항상 인코딩을 지정해 주는 것이 좋다.
-    String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8); 
-
-    response.getWriter().write("OK");
-}
-```
-Servlet 때와 동일하게 HttpServletRequest 객체에서 InputStream 을 얻어와 MessageBody 를 읽어온다.
-
-### - InputStream
-```java
-@PostMapping("/request-body-string")
-public void requestBodyStream(InputStream inputStream, Writer writer) throws IOException {
-    String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-
-    writer.write("OK");
-}
-```
-스프링의 지원을 받아 InputStream을 바로 파라미터로 받아 이를 사용한다.
-
-### - HttpEntity
-```java
-@PostMapping("/request-body-string")
-public HttpEntity<String> requestBodyEntityV1(HttpEntity<String> httpEntity) throws IOException {
-
-    String messageBody = httpEntity.getBody();
-    HttpHeaders headers = httpEntity.getHeaders();
-
-    return new HttpEntity<>("OK");
-}
-```
-HttpEntity를 사용하여 메시지 본문이나 헤더를 가져올 수 있다. 응답의 본문 또한 설정 가능하다.
-HttpMessageConverter에 의해 동작한다. Http 메시지 <-> String
-
-### - RequestEntity
-```java
-@PostMapping("/request-body-string")
-public HttpEntity<String> requestBodyEntityV2(RequestEntity<String> requestEntity) throws IOException {
-
-    String messageBody = requestEntity.getBody();
-    HttpHeaders headers = requestEntity.getHeaders();
-    String requestMethod = requestEntity.getMethod();
-    String requestUrl = requestEntity.getUrl();
+- ### HttpServletRequest
+    ```java
+    @PostMapping("/request-body-string")
+    public void requestBodyString(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ServletInputStream inputStream = request.getInputStream();
+        
+        // Stream 은 바이트이기 때문에 항상 인코딩을 지정해 주는 것이 좋다.
+        String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8); 
     
-    return new ResponseEntity<>("OK", HttpStatus.OK);
-}
-```
-HttpEntity를 상속받는다. HttpEntity보다 더 많은 기능(특화된)을 제공한다. 
+        response.getWriter().write("OK");
+    }
+    ```
+    Servlet 때와 동일하게 HttpServletRequest 객체에서 InputStream 을 얻어와 MessageBody 를 읽어온다.
 
-### - @RequestBody
-```java
-@ResponseBody
-@PostMapping("/request-body-string-v5")
-public String requestBodyAnnotation(@RequestBody String messageBody, @RequestHeader Map<String, Object> headers) throws IOException {
+- ### InputStream
+    ```java
+    @PostMapping("/request-body-string")
+    public void requestBodyStream(InputStream inputStream, Writer writer) throws IOException {
+        String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+    
+        writer.write("OK");
+    }
+    ```
+    스프링의 지원을 받아 InputStream을 바로 파라미터로 받아 이를 사용한다.
 
-    log.info("message Body = {}", messageBody);
-    log.info("headers = {}", headers);
+- ### HttpEntity
+    ```java
+    @PostMapping("/request-body-string")
+    public HttpEntity<String> requestBodyEntityV1(HttpEntity<String> httpEntity) throws IOException {
+    
+        String messageBody = httpEntity.getBody();
+        HttpHeaders headers = httpEntity.getHeaders();
+    
+        return new HttpEntity<>("OK");
+    }
+    ```
+    HttpEntity를 사용하여 메시지 본문이나 헤더를 가져올 수 있다. 응답의 본문 또한 설정 가능하다.
+    HttpMessageConverter에 의해 동작한다. Http 메시지 <-> String
 
-    return "OK";
-}
-```
-스프링에서 지원하는 @RequestBody, @RequestHeader 애노테이션을 이용하여 본문과 헤더의 내용을 가져온다.
+- ### RequestEntity
+    ```java
+    @PostMapping("/request-body-string")
+    public HttpEntity<String> requestBodyEntityV2(RequestEntity<String> requestEntity) throws IOException {
+    
+        String messageBody = requestEntity.getBody();
+        HttpHeaders headers = requestEntity.getHeaders();
+        String requestMethod = requestEntity.getMethod();
+        String requestUrl = requestEntity.getUrl();
+        
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+    ```
+    HttpEntity를 상속받는다. HttpEntity보다 더 많은 기능(특화된)을 제공한다. 
 
+- ### @RequestBody
+    ```java
+    @ResponseBody
+    @PostMapping("/request-body-string-v5")
+    public String requestBodyAnnotation(@RequestBody String messageBody, @RequestHeader Map<String, Object> headers) throws IOException {
+    
+        log.info("message Body = {}", messageBody);
+        log.info("headers = {}", headers);
+    
+        return "OK";
+    }
+    ```
+    스프링에서 지원하는 @RequestBody, @RequestHeader 애노테이션을 이용하여 본문과 헤더의 내용을 가져온다.
+    
 
 ### ☝️ 요청 메시지 처리 - JSON
 
-#### - @RequestBody String
-```java
-@ResponseBody
-@PostMapping("/request-body-json")
-private String requestBodyJson(@RequestBody String messageBody) throws JsonProcessingException {
+- ### @RequestBody String
+    ```java
+    @ResponseBody
+    @PostMapping("/request-body-json")
+    private String requestBodyJson(@RequestBody String messageBody) throws JsonProcessingException {
+    
+        HelloData helloData = objectMapper.readValue(messageBody, HelloData.class);
+    
+        return "OK";
+    }
+    ```
+    @RequestBOdy 애노테이션을 이용하여 메시지 바디를 JsonString 으로 받고, ObjectMapper를 이용하여 이를 객체로 변환한다.
+    
+- ### @RequestBody Dto
+    ```java
+    @ResponseBody
+    @PostMapping("/request-body-json-v3")
+    private HelloData requestBodyJsonV3(@RequestBody HelloData helloData){
+        log.info("helloData = {}", helloData);
+    
+        return helloData;
+    }
+    ```
+    @RequestBody를 이용하여 바로 Dto 객체에 데이터를 담 는다. 이땐 MappingJackson2HttpMessageConverter 가 동작하여 이를 변환해준다.
+    @RequestParam과는 달리 애노테이션을 생략할 수 없다. 위에서 설명 했듯 애노테이션을 생략하게 되면 int, String과 같은 타입은 @RequestParam 으로, 나머지는 @ModelAttribute 로
+    동작하게 된다.
+    
+    따라서 애노테이션을 생략하게 되면 요청 파라미터를 처리하게 되므로, 메시지의 바디를 처리할 수 없게 된다.
+    해당 객체의 필드는 null, 0 등 필드의 기본값이 된다.
+    
+    @ResponseBody 애노테이션은 String 뿐만 아니라 객체도 컨버터를 이용하여 Json 형식으로 변환하여 응답을 작성해준다.
+    
+    
+- ### HttpEntity<Dto>
+    ```java
+    @ResponseBody
+    @PostMapping("/request-body-json-v4")
+    private String requestBodyJsonV4(HttpEntity<HelloData> entity) throws JsonProcessingException {
+        log.info("helloData = {}", entity.getBody());
+        log.info("headers = {}", entity.getHeaders());
+    
+        return "OK";
+    }
+    ```
+    애노테이션을 사용하지 않는 방법이 있다. HttpEntity의 제네릭 타입으로 Dto를 사용하는 방법이다.
+    getBody(), getHeaders()를 이용하여 데이터를 꺼낼 수 있다.
 
-    HelloData helloData = objectMapper.readValue(messageBody, HelloData.class);
+### ☝️ 응답, 정적 리소스, 뷰 템플릿
+요청에 대한 응답으로 정적, 동적 HTML 파일을 돌려줄 수 있다.   
+스프링 부트에서는 ```/static```, ```/public```, ```/resources```, ```/META-INF/resources``` 의 클래스 패스 디렉토리의 정적 리소스 패스를 제공한다.   
+> classpath : src/main/resources
 
-    return "OK";
-}
+예를 들어 ```/static/hello/hello.html``` 에는 다음과 같이 접근할 수 있다.```http://localhost:8080/hello/hello.html```
+
+Thymeleaf 에서는 다음과 같은 경로를 제공한다. ```/resources/template/``` 이는 Thymeleaf 라이브러리를 추가했을 때
+자동으로 설정되는 아래의 설정을 통해 지정된다.
+```properties
+spring.thymeleaf.prefix=classpath:/templates
+spring.thymeleaf.sufix=.html
 ```
-@RequestBOdy 애노테이션을 이용하여 메시지 바디를 JsonString 으로 받고, ObjectMapper를 이용하여 이를 객체로 변환한다.
 
-#### - @RequestBody Dto
-```java
-@ResponseBody
-@PostMapping("/request-body-json-v3")
-private HelloData requestBodyJsonV3(@RequestBody HelloData helloData){
-    log.info("helloData = {}", helloData);
+- ### 뷰 템플릿: ModelAndView 반환
+  ```java
+  @RequestMapping("/response-view")
+    public ModelAndView responseView(){
+        ModelAndView mv = new ModelAndView("response/hello")
+                .addObject("data", "hello!");
+        return mv;
+    }
+  ```
+  src/main/resources/template 에서 response/hello.html 을 찾게 된다.
 
-    return helloData;
-}
-```
-@RequestBody를 이용하여 바로 Dto 객체에 데이터를 담 는다. 이땐 MappingJackson2HttpMessageConverter 가 동작하여 이를 변환해준다.
-@RequestParam과는 달리 애노테이션을 생략할 수 없다. 위에서 설명 했듯 애노테이션을 생략하게 되면 int, String과 같은 타입은 @RequestParam 으로, 나머지는 @ModelAttribute 로
-동작하게 된다.
-
-따라서 애노테이션을 생략하게 되면 요청 파라미터를 처리하게 되므로, 메시지의 바디를 처리할 수 없게 된다.
-해당 객체의 필드는 null, 0 등 필드의 기본값이 된다.
-
-@ResponseBody 애노테이션은 String 뿐만 아니라 객체도 컨버터를 이용하여 Json 형식으로 변환하여 응답을 작성해준다.
-
-
-#### - HttpEntity<Dto>
-```java
-@ResponseBody
-@PostMapping("/request-body-json-v4")
-private String requestBodyJsonV4(HttpEntity<HelloData> entity) throws JsonProcessingException {
-    log.info("helloData = {}", entity.getBody());
-    log.info("headers = {}", entity.getHeaders());
-
-    return "OK";
-}
-```
-애노테이션을 사용하지 않는 방법이 있다. HttpEntity의 제네릭 타입으로 Dto를 사용하는 방법이다.
-getBody(), getHeaders()를 이용하여 데이터를 꺼낼 수 있다.
+- ### 뷰 템플릿: String(ViewPath) 반환
+  ```java
+  @RequestMapping("/response-view")
+  public String responseView(Model model){
+      model.addAttribute("data", "hello!");
+      return "response/hello";
+  }
+  ```
+  @ResponseBody 가 없기 때문에 뷰 리졸버를 실행하여 뷰를 찾고 렌더링 한다.
+- ### 뷰 템플릿: Void 반환
+  ```java
+  @RequestMapping("/response/hello")
+  public void responseView(Model model){
+      model.addAttribute("data", "hello!");
+  }
+  ```
+  @Controller 에서 Http 메시지 바디를 처리하는 파라미터(response, outputStream ..)가 없고, void를 반환한다면
+  요청 URL을 논리 뷰 이름으로 사용한다. 권장하지 않는 방법.
 
 
+### ☝️ HTTP 메시지(API)
+HTTP API를 제공하는 경우에는 HTML 응답이 아닌 데이터를 넘겨줘야 한다.
+따라서 메시지 바디에 JSON, XML 의 형식으로 데이터 담아 전달한다.
+
+- ### HttpServletResponse
+  ```java
+  @GetMapping("/response-body-string")
+  public void responseBody(HttpServletResponse response) throws IOException {
+      response.getWriter().write("OK");
+  }
+  ```
+  응답 객체 자체에 메시지를 바로 작성한다.  
+
+- ### ResponseEntity\<String>
+  ```java
+  @GetMapping("/response-body-string")
+  public ResponseEntity<String> responseBody() {
+      return new ResponseEntity<>("ok", HttpStatus.OK);
+  }
+  ```
+  ResponseEntity를 이용하여 응답 메시지(String)과 상태 코드를 담는다.  
+
+- ### @ResponseBody String
+  ```java
+  @ResponseBody
+  @GetMapping("/response-body-string")
+  public String responseBody() {
+      return "OK";
+  }
+  ```
+  @ResponseBody 애노테이션을 이용하여 String 데이터를 담는다.
+
+- ### ResponseEntity\<Dto>
+  
+  ```java
+  @GetMapping("/response-body-json")
+  public ResponseEntity<HelloData> responseJson() {
+      HelloData helloData = new HelloData();
+      helloData.setUsername("kim");
+      helloData.setAge(25);
+  
+      return new ResponseEntity<>(helloData, HttpStatus.OK);
+  }
+  ```
+  ResponseEntity<Dto> 를 이용하여 JSON 형식의 데이터와 상태 코드를 담는다.  
+
+- ### @ResponseBody Dto + @ResponseStatus
+  ```java
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  @GetMapping("/response-body-json")
+  public HelloData responseJson() {
+      HelloData helloData = new HelloData();
+      helloData.setUsername("kim");
+      helloData.setAge(25);
+  
+      return helloData;
+  }
+  ```
+  @ResponseBody 애노테이션을 이용하여 JSON 형식의 데이터를 담고, @ResponseStatus 를 이용하여 상태 코드를 설정한다.
+  위의 방식과 비슷하지만, 위의 방식은 상황에 따라 다른 코드가 담기도록 if문 등의 설정이 가능하다(동적 설정) 변경할 일이 없다면
+  애노테이션을 사용하여 설정해도 무방하다.
 
 <br><br><br>
 > - https://codingnotes.tistory.com/28
