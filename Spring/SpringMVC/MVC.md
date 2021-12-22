@@ -143,6 +143,57 @@ ex) ```@GetMapping``` == ```@RequestMapping(method = RequestMethod.GET)```, 편�
 또한 세션을 이용하는지 확인하여 세션이 존재한다면 mutex 를 이용하여 Thread-Safe하게 처리할 수 있도록 한다.    
 마지막으로 가장 핵심인 invokeHandlerMethod 에서 요청을 처리하고 결과를 반환한다.(ModelAndView) 
 
+### 💡 ArgumentResolver와 ReturnValueHandler
+
+스프링에서는 다양한 Method Argument를 지원한다. 지원하는 Method Argument 를 뒤에서 던져주는 곳이 존재해야 한다.
+이런 역할을 하는 것이 ```ArgumentResolver``` 이다.
+```RequestMappingHandlerAdapter```에서는 ```ArgumentResolver```를 호출하여 컨트롤러가 필요로하는 파라미터를 생성하고, 모두 준비가 되었을때
+컨트롤러를 호출하여 생성된 값을 넘겨준다. 스프링에서는 30개 이상의 ArgumentResolver를 기본으로 제공하고, 리스트에 담겨있다.
+해당 리스트를 순회하며 적절한 리졸버를 선택한다.
+
+```java
+public interface HandlerMethodArgumentResolver {
+    
+	boolean supportsParameter(MethodParameter parameter);
+	
+	@Nullable
+	Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception;
+}
+```
+supportsParameter() 메서드로 해당 파라미터를 지원하는지 검사하고, resolveArgument() 메서드에서 파라미터를 생성하여 넘겨준다.
+
+
+또한, 값의 반환도 다양한 타입으로 할 수 있는것을 확인 할 수 있는데, 이를 위해서 ```ReturnValueHandler```가 존재한다.
+응답값을 받아, 변환하는 과정을 담당한다.
+```java
+public interface HandlerMethodReturnValueHandler {
+    
+	boolean supportsReturnType(MethodParameter returnType);
+	
+	void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
+			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception;
+}
+```
+비슷하게 supportsReturnType() 메서드로 반환값을 처리 가능한지 확인하고,
+handleReturnValue 에서 반환 값을 생성한다. 예를들어 ModelAndView 같은 경우 해당 메서드의 구현에서 ModelAndViewResolver 에게
+객체 생성을 위임하는 것을 확인할 수 있었다.
+```java
+ModelAndView mav = mavResolver.resolveModelAndView(method, handlerType, returnValue, model, webRequest);
+```
+
+<br>
+
+ArgumentResolver와 ReturnValueHandler는 **HttpMessageConverter**를 사용하여 필요한 객체를 생성한다.(@RequestBody, @ResponseBody, HttpEntity)
+```java
+// HttpEntityMethodProcessor.resolveArgument()
+Object body = readWithMessageConverters(webRequest, parameter, paramType);
+
+// HttpEntityMethodProcessor.handleReturnValue()
+writeWithMessageConverters(responseEntity.getBody(), returnType, inputMessage, outputMessage);
+```
+해당 메서드들에서는 컨버터 리스트를 순회하며 적절한 컨버터를 선택한다.
+
 ### ☝️ HandlerInterceptor
 컨트롤러의 메서드를 실행하기 전에 핸들러 인터셉터에 지정된 일을 실행한다. HandlerInterceptor 인터페이스를 구현 하여 사용할 수 있다.
 - preHandle(HttpServletRequest request, HttpServletResponse response, Object handler): 요청 실행 전.
