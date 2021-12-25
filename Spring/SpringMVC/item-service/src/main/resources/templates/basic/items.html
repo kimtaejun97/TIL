@@ -1,9 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <link th:href="@{/css/bootstrap.min.css}" href="../../css/bootstrap.min.css" rel="stylesheet">
-</head>
+<head th:replace="fragment :: headerFragment"></head>
+
 <body>
 <div class="container" style="max-width: 600px">
     <div class="py-5 text-center">
@@ -24,8 +22,8 @@
             </thead>
             <tbody>
             <tr th:each="item : ${items}">
-                <td><a th:href="@{|/basic/item/${item.id}|}" th:text="${item.id}">1</a></td>
-                <td><a th:href="@{/basic/item/{itemId}(itemId=${item.id})}" th:text="${item.itemName}">테스트 상품1</a></td>
+                <td><a th:href="@{|/basic/items/${item.id}|}" th:text="${item.id}">1</a></td>
+                <td><a th:href="@{/basic/items/{itemId}(itemId=${item.id})}" th:text="${item.itemName}">테스트 상품1</a></td>
                 <td th:text="${item.price}"></td>
                 <td th:text="${item.quantity}">10</td>
             </tr>

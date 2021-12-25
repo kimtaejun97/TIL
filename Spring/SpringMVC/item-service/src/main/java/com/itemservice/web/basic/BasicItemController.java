@@ -2,13 +2,17 @@ package com.itemservice.web.basic;
 
 import com.itemservice.domain.item.Item;
 import com.itemservice.domain.item.ItemRepository;
+import com.itemservice.domain.item.dto.UpdateItemDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.PostConstruct;
+import java.beans.Encoder;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -18,6 +22,12 @@ public class BasicItemController {
 
     private final ItemRepository itemRepository;
 
+    @PostConstruct
+    public void init(){
+        itemRepository.save(new Item("itemA", 10000, 10));
+        itemRepository.save(new Item("itemB", 20000, 20));
+    }
+
     @GetMapping
     public String items(Model model){
         List<Item> items = itemRepository.findAll();
@@ -26,10 +36,28 @@ public class BasicItemController {
         return "basic/items";
     }
 
-    @PostConstruct
-    public void init(){
-        itemRepository.save(new Item("itemA", 10000, 10));
-        itemRepository.save(new Item("itemB", 20000, 20));
+    @GetMapping("/{itemId}")
+    public String item(@PathVariable("itemId") Long itemId, Model model){
+        Item item = itemRepository.findById(itemId);
+        model.addAttribute(item);
+
+        return "/basic/item";
+    }
+
+    @GetMapping("/{itemId}/edit")
+    public String editForm(@PathVariable Long itemId, Model model){
+
+        Item item = itemRepository.findById(itemId);
+        model.addAttribute(item);
+
+        return "/basic/editForm";
+    }
+
+    @PostMapping("/{itemId}/edit")
+    public String editItem(@PathVariable("itemId") Long itemId ,UpdateItemDto updateItemDto){
+        itemRepository.update(itemId,updateItemDto);
+
+        return "redirect:/basic/items/" + itemId; // 인코딩
     }
 }
 
