@@ -3,6 +3,7 @@ package com.itemservice.web.basic;
 import com.itemservice.domain.item.Item;
 import com.itemservice.domain.item.ItemRepository;
 import com.itemservice.domain.item.dto.UpdateItemDto;
+import com.itemservice.domain.item.dto.SaveItemDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.PostConstruct;
-import java.beans.Encoder;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -44,6 +44,21 @@ public class BasicItemController {
         return "/basic/item";
     }
 
+    @GetMapping("/add")
+    public String itemForm(Model model){
+        model.addAttribute("itemForm", new SaveItemDto());
+
+        return "/basic/addForm";
+    }
+
+    @PostMapping("/add")
+    public String addItem(SaveItemDto saveItemDto){
+        Item saveItem = itemRepository.save(saveItemDto.toEntity());
+
+        return "redirect:/basic/items/" +saveItem.getId();
+    }
+
+
     @GetMapping("/{itemId}/edit")
     public String editForm(@PathVariable Long itemId, Model model){
 
@@ -57,7 +72,7 @@ public class BasicItemController {
     public String editItem(@PathVariable("itemId") Long itemId ,UpdateItemDto updateItemDto){
         itemRepository.update(itemId,updateItemDto);
 
-        return "redirect:/basic/items/" + itemId; // 인코딩
+        return "redirect:/basic/items/{itemId}"; // 인코딩?
     }
 }
 
