@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @NoArgsConstructor
 @Getter @Setter
 public class Item {
@@ -25,5 +28,9 @@ public class Item {
         this.itemName = updateItemDto.getItemName();
         this.price = updateItemDto.getPrice();
         this.quantity = updateItemDto.getQuantity();
+    }
+
+    public String getEncodedId() {
+        return URLEncoder.encode(String.valueOf(id), StandardCharsets.UTF_8);
     }
 }

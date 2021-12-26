@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.PostConstruct;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -52,10 +55,13 @@ public class BasicItemController {
     }
 
     @PostMapping("/add")
-    public String addItem(SaveItemDto saveItemDto){
+    public String addItem(SaveItemDto saveItemDto, RedirectAttributes attributes){
         Item saveItem = itemRepository.save(saveItemDto.toEntity());
-
-        return "redirect:/basic/items/" +saveItem.getId();
+        attributes.addAttribute("itemId", saveItem.getId());
+//        attributes.addAttribute("isSaved", true);
+        attributes.addFlashAttribute("isSaved", true);
+//        return "redirect:/basic/items/" + saveItem.getEncodedId();
+        return "redirect:/basic/items/{itemId}";
     }
 
 
