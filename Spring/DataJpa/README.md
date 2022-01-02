@@ -1,4 +1,4 @@
-## 🧐 Spring Data JPA의 공통 인터페이
+## 🧐 Spring Data JPA의 공통 인터페이스
 
 ```java
 @EnableJpaRepositories(basePackages = "com.datajpa.repository")
@@ -49,4 +49,53 @@ JpaRepository는 Jpa에 특화된 인터페이스고, CrudRepository는 spring D
 JpaRepository 의 메서드들 뿐만 아니라 그 부모의 메서드들 또한 사용이 가능하다. CrudRepository 를 상속해도 되지만
 보통 JpaRepository를 상속받아 사용한다.
 
-QueryByExampleExecutor 에서는 메서드 이름으로 쿼리를 작성할 수 있도록 해준다.
+
+
+## 🧐 쿼리 메서드
+스프링 데이터 Jpa 에서 쿼리 메서드를 사용하는 방법은 3가지가 있다.
+- 메서드 이름으로 쿼리 생성
+- 메서드 이름으로 JPA NamedQuery 호출
+- @Query 애노테이션
+
+### ☝️ 메서드 이름으로 쿼리 생성
+메서드 이름을 분석해서 JPQL 쿼리를 실행한다.
+```java
+List<Member> findByUsernameAndAgeGreaterThan(String username, int age);
+```
+```find..By``` : find 와 By 사이에는 해당 메서드를 설명해줄 수 있는 내용이 들어가도 된다.
+이외에 existBy, countBy, deleteBy, removeBy 등..
+
+```limit``` : findFirst5, findTop5, findFirst .. 등 처럼 사용할 수 있다. 
+
+
+쿼리 메소드 필터 조건
+스프링 데이터 JPA 공식 문서 참고: (https://docs.spring.io/spring-data/jpa/docs/current/ reference/html/#jpa.query-methods.query-creation)
+
+
+### ☝️ NamedQuery
+```java
+@NamedQuery(
+        name = "Member.findByUsername",
+        query = "select m from Member m where m.username = :username"
+)
+```
+미리 쿼리를 이름으로 정의해두고 사용한다. createQuery()를 이용하여 JPQL을 String으로 생성할때와 달리
+애플리케이션 로딩시점에 오류를 검사할 수 있다는 장점이 있고, 미리 불러진 쿼리를 여러번 재사용할 수 있게 된다.
+
+- 순수 JPA
+```java
+public Member findByUsername(String username){
+    return em.createNamedQuery("Member.findByUsername", Member.class)
+            .setParameter("username", username)
+            .getSingleResult();
+}
+```
+생성된 NamedQuery의 이름을 가지고 쿼리를 바로 생성할 수 있다.
+
+- JpaRepository
+```java
+//    @Query(name = "Member.findByUsername")
+    Member findByUsername(@Param("username") String username);
+```
+마찬가지로 생성된 네임드 쿼리의 이름을 가지고 사용 가능하다. 하지만 이 때 네임드 쿼리의 이름이
+ ```{엔티티 클래스}.{네임드쿼리 이름}``` 이라면 명시하지 않아도 자동으로 찾아 사용한다.

@@ -10,6 +10,11 @@ import javax.persistence.*;
 
 import static javax.persistence.FetchType.LAZY;
 
+@NamedQuery(
+        name = "Member.findByUsername",
+        query = "select m from Member m where m.username = :username"
+)
+
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED) // private 로 하면 reflection 이용이 막힌다?
 @ToString(of = {"id", "username", "age"})
 @Entity
