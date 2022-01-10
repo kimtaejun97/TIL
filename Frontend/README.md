@@ -107,6 +107,8 @@
 - #### ```<script src="./main.js"></script>```
   > - javascript 파일 연결.
   > - 또는 src를 사용하지 않고, 해당 태그 안에 js를 직접 작성할 수 있다.
+  > - script 태그를 head 태그 내에 작성하면 아직 body가 로드되지 않았기 때문에 태그를 읽어올 수 없는 등의 문제가 생긴다.
+  > 이 때, **defer** 라는 속성을 이용하여 body가 모두 로드된 후에 가져오도록 지정할 수 있다.
 
 - #### ```<meta name="" content="">```
   > 제작자, 내용, 키워드, viewport 등의 정보를 검색 엔진이나 브라우저에게 제공한다.
@@ -161,3 +163,32 @@
 - #### ```<table></table>```
   > - 행과 열의 집합. 테이블 요소.
   > - ```<tr><td></td><td></td></tr>```
+
+
+### 🧐 전역 속성
+body 태그 내의 모든 요소에서 사용할 수 있는 속성
+
+- #### title
+  > 브라우저에서 해당 요소에 마우스 커서를 올렸을 때 나오는 툴팁. 요소의 정보나 설명을 지정한다.
+
+- #### style
+  > 요소의 CSS 스타일을 지정.
+
+- #### class
+  > 요소를 지칭하는 **중복 가능한** 이름.
+
+- #### id
+  > 요소를 지칭하는 **고유한** 이름
+
+- #### data-{name} = "{data}"
+  > 요소에 데이터를 지정.
+  ```html
+  <div data-fruit-name ="apple">사과</div>
+  <div data-fruit-name ="banana">바나나</div>
+  ```
+  ```js
+  const els = document.querySelectorAll('div');
+  els.forEach(el => {
+      console.log(el.dataset.fruitName) //fruit-name -> 카멜케이스로 변경됨.
+  })
+  ```
