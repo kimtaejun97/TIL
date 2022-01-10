@@ -220,3 +220,101 @@ body 태그 내의 모든 요소에서 사용할 수 있는 속성
   
   앞의 CSS 문서가 모두 해석되기 전까지는 import 된 문서는 아직 해석하지 않는다. 때문에 지연이 발생하고, 이를 고의로 활용할 수도 있다.    
   하지만, 이러한 경우가 아니라면 병렬 연결 방식을 권장한다.
+
+
+### 🧐 CSS Selector
+
+#### 👆 기본 선택자
+- ```*``` : 전체 선택자(Universal Selector), 모든 요소를 선택.
+- ```{tagName}``` : 태그 선택자(Type Selector), 태그 이름에 해당하는 요소 선택.
+- ```.{className}``` : 클래스 선택자(Class Selector), class 속성의 값에 해당하는 요소 선택.
+- ```#{idName}``` : 아이디 선택자(Id Selector), id 속성 값에 해당하는 요소 선택.
+
+#### 👆 복합 선택자
+- **일치 선택자**(Basic Combinator)
+  > 선택자 A와 B를 동시에 만족하는 요소.  
+  ```css
+  div.test {...} /* div 요소이면서 class 속성의 값이 test인 요소. */
+  ```
+
+- **자식 선택자**(Child Combinator)
+  > 선택자 A의 자식 요소 B 선택.
+  ```css
+  div > span {...} /* div 태그의 자식인 span  */
+  ```
+  
+- **하위(후손) 선택자**(Descendant Combinator)
+  > 선택자 A의 하위 요소 B 선택.
+  ```css
+  div span {...} /* div의 안에 있는(후손인) span */
+  ```
+  
+- **인접 형제 선택자**(Adjacent Sibling Combinator)
+  > 선택자 A의 다음 형제 요소 **하나**를 선택
+  ```html
+  <ul>
+    <li>1</li>
+    <li class="A">2</li>
+    <li>3</li>
+    <li>4</li>
+  </ul>
+  ```
+  ```css
+  .A + li {...} /* class 속성 값이 A인 요소의 다음 형제, 위의 예시에서는 3이 들어있는 li 요소. */
+  ```
+
+- **일반 형제 선택자**(General Sibling Combinator)
+  > 선택자 A의 다음 형제 요소 **모두**를 선택
+  ```html
+  <ul>
+    <li>1</li>
+    <li class="A">2</li>
+    <li>3</li>
+    <li>4</li>
+  </ul>
+  ```
+  ```css
+  .A ~ li {...} /* class 속성 값이 A인 요소의 다음 형제 모두를 선택, 위의 예시에서는 3, 4 */
+  ```
+  
+#### 👆 가상 클래스 선택자(Pseudo-Classes Selector)
+- ```A:hover``` : 마우스를 요소에 올렸을 때 적용.
+  > 💡 A 요소에서 transision 속성을 이용하여 부드럽게 전환이 가능하다.
+
+- ```A:focus``` : 포커스 되면 동작. input, textarea 요소 등..
+  > 💡 focus가 가능하지 않은 요소의 html 속성에 tabindex="-1"를 부여하면 focus가 가능해진다.
+
+- ```A:active``` : 마우스를 **클릭하고 있는 동안** 적용.
+  
+- ```A:first-child``` : 선택자 A가 형제 요소중 첫째라면 선택.
+  ```html
+  <div>
+    <span>1</span>
+    <span>2</span>
+    <span>3</span>
+  </div>
+  ```
+  ```css
+  div span:first-child{...}  /* div의 후손중, span이고 형제중 첫번째. span 태그중 1이 선택된다. */
+  ```
+  만약,
+  ```html
+  <div>
+    <div>...</div>
+    <span>1</span>
+    <span>2</span>
+    <span>3</span>
+  </div>
+  ```
+  와 같은 상황이라면 선택되는 요소는 존재하지 않는다.
+  
+- ```A:last-child``` : 선택자 A가 형제 요소중 마지막 요소라면 선택.
+- ```A:nth-child(n)``` : 선택자 A가 형제 요소중 n 번째라면 선택.
+  > nth-child(2n) 과같이 짝수, 2n+1과 같이 홀수, 3n 과 가티 3의 배수 번째로 선택도 가능하다. n은 0부터 시작한다.
+  > n+2, n+3 과 같이 다양한 산술 표현 가능.
+
+- ```A:not(B)``` : 부정 선택자(Negation), 선택자 B가 아닌 A 요소 선택.
+  ```css
+  span:not(.none) /* span 태그중 클래스 속성값이 none 인 요소를 제외한 나머지 요소. */
+  *:not(span) /* span 요소를 제외한 모든 요소 */
+  ```
