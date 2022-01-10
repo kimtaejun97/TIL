@@ -34,10 +34,8 @@
     > - 파일 및 코드 삽입 가능.(태그와 수학적 정보를 활용.)
 
 
-
-
-
-## 📌 HTML
+    
+## 📌 HTML(HyperText Markup Language)
 ### 🧐 Element: 요소
 ```<tag>content</tag>```
 
@@ -192,3 +190,33 @@ body 태그 내의 모든 요소에서 사용할 수 있는 속성
       console.log(el.dataset.fruitName) //fruit-name -> 카멜케이스로 변경됨.
   })
   ```
+  
+## 📌 CSS(Cascading Style Sheets)
+```선택자 {속성: 값;}```
+
+### 🧐 CSS 선언 방식
+- #### 내장 방식
+  > - HTML 문서에서 ```<style></style>``` 을 이용하여 스타일을 작성하는 방식.
+  > - 유지보수 측면에서 권장하지 않는 방식.
+
+- #### 인라인 방식
+  ```html
+  <div style="color: red; margin: 20px;"></div>
+  ```
+  와 같이 HTML의 요소에 style 속성을 이용하여 스타일을 작성하는 방식. 우선순위가 매우 높으므로 사용에 주의.
+  
+- #### 링크 방식
+  ```html
+  <link rel="stylesheet" href="./main.css">
+  ```
+  와 같이 link 태그를 이용하여 CSS 문서를 연결하는 방식이다. 병렬 연결 방식.
+
+- #### @import
+  ```css
+  @import url("./sub.css");
+  ```
+  **CSS 문서**에서 @import 규칙으로 또 다른 CSS 문서를 가져와 연결하는 방식이다. 직렬 연결 방식.    
+  언뜻 보면 앞의 문서가 다른 문서를 import 하기 때문에 import 되는 문서가 스타일을 덮어 씌워 우선순위를 가져갈 것 같지만, 실제로는 앞의 문서가 우선순위를 가진다.(가까울 수록 우선순위가 높다.)
+  
+  앞의 CSS 문서가 모두 해석되기 전까지는 import 된 문서는 아직 해석하지 않는다. 때문에 지연이 발생하고, 이를 고의로 활용할 수도 있다.    
+  하지만, 이러한 경우가 아니라면 병렬 연결 방식을 권장한다.
