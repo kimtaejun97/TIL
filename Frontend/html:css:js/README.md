@@ -552,3 +552,35 @@ ex) ```.box li.item ``` -> 클래스선택자 10, 태그 선택자 1, 클래스 
   - text-decoration: none | underline | overline(윗줄) | line-through(취소선)
   - text-indent: 양수 혹은 음수로 들여쓰기, 내어쓰기. 기본값 0.
   
+- #### 👆 background
+  ```css
+  div{
+    background-color: orange;
+    background-image: url("/imgs/logo.png");
+    bacground-size: 200px;
+    background-repeat: no-repeat;
+    background-position: top right;
+  
+    background: url("/imgs/logo.png") center/contain no-repeat;
+  }
+  ```
+  - background-color
+    > 기본값은 transparent(투명함), 배경에 색상을 부여.
+  - background-image
+    > 기본값은 none, 배경을 이미지로 지정.
+  - background-repeat
+    > - 기본값은 repeat, 이미지를 수직, 수평으로 모두 반복
+    > - repeat-x, repeat-y : 이미지를 수평, 수직으로만 반복.
+    > - no-repeat: 반복 없음.      
+  - background-position: 배경 이미지의 위치.
+    > - 방향: top, bottom left, center ..
+    > - 단위: px, em, rem 등의 단위.
+    > - 0%~100% 사이의 값으로도 위치 지정 가능.   
+  - background-size: 배경 이미지의 크기
+    > - 기본값은 auto(이미지의 실제 크기)
+    > - cover: 비율을 유지하여 요소의 **더 넓은 너비**에 맞춤. (이미지가 요소를 채운다.)
+    > - contain: 비율을 유지, 요소의 **더 짧은 너비**에 맞춤. (이미지가 요소에 포함된다.)
+  -  background-attachment: 배경 이미지의 스크롤 특성
+    > - 기본값은 scroll 이미지가 요소를 따라서 같이 스크롤 된다.
+    > - fixed: 이미지가 뷰 포트에 고정된다.
+>  
