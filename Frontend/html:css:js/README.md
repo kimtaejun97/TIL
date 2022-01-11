@@ -501,5 +501,54 @@ ex) ```.box li.item ``` -> 클래스선택자 10, 태그 선택자 1, 클래스 
   - RGB: rgb(0, 0, 0)
   - RGBA: 빛의 삼원색 + 투명도. rgba(0, 0, 0, 0.5)
   
+- #### 👆 box-sizing
+  padding 이나 border와 같이 요소의 크기에 변화를 주는 속성을 적용 했을 때
+  개발자가 직접 width, height 속성의 값을 계산해서 요소가 일정 크기가 되도록 하는 방법은 매우 불편하다.    
+  이 때 사용하는 것이 box-sizing 이다. 기본 값은 content-box이고,
+  이를 ```box-sizing: border-box``` 로 변경해주면 border와 padding 을 적용하여도 원래 지정되어있는 요소의 크기가 된다.   
+  즉, 요소의 크기를 요소의 내용 + padding + border로 계산한다.
   
+- #### 👆 overflow
+  요소 크기 이상으로 넘쳐졌을 때 보여짐을 제어하는 단축 속성.
+  - 기본값은 ```visible``` 로 넘친 깂을 그대로 보여준다.
+  - hidden: 넘친 내용을 잘라낸다.
+  - scroll: 항상 스크롤바 생성.
+  - auto: 넘친 내용이 있는 경우에만 잘라내고 스크롤바 생성.
+  
+- #### 👆 display
+  요소의 화면 출력 틍성
+  - 요소에 따른 기본값: block, inline, inline-block
+  - flex: 플렉스 박스(1차원 레이아웃)
+  - grid: 그리드(2차원 레이아웃)
+  - none: 특성 없음, 화면에서 사라진다.
+  - etc: table, table-row, table-cell ...
+  
+- #### 👆 opacity(투명도)
+  - 0~1 사이의 값. (0으로 갈수록 투명해진다.)
+  
+- #### 👆 font
+  - font-style
+    > - 글자의 기울기, 기본값 nomal
+    > - italic
+  - font-weight
+    > - 글자의 두께, 기본 400
+    > - bold == 700
+    > - 100~ 900 까지 100 단위로 입력 가능하다.
+  - font-size
+    > - 기본크기 16px
+  - line-height
+    > - 한 줄의 높이, 행간과 유사
+    > - 요소의 글꼴 크기의 배수로 지정.(권장)
+    > > -  ex) 16px 일떄 1.5 -> 24px
+    > - 또는 px, em, rem 등의 단위로도 지정 가능하다.
+    > - 글자는 line-height의 중앙의 높이에 온다.
+  - font-family
+    > - font-family: 글꼴1, 글꼴2, "공백 글꼴 3",  ... 글꼴계열(필수)
+    > > - 글꼴 이름에 공백, 특수기호 등이 존재하면 "" 사용. 웹에서 가장 많이 사용되는 글꼴은 sans-serif(고딕체)
+    > > - 글꼴 계열을 제외한 다른 글꼴들은 모두 후보. 맨 앞에 명시된 글꼴 부터 시도, 모두 불러올 수 없다면 글꼴계열을 사용한다.
 
+- #### 👆 text
+  - text-align: center | left | right | justify(양쪽 정렬)
+  - text-decoration: none | underline | overline(윗줄) | line-through(취소선)
+  - text-indent: 양수 혹은 음수로 들여쓰기, 내어쓰기. 기본값 0.
+  
