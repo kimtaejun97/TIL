@@ -1,0 +1,53 @@
+body{
+  height: 3000px;
+}
+
+.container {
+  width: 300px;
+  background-color: royalblue;
+  position: relative;
+}
+
+.container .item {
+  border: 4px dashed red;
+  background-color: orange;
+}
+
+.container .item:nth-child(1) {
+  width: 100px;
+  height: 100px;
+}
+
+.container .item:nth-child(2) {
+  width: 140px;
+  height: 70px;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+
+}
+
+.container .item:nth-child(3) {
+  width: 70px;
+  height: 120px;
+  position: fixed;
+  right: 100px;
+  top: 100px;
+  z-index: 1;
+}
+
+.container .item:nth-child(4) {
+  width: 70px;
+  height: 120px;
+  position: fixed;
+  right: 50px;
+  top: 100px;
+  background-color: tomato;
+}
+
+.super{
+  width: 500px;
+  height: 500px;
+  background-color: green;
+  position: relative;
+}
