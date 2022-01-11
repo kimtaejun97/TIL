@@ -600,3 +600,59 @@ ex) ```.box li.item ``` -> 클래스선택자 10, 태그 선택자 1, 클래스 
     > - html 코드가 더 늦게 작성 되었는가?   
   
   - 💡 position 값이 absolute, fixed 로 지정되면 display의 값이 자동으로 block 요소로 변경된다.
+
+- #### 👆 display: flex
+  ```css
+  .container {
+    background-color: royalblue;
+    display: flex;
+  }
+  
+  .container .item {
+    width: 100px;
+    height: 100px;
+    border: 4px dashed red;
+    background-color: orange;
+  }
+  ```
+  ![img_4.png](img_4.png)   
+  flex container 내 flex item 들의 수평 정렬.
+  
+  - #### 🖍 flex container의 속성
+    - ```display```: flex(block 요소 처럼), inline-flex(inline 요소 처럼)
+    - ```flex-flow```
+    - ```flex-direction```: 주 축(main-axis)을 설정, 기본값은 row(column이 교차축이 된다.)
+      > - row, row-reverse(우->좌), column, column-reverse
+    - ```flex-wrap```: flex items 묶음(줄바꿈) 여부.
+      > ![img_6.png](img_6.png)
+      > - 기본값 nowrap(컨테이너 크기가 모자라면 item의 크기가 조절된다.)
+      > - wrap: 컨테이너의 크기가 모자라면 줄바꿈을 하여 다음 줄에서 item을 표시. 
+      > - 다음 줄로 넘어갈 때는 바로 아래에 붙어서 넘어가는 것이 아니라 2줄이라면 컨테이너의 1/2 지점이 2번째 줄의 시작이다.
+    - ```justify-content```: 주 축의 정렬 방법.
+      > - 기본 값은 flex-start(items를 시작점으로 정렬)
+      > - flex-end: item을 끝 점으로 정렬.
+      > - center: 가운데 정렬.
+    - ```align-content```: 교차 축의 **여러 줄** 정렬 방법.
+      > 한 줄 일때는 동작하지 않는다.
+      > - stretch: 기본값, 시작점으로 정렬.
+      > - flex-start: 시작점으로 정렬.(요소가 줄과 상관없이 붙어서 정렬 된다.)
+      > - flex- end: 끝 점으로 정렬
+      > - center: 가운데 정렬
+    - ```align-items```: 교차 축의 한 줄 정렬 방법.
+      > - 값은 align-content 와 동일하다. 다른 점이라면 '한 줄' 에서의 정렬이라는 것. 한 줄의 영역에서 정렬된다.
+      > - ex) flex-end
+      > > ![img_5.png](img_5.png)
+  
+  - #### 🖍 flex item의 속성
+    - ```order```: 아이템의 순서.
+      > - 기본값은 0, 순서 없음.
+      > - 숫자가 작을 수록 먼저 온다.
+    - ```flex-grow```: 아이템의 증가 너비 비율
+      > - 기본값 0.(자신의 크기를 그대로 가진다.) 이를 제외한 영역을 비율로 나눠 가진다.
+    - ```flex-shrink```: 아이템의 감소 너비 비율
+      > - 기본값은 1, 컨테이너의 크기가 줄어들면 비율에 맞게 함께 줄어든다.
+      > - 0으로 설정하면 컨테이너의 크기가 줄어도 줄어들지 않는다.
+    - ```flex-basis```: 아이템의 공간 배분 전 기본 너비.
+      > - 기본값은 auto(content의 너비.) 제외하고 grow의 비율을 계산하게 된다.
+      > - grow의 비율에 맞게 설정하기 위해서는 0으로 설정하면 된다.
+    - ```align-self``` 

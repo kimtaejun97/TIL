@@ -1,0 +1,26 @@
+.container {
+  width: 600px;
+  height: 400px;
+  background-color: royalblue;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.container .item {
+  width: 100px;
+  height: 100px;
+  border: 4px dashed red;
+  background-color: orange;
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.container .item:nth-child(3) {
+  flex-grow: 2;
+  order:-1
+
+}
+
+
