@@ -467,7 +467,7 @@ ex) ```.box li.item ``` -> 클래스선택자 10, 태그 선택자 1, 클래스 
 - #### 👆 margin - 외부 여백
   요소의 외부 여백 공간을 지정하는 단축 속성.
   - 기본값은 0.
-  - auto: 브라우저가 여백을 계산.
+  - auto: 브라우저가 여백을 계산.(block 요소이고, width 값이 설정되어 있다면 가운데 정렬.)
   - margin: ```top&right&bottom&left```px
   - margin: ```top&bottom```px ```left&right```px
   - margin: ```top```px ```left&right```px ```bottom```px
