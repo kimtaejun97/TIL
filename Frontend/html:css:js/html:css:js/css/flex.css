@@ -15,11 +15,24 @@
   background-color: orange;
   flex-grow: 1;
   flex-basis: 0;
+  transition:1s;
+
 }
 
 .container .item:nth-child(3) {
   flex-grow: 2;
-  order:-1
+  order:-1;
+
+}
+
+.container .item:nth-child(3):hover{
+  background-color: green;
+}
+
+.container .item:nth-child(2):hover {
+  transform: perspective(150px) rotateY(45deg) translate(100px)
+  scale(1.3) skew(15deg);
+  backface-visibility: visible;
 
 }
 

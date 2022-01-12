@@ -619,40 +619,81 @@ ex) ```.box li.item ``` -> 클래스선택자 10, 태그 선택자 1, 클래스 
   flex container 내 flex item 들의 수평 정렬.
   
   - #### 🖍 flex container의 속성
-    - ```display```: flex(block 요소 처럼), inline-flex(inline 요소 처럼)
-    - ```flex-flow```
-    - ```flex-direction```: 주 축(main-axis)을 설정, 기본값은 row(column이 교차축이 된다.)
+    - `display`: flex(block 요소 처럼), inline-flex(inline 요소 처럼)
+    - `flex-flow`
+    - `flex-direction`: 주 축(main-axis)을 설정, 기본값은 row(column이 교차축이 된다.)
       > - row, row-reverse(우->좌), column, column-reverse
-    - ```flex-wrap```: flex items 묶음(줄바꿈) 여부.
+    - `flex-wrap`: flex items 묶음(줄바꿈) 여부.
       > ![img_6.png](img_6.png)
       > - 기본값 nowrap(컨테이너 크기가 모자라면 item의 크기가 조절된다.)
       > - wrap: 컨테이너의 크기가 모자라면 줄바꿈을 하여 다음 줄에서 item을 표시. 
       > - 다음 줄로 넘어갈 때는 바로 아래에 붙어서 넘어가는 것이 아니라 2줄이라면 컨테이너의 1/2 지점이 2번째 줄의 시작이다.
-    - ```justify-content```: 주 축의 정렬 방법.
+    - `justify-content`: 주 축의 정렬 방법.
       > - 기본 값은 flex-start(items를 시작점으로 정렬)
       > - flex-end: item을 끝 점으로 정렬.
       > - center: 가운데 정렬.
-    - ```align-content```: 교차 축의 **여러 줄** 정렬 방법.
+    - `align-content`: 교차 축의 **여러 줄** 정렬 방법.
       > 한 줄 일때는 동작하지 않는다.
       > - stretch: 기본값, 시작점으로 정렬.
       > - flex-start: 시작점으로 정렬.(요소가 줄과 상관없이 붙어서 정렬 된다.)
       > - flex- end: 끝 점으로 정렬
       > - center: 가운데 정렬
-    - ```align-items```: 교차 축의 한 줄 정렬 방법.
+    - `align-items`: 교차 축의 한 줄 정렬 방법.
       > - 값은 align-content 와 동일하다. 다른 점이라면 '한 줄' 에서의 정렬이라는 것. 한 줄의 영역에서 정렬된다.
       > - ex) flex-end
       > > ![img_5.png](img_5.png)
   
   - #### 🖍 flex item의 속성
-    - ```order```: 아이템의 순서.
+    - `order`: 아이템의 순서.
       > - 기본값은 0, 순서 없음.
       > - 숫자가 작을 수록 먼저 온다.
-    - ```flex-grow```: 아이템의 증가 너비 비율
+    - `flex-grow`: 아이템의 증가 너비 비율
       > - 기본값 0.(자신의 크기를 그대로 가진다.) 이를 제외한 영역을 비율로 나눠 가진다.
-    - ```flex-shrink```: 아이템의 감소 너비 비율
+    - `flex-shrink`: 아이템의 감소 너비 비율
       > - 기본값은 1, 컨테이너의 크기가 줄어들면 비율에 맞게 함께 줄어든다.
       > - 0으로 설정하면 컨테이너의 크기가 줄어도 줄어들지 않는다.
-    - ```flex-basis```: 아이템의 공간 배분 전 기본 너비.
+    - `flex-basis`: 아이템의 공간 배분 전 기본 너비.
       > - 기본값은 auto(content의 너비.) 제외하고 grow의 비율을 계산하게 된다.
-      > - grow의 비율에 맞게 설정하기 위해서는 0으로 설정하면 된다.
-    - ```align-self``` 
+      > - grow의 비율에 맞게 설정하기 위해서는 `0`으로 설정하면 된다.
+    - `align-self`
+  
+- #### 👆 transition
+  요소의 전환(시작과 끝) 효과를 지정하는 단축 속성.
+  - transition: `property` `duration(필수)` `timing-function` `delay`;
+    - transition-property: 전환효과를 사용할 속성 이름을 명시할 수 있다. 기본 값은 all. 
+    - transition-duration: 얼마에 걸쳐 전환될지 지속시간(s)를 설정. 기본 값은 0s
+    - transition-timing-function: 전환 효과의 타이밍 함수를 지정한다.
+      > - ease: 기본값. 느리게 - 빠르게 - 느리게
+      > - linear: 일정하게.
+      > - ease-in: 느리게 - 빠르게
+      > - ease-out: 빠르게 - 느리게
+      > - ease-in-out: 느리게 - 빠르게 - 느리게
+      > - cubic -bezier(x,x,x,x) 로 값을 조절할 수 있다.
+    - transition-delay: 전환 효과를 얼마 뒤에 시작할지. 기본값은 0s
+
+- #### 👆 transform
+  `transform: func1 func2 func3 ...;`
+  - 🖍 **2D 변환 함수**
+    - translate(x,y), translateX(x), translateY(y): 이동.
+    - scale(x,y), scaleX(x), scaleY(y): 크기 변환.
+    - rotate(degree): 회전.
+    - skewX(x), skewY(y), skew(x,y): 기울임.
+  - 🖍 **3D 변환 함수**
+    - rotateX(x), rotateY(y): x,y 축 회전.
+    - rotate3D(x,y,z, deg)
+    - translateZ(z): z축 이동
+    - translate3d(x,y,z)
+    - scaleZ(z): z축 크기 변환.
+    - scale3d(x,y,z)
+    - perspective(n): 원근법(원근 거리)
+  
+- #### 👆 perspective 함수
+  transform 에서 perspective 속성이 있음을 확인했다. 속성과 함수에는 어떤 차이가 있을까?
+  - perspective 속성: 관찰 대상의 부모에게 적용, perspective-origin 으로 기준점 설정.
+  - transform:perspective 함수: 관찰 대상에게 적용, transform-origin 으로 기준점 설정.
+  
+- #### 👆 backface-visibility
+  3D 변환으로 회전된 요소의 뒷면 숨김 여부
+  - visible: 기본값, 뒷면 보임.
+  - hidden: 숨김, (90도가 넘어 뒷면이 보일 때가 되면요소가 보이지 않는다).
+    > 보이지 않던 요소를 보이게 하거나, 보이던 요소를 감추는 식으로 활용이 가능하다.
