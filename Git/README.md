@@ -12,7 +12,6 @@
 - GitLab
 
 ## 🧐 Git setting
-
 ```
 git config --global user.name "{name}" 
 git config --global user.email "{email}"
@@ -25,7 +24,35 @@ global을 local로 변경하면 해당 디렉토리에서만 사용하는 설정
 
 alias 의 설정도 가능하니 자주 쓰는 기능(git log --pretty --color --graph.. 같은)을 alias로 등록해도 좋다.
 
+## 🧐 Conventional Commits
+> https://www.conventionalcommits.org/en/v1.0.0/
 
+```
+1. commit의 제목은 commit을 잘 설명하는 하나의 구나 절로 완성.
+2. Importance of Capitalize
+3. prefix 꼭 달기
+  - feat: 기능 개발 관련.
+  - fix: 오류 개선 혹은 버그 패치.
+  - refactor: 리팩토링.
+  - docs: 문서화 작업.
+  - test: test 관련.
+  - conf: 환경설정 관련.
+  - build: 빌드 관련.
+  - ci: Continuous Integration 관련.
+  - BREAKING CHANGE: 툭정 버전이나 api 등이 동작하지 않게 되는 변경사항(Drop support /api/v1)
+```
+Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한다.
+
+## 🧐 Commit 유의 사항.
+- commit은 동작 가능한 최소단위로 자주 할 것.
+- 해당 작업 단위에 수행된 모든 파일 변화가 해당 commit에 포함되어야 함.
+- 모두가 이해할 수 잇는 log를 작성할 것.
+- 오픈 소스에서는 영어가 강제되지만, 그렇지 않을 경우 팀 내 언어를 사용할 것.
+- 제목은 축약형으로 쓰고(50자 이내), 내용은 문장형으로 작성하여 추가 설명.(이유, 작업 내용)
+- 제목과 내용은 한 줄 띄워 분리할 것.(마크다운 언어.)
+- 내용은 commit 의 구성과 의도를 충실히 작성할 것.
+
+- `add .`, `commit -m ""` 사용 지양.
 # 📌 버전관리 
 
 - ### 👆 git init {dir} : git 으로 관리할 디렉토리    
