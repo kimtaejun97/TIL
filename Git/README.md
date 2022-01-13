@@ -202,7 +202,19 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
   - production - pre-production - master - feature
   - deploy, issue에 대한 대응이 가능하도록 보완.
   
-  
+# 📌 Forking workflow 
+1. 관리자가 Repository를 생성.
+2. 관리자가 develop 브랜치 생성.
+3. 팀원이 해당 Repository를 fork.
+4. 팀원이 해당 Repository를 clone 하고 git flow init 하면 develop에 관리자가 초기화한 파일이 들어옴.
+5. 팀원이 작업 후 자신의 remote에 push
+6. pull requests 생성.
+7. 팀원이 추가 작업 후 자신의 remote에 push
+8. 팀장이 pull request 수락.
+9. 팀장은 자신의 local에 `git pull` or `git fetch origin develop` + `git merge FETCH_HEAD`
+10. 팀원은 자신의 local에 `git remote add upstream ${url}`, `git fetch upstream develop` + `git merge FETCH_HEAD`
+
+
 # 📌 Issue
 ### 🤔 .gitignore가 적용되지 않을 때.
     git rm -r --cached .
