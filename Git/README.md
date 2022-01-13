@@ -81,28 +81,28 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
     💡️ untracked 상태인 file은 적용되지 않음.       
 ![img_4.png](img_4.png)
 
-### 👆 git log : show version    
+- ### 👆 git log : show version    
 ![img_5.png](img_5.png)
 
-### 👆 git log —stat: version에 변경된 file list
+- ### 👆 git log —stat: version에 변경된 file list
 ![img_6.png](img_6.png)
 
-### 👆 git log -p : 마지막 버전과 다른 것.      
+- ### 👆 git log -p : 마지막 버전과 다른 것.      
 ![img_7.png](img_7.png)
 > - null 은 마지막 버전이 없다는 의미.
 > - git log —all : Show All branch.
 > - git log —graph: Show branch graph.
 > - git log —oneline: 정보를 한줄로 간략하게 표기.
 
-### 👆 git diff : show changes
+- ### 👆 git diff : show changes
 
 > - add 하기 전에 실행. 마지막 버전과 현재 변경사항을 비교.
 
-### 👆 git checkout  {commit id}:go back to previous version
+- ### 👆 git checkout  {commit id}:go back to previous version
 
 > - 임시적으로 해당 버전으로 옮김. →head가 옮겨감
 
-### 👆 git reset —hard {commit id}: reset to that version
+- ### 👆 git reset —hard {commit id}: reset to that version
 
 > - head와 master branch모두 옮겨감. 옮겨간 이후의 버전들이 삭제됨.
 > - git reset —hard : reset current changes
@@ -110,7 +110,7 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
 > - git reset HEAD^ : commit 취소
 > - git commit amend: commit message 변경
 
-### 👆 git revert {commit id}: 버전을 삭제하지 않으면서 이전 버전으로 되돌리기.
+- ### 👆 git revert {commit id}: 버전을 삭제하지 않으면서 이전 버전으로 되돌리기.
 
 > - version 1, version 2, version 3, version 4 가 있고, version 4가 최신 버전일 때
 > - version 3 로 revert 하고 싶다면 git revert{version 4 id}. version 4는 삭제되지 않고. version 3로 되돌아가게 된다.
@@ -120,15 +120,14 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
 💡 버전관리 하고싶지 않은 파일이 있다면 .gitignore 에 파일명을 작성.- git init {dir} : git으로 관리할 디렉토리   
 
 
-
 # 📌 Backup
 *****
-### 👆 git remote : 원격 저장소 리스트
+- ### 👆 git remote : 원격 저장소 리스트
 > - git remote -v : 원격 저장소 리스트 + 주소
 > - git remote add {name} https://github.com/.... : 원격 저장소 추가.(관습적으로 origin으로 이름을 정한다.)   
 > - git remote remove {name} : 원격 저장소 제거.
 
-### 👆 git push {remote name} {branch}
+- ### 👆 git push {remote name} {branch}
 > -git push --set-upstream remote branch : 기본적인 push 저장소와 branch 설정.    
 > 이 다음부터는 git push 만으로 설정된 저장소와 브랜치로 push 가능.
 
@@ -136,13 +135,76 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
     - 저장소를 생성할때 README 파일이나, .gitignore파일을 생성해서 발생하는 문제 먼저 파일을 가져와야 한다.
     - git pull origin master --allow-unrelated-histories
 
-### 👆 git clone {address} : 기존의 저장소 복제.
+- ### 👆 git clone {address} : 기존의 저장소 복제.
 > - 기본적으로 repository의 이름으로 directory가 생성.
 > - 다른이름으로 지정하고 싶다면 git clone {address} {dir_name}
 
-### 👆 git pull {remote} {branch}
+- ### 👆 git pull {remote} {branch}
+
+# 📌 Branch
+브랜치를 생성할 때에는 해당 브랜치에서 어떤 일을 할 것인지를 이름으로 명시한다.
+
+- ### 👆 git branch {branchName}
+  > - 새로운 브랜치를 생성한다. 
+  > - `git branch {name} -m`생성과 동시에 브랜치로 이동 
+  
+- ### 👆 git checkout {branchName}
+  > - 브랜치를 이동한다
+  > - 최신 버전부터는 checkout이 swtich와 restore로 나누어 진다.
+
+- ### 👆 git merge {branchName}
+  > - 대상 브랜치의 작업 내용을 현재 브랜치로 병합시킨다.
+  
+- ### 👆 git branch -D {branchName}
+  > - 대상 브렌치를 제거한다.
+  
+- ### 🤔 Conflict
+  > Merge 실행시 각각의 브랜치에서 같은 라인을 수정할 때 발생한다.
+  > 사용자가 직접 어떤 코드를 남길지 선택하고, 필요없는 부분을 지운 뒤 add, commit 다시 실행.
+  
+## 🧐 Branching model
+- ### 👆 git flow
+  > https://danielkummer.github.io/git-flow-cheatsheet/index.ko_KR.html
+  - 가장 많이 사용되는 모델, 각 단계가 명확하게 구분된다.
+  - (hotfix) - `master` - (release) - `develop` - feature
+    - develop: 다음 개발이 진행될 branch
+    - master: 사용자가 보게될 버전.
+  - develop 브랜치에서 또 feature 브랜치를 생성하여 안정적으로 병합될 수 있도록 설꼐.
+  
+  - #### git flow 세팅 및 사용.
+    - MacOs 설치: `brew install git-flow-avh`
+    - 초기화: git 저장소 내에서 `git flow init`
+    - 새 기능 시작: `git flow feature start ${featureName}`
+      > 브랜치를 생성하고 해당 브랜치로 전환.
+    - 기능 완료: `fit flow feature finish ${featureName}`
+      > feature 브랜치를 develop 에 병합, feature 브랜치를 삭제하고 develop 브랜치로 전환.
+    - 릴리즈 시작: `git flow release start ${version}`
+      > version ex) v1.0.00220113001 ( 년,월,일 몇 번째) 
+    - 릴리즈 종료: `git flow release finish ${version}`
+      - 종료시 에디터가 3번 나온다.
+        - 첫 번쨰: merge commit message
+        - 두 번쨰: 릴리즈 노트. 무엇을 했는지.(중요)
+        - 세 번째: 릴리즈 commit message
+  
+    - 릴리즈가 종료 되면
+      - develop 브랜치에서 remote develop 브랜치로 push.
+      - main 브랜치에서 remote main 브랜치로 push.
+      - `git push --tags`로 태그도 push
+      - `git tag` 로 버전 태그 확인 가능.
+- ### 👆 github flow
+  - master - feature
+  - 브랜치 모델을 단순화 CI 의존성이 높음, pull request로 잘못된 push를 방지.
+  
+- ### 👆 gitlab flow
+  - production - pre-production - master - feature
+  - deploy, issue에 대한 대응이 가능하도록 보완.
+  
+  
+
+
 
 
 # 📌 Issue
 ### 👆 .gitignore가 적용되지 않을 때.
     git rm -r --cached .
+
