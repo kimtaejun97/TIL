@@ -22,7 +22,8 @@ git config --global core.pager "{cat}"   // 기본값 less
 설정 상태는 `git config --list`로 확인 가능하고, `~/.gitconfig`에서도 수정, 확인 가능하다.   
 global을 local로 변경하면 해당 디렉토리에서만 사용하는 설정으로도 세팅이 가능하다.
 
-alias 의 설정도 가능하니 자주 쓰는 기능(git log --pretty --color --graph.. 같은)을 alias로 등록해도 좋다.
+alias 의 설정도 가능하니 자주 쓰는 기능(git log --pretty --graph.. 같은)을 alias로 등록해도 좋다.    
+`git config --global | local alias.${alias} 'og --graph'`
 
 ## 🧐 Conventional Commits
 > https://www.conventionalcommits.org/en/v1.0.0/
@@ -56,15 +57,15 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
 # 📌 버전관리 
 
 - ### 👆 git init {dir} : git 으로 관리할 디렉토리    
-    ![img.png](img.png)    
+    ![img.png](imgs/img.png)    
     생략하면 현재 디렉토리를 대상으로 한다.
 
 - ### 👆 .git : git repository       
-    ![img_1.png](img_1.png)          
+    ![img_1.png](imgs/img_1.png)          
 
 
 - ### 👆 git add : add to staging area       
-    ![img_2.png](img_2.png)
+    ![img_2.png](imgs/img_2.png)
     blob을 working directory 에서 staging area 에 올린다.
     - `git add ${file}` 
     - `git add *` 로 모든 파일 add 가능   
@@ -72,7 +73,7 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
     - `git add ${dir}`
 
 - ### 👆 git status : working tree status      
-    ![img_3.png](img_3.png)
+    ![img_3.png](imgs/img_3.png)
 
 - ### 👆 git commit : create version
     - git commit 명령어 실행시 뜨는 에디터 창에서 message를 입력(권장.)
@@ -80,16 +81,16 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
     - git commit -am "message" : git add 와 git commit을 한번에
 
     💡️ untracked 상태인 file은 적용되지 않음.       
-![img_4.png](img_4.png)
+![img_4.png](imgs/img_4.png)
 
 - ### 👆 git log : show version    
-  ![img_5.png](img_5.png)
+  ![img_5.png](imgs/img_5.png)
 
 - ### 👆 git log —stat: version에 변경된 file list
-  ![img_6.png](img_6.png)
+  ![img_6.png](imgs/img_6.png)
 
 - ### 👆 git log -p : 마지막 버전과 다른 것.      
-  ![img_7.png](img_7.png)
+  ![img_7.png](imgs/img_7.png)
   - null 은 마지막 버전이 없다는 의미.
   - git log —all : Show All branch.
   - git log —graph: Show branch graph.
@@ -185,9 +186,9 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
       > version ex) v1.0.00220113001 ( 년,월,일 몇 번째) 
     - 릴리즈 종료: `git flow release finish ${version}`
       - 종료시 에디터가 3번 나온다.
-        > - 첫 번쨰: merge commit message
-        > - 두 번쨰: 릴리즈 노트. 무엇을 했는지.(중요)
-        > - 세 번째: 릴리즈 commit message
+        > - 첫 번쨰: main(master)으로 들어가는 merge commit message.
+        > - 두 번쨰: 릴리즈 노트. 무엇을 했는지.(중요).
+        > - 세 번째: develop으로 들어가는 merge commit message.
   
     - 릴리즈가 종료 되면
       - develop 브랜치에서 remote develop 브랜치로 push.
@@ -214,6 +215,10 @@ Conventional Commits 은 팀마다 다르기 때문에 이를 참조해야 한�
 9. 팀장은 자신의 local에 `git pull` or `git fetch origin develop` + `git merge FETCH_HEAD`
 10. 팀원은 자신의 local에 `git remote add upstream ${url}`, `git fetch upstream develop` + `git merge FETCH_HEAD`
 
+
+# 📌 Bitbucket - Jira 연결
+> - Jira: Issue Tracking Service
+> - Issue 를 생성하고, Commit 메시지에 jira 티켓을 맨 앞에 명시하면 자동으로 해당 이슈에 커밋.
 
 # 📌 Issue
 ### 🤔 .gitignore가 적용되지 않을 때.
