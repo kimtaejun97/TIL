@@ -99,3 +99,13 @@ public Member findByUsername(String username){
 ```
 마찬가지로 생성된 네임드 쿼리의 이름을 가지고 사용 가능하다. 하지만 이 때 네임드 쿼리의 이름이
  ```{엔티티 클래스}.{네임드쿼리 이름}``` 이라면 명시하지 않아도 자동으로 찾아 사용한다.
+
+### ☝️ Query
+```java
+@Query("select m from Member m where m.username = :username and m.age = :age")
+List<Member> findByUsernameAndAge(@Param("username") String username, @Param("age") ing age);
+```
+`@Query` 애노테이션을 사용하여 바로 메서드에 JPQL 쿼리를 작성할 수 있다.
+파라미터는 `@Param()` 또는 파라미터의 순서(?1, ?2 ..) 로 메서드에 들어온 파라미터를 값으로 지정할 수 있다.
+
+마찬가지로 문자열로 이루어진 Query 지만. 애플리케이션 로딩시점에 파싱을 하기 때문에 문법 오류를 발견할 수 있다.
