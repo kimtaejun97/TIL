@@ -16,13 +16,13 @@ public class Judgement {
         int strike = countStrike(computerNumbers, playerNumbers);
         int ball = correctCount - strike;
 
-        return strike + "스타라이크" + ball + "볼";
+        return strike + "스트라이크 " + ball + "볼";
     }
 
     private int correctCount(List<Integer> computer, List<Integer> player){
         int count = 0;
         for(Integer number : player){
-            if (computer.contains(player)){
+            if (computer.contains(number)){
                 count++;
             }
         }

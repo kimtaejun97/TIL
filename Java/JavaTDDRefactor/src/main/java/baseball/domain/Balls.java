@@ -8,7 +8,6 @@ public class Balls {
     private final List<Integer> numbers;
     private static final int BALL_SIZE = 3;
 
-
     public Balls(List<Integer> numbers) {
         this.numbers = numbers;
         validateDuplicatedNumber(numbers);
