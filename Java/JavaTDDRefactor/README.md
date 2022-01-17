@@ -19,10 +19,10 @@
 
 
 ## 기능 목록
-- 1부터 9까지의 서로 다른 임의의 수 3개 생성. (NumberGenerator.createRandomNumber)
-  - 숫자 이외의 문자는 올 수 없다. (Balls.validateOnlyNumber)
-  - 3개의 숫자는 중복될 수 없다.(Balls.validateDuplicatedNumber)
-- 컴퓨터 수 3자리와 플레이어 수 3자리를 비교할 수 있다. (Judgement.compare)
-  - 같은 수가 다른 자리에 있으면 '볼'이다.
-  - 같은 수가 같은 자리에 있으면 '스트라이크'.
-  - 같은 수가 전혀 없으면 '낫싱' 이다. 
+- [x] 1부터 9까지의 서로 다른 임의의 수 3개 생성. (NumberGenerator.createRandomNumber)
+  - [ ] 숫자 이외의 문자는 올 수 없다. (Balls.validateOnlyNumber)
+  - [ ] 3개의 숫자는 중복될 수 없다.(Balls.validateDuplicatedNumber)
+- [ ] 컴퓨터 수 3자리와 플레이어 수 3자리를 비교할 수 있다. (Judgement.compare)
+  - [ ] 같은 수가 다른 자리에 있으면 '볼'이다.
+  - [ ] 같은 수가 같은 자리에 있으면 '스트라이크'.
+  - [ ] 같은 수가 전혀 없으면 '낫싱' 이다. 
