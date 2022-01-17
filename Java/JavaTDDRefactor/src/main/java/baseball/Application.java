@@ -4,6 +4,7 @@ package baseball;
 import baseball.domain.Balls;
 import baseball.domain.Judgement;
 import baseball.domain.NumberGenerator;
+import java.util.Arrays;
 import java.util.List;
 
 public class Application {
@@ -13,13 +14,10 @@ public class Application {
         List<Integer> randomNumber = numberGenerator.createRandomNumber();
         System.out.println(randomNumber);
 
+        Balls computer = new Balls(randomNumber);
+        Balls player = new Balls(Arrays.asList(3,2,7));
 
-//
-//        Balls computer = new Balls(randomNumber);
-//
-//        Balls player;
-//
-//        Judgement judgement = new Judgement();
-//        judgement.compare(computer, player);
+        Judgement judgement = new Judgement();
+        System.out.println(judgement.compare(computer, player));
     }
 }

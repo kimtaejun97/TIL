@@ -5,14 +5,19 @@ import java.util.List;
 
 public class Balls {
 
+    private final List<Integer> numbers;
+    private static final int BALL_SIZE = 3;
+
+
     public Balls(List<Integer> numbers) {
+        this.numbers = numbers;
         validateDuplicatedNumber(numbers);
         validateNumberRange(numbers);
     }
 
     private void validateDuplicatedNumber(List<Integer> numbers){
-        if(new HashSet<>(numbers).size() != numbers.size()){
-            throw new IllegalArgumentException("[Error] 중복되지 않은 숫자를 입력해 주세요.");
+        if(new HashSet<>(numbers).size() != BALL_SIZE){
+            throw new IllegalArgumentException("[Error] 중복되지 않은 3자리 숫자를 입력해 주세요.");
         }
     }
 
@@ -24,4 +29,7 @@ public class Balls {
         }
     }
 
+    public List<Integer> getNumbers() {
+        return numbers;
+    }
 }
