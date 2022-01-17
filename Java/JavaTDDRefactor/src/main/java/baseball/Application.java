@@ -12,6 +12,8 @@ public class Application {
         NumberGenerator numberGenerator = new NumberGenerator();
         List<Integer> randomNumber = numberGenerator.createRandomNumber();
         System.out.println(randomNumber);
+
+
 //
 //        Balls computer = new Balls(randomNumber);
 //
