@@ -2,20 +2,26 @@ package com.datajpa.member;
 
 import com.datajpa.team.Team;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Transactional
 class MemberTest {
 
     @PersistenceContext
     EntityManager em;
+
+    @Autowired
+    MemberRepository memberRepository;
 
     @Test
     void testEntity(){
@@ -48,6 +54,24 @@ class MemberTest {
         assertThat(members.get(2).getUsername()).isEqualTo("member3");
         assertThat(members.get(2).getAge()).isEqualTo(21);
         assertThat(members.get(2).getTeam()).isEqualTo(teamB);
+    }
+
+    @Test
+    void 쿼리_애노테이션(){
+        Team teamA = new Team("TeamA");
+        em.persist(teamA);
+
+        Member member1 = new Member("member1", 10, teamA);
+        em.persist(member1);
+
+        em.flush();
+        em.clear();
+
+        List<Member> members = memberRepository.findByUsernameAndAge("member1", 10);
+
+        assertThat(members.get(0).getUsername()).isEqualTo("member1");
+        assertThat(members.get(0).getAge()).isEqualTo(10);
+
     }
 
 }
