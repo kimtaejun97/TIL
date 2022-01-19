@@ -372,8 +372,115 @@ this를 사용할 때 undifined 값이 들어올 수 있다.
     
 - #### `Object.keys(obj)`
   - 지정된 객체의 속성 이름(key)을 배열로 반환한다.
+
+## 🧐 prototype
+```js
+User.prototype.getFullName = function() {
+  return `${this.firstName} ${this.lastName}`
+}
+
+const taejunKim = new User('Taejun', 'Kim')
+const heropy = new User('HEROPY', 'Park')
+
+console.log(taejunKim.getFullName())
+console.log(heropy.getFullName())
+console.log(taejunKim.getFullName === heropy.getFullName) // true
+```
+하나의 함수를 여러 동일한 타입의 객체들이 공유한다.    
+실제로 예시의 두 객체의 getFullName을 일치 연산자를 이용하여 비교해 보면 true가 출력되는 것을 확인할 수 있다.
+
+![img.png](img.png)
+
+getFullName 함수는 User객체의 속성으로서 존재하지 않고, prototype 속성으로 존재한다.
+- 중복 코드의 감소.
+- 자원 절약(같은 함수를 여러개 생성하지 않아도 된다.)
+
+## 🧐 Class
+ES6 부터는 프로토타입을 Wrapping 해둔 Class를 지원한다.
+```js
+class User{
+  constructor(firstName, lastName){
+    this.firstName = firstName
+    this.lastName = lastName
+  }
+
+  getFullName(){
+    return `${this.firstName} ${this.lastName}`
+  }
+}
+
+const taejunkim = new User('Taejun', 'Kim')
+console.log(taejunKim.getFullName())
+```
+위의 코드는 prototype의 코드와 동일한 역할을 한다.
+
+- ### 👆 extends
+  ```js
+  class Car{
+    constructor(name, wheel){
+      this.name = name
+      this.wheel = wheel
+    }
   
+    start(){
+      return true
+    }
+  }
   
+  class Bus extends Car{
+    constructor(name, wheel, license){
+      super(name, wheel)
+      this.license = license
+    }
+  
+    start(){
+      if(this.license.isValid){
+        return true
+      }
+      throw '무면허'
+    }
+  }
+  ```
+  기존에 만들어져있는 클래스를 상속해 기능을 확장할 수 있다.
+
+- ### 👆 get
+  함수나 메서드를 호출 할때에는 `method()`와 같이 호출한다. 그런데 class 에서는 속성처럼 사용할 수 있도록 `get`이라는 키워드를 사용한다.
+  ```js
+  class User{
+    constructor(firstName, lastName){
+      this.firstName = firstName
+      this.lastName = lastName
+    }
+  
+    get getFullName(){
+      return `${this.firstName} ${this.lastName}`
+    }
+  }
+  
+  const taejunkim = new User('Taejun', 'Kim')
+  console.log(taejunKim.getFullName)
+  ```
+
+- ### 👆 static
+  ```js
+  class User{
+   
+    ...
+  
+    static div(fullName) {
+        const names = this.fullName.split(' ')
+        return {
+            firstName: names[0],
+            lastName: names[1]
+        } 
+    }
+  }
+  
+  console.log(User.div('Taejun Kim'))
+  ```
+  인스턴스를 생성하지 않고 사용이 가능한 정적 메서드, 속성을 생성한다.
+
+ 
 ## 🧐 DOM API
 > Document Object Model, Application Programming Interface. HTML을 제어하는 명령들.
 
