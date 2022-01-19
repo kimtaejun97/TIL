@@ -134,3 +134,5 @@ arrCopy = _.cloneDeep(arrOrigin)
 
 arrOrigin[0] = 10
 console.log(arrCopy[0])
+
+

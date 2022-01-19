@@ -543,13 +543,19 @@ console.log(taejunKim.getFullName())
   let boxEl = document.getElementsByxxx(${elm}});
   ```
 
-- ### 👆 addEventListener()
+- ### 👆 부모 형제 탐색
   ```js
-  addEventListener('event', function(){
-      ...
-  });
+  elm.parentNode // 부모
+  elm.nextElementSibling // 다음 형제
   ```
-  Event 상황에 실행되는 함수를 **Handler** 라고 한다.
+
+- ### 👆 속성값 얻기
+  ```js
+  elm.id
+  elm.className
+  elm.getAttribute('attrName')
+  elm.setAttribute('placeholder')
+  ```
 
 - ### 👆 classList
   ```js
@@ -558,6 +564,20 @@ console.log(taejunKim.getFullName())
   let isContains = boxEl.classList.contains('active'); // 포함 여부.
   
   boxEl.classList.remove('active'); // class 제거.
+  ```
+
+- ### 👆 addEventListener('event', handler)
+  ```js
+  addEventListener('event', function(){
+      ...
+  });
+  ```
+  - Event 상황에 실행되는 함수를 **Handler** 라고 한다.
+  - 3번째 인수로 `{ capture: true }`를 추가해서 DOM 트리에서 내려올 때 이벤트 캡쳐링이 발생한다.
+
+- ### 👆 .removeEventListener('event', handler)
+  ```js
+  btn.removeEventListener('click', handler)
   ```
 
 - ### 👆 textContent
@@ -576,3 +596,95 @@ js 문서에서 이를 찾지 못하는 문제가 발생한다.
 
 이를 해결하기 위해서 body 태그의 맨 마지막에 script 태그가 위차하게 변경해도 되지만
 `<script defer src="...">"`와 같은 방법으로 해결할 수 있다.
+
+
+## 🧐 비동기
+javascript에서 함수의 실행은 비동기이다. 하지만 개발 상황에서는 함수가 순차적으로 실행됨이 보장되어야 할 때가 있는데.
+이 때 callback 을 이용할 수 있다.
+```js
+function a(callback){
+    ...
+}
+function b(callback){
+    ...
+}
+function c(callback){
+    ...
+}
+
+a(function (){
+    b(function (){
+        c(function () {
+           ... 
+        })
+    })
+})
+```
+하지만 3개의 함수만 실행하더라도 코드가 매우 복잡해진다. 실제로는 훨씬 많은 함수를 실행 해야할 것이고,   
+이러한 방법은 콜백 지옥을 만든다.
+
+- ### 👆 Promise
+  콜백 지옥을 벗아나기 위한 방법이 Promise 이다.
+  ```js
+  function a(){
+    return new Promise(function (resolve){
+      setTimeout(function(){
+        console.log('A')
+        resolve("B 실행~")
+      }, 1000)
+    })
+  }
+  
+  function b(res){
+    return new Promise(function(resolve){
+      setTimeout(function(){
+        console.log('B')
+        console.log(res)
+        resolve()
+      }, 1000)
+    })
+  }
+  
+  function c(){
+    console.log('C')
+  }
+  
+  a()
+    .then(b)
+    .then(c)
+  ```
+  resolve() 가 실행되는 위치에서 다음 함수가 실행되고,
+  resolve()로 전달된 데이터는 다음 실행되는 함수에서 매개변수로 받아 사용할 수 있다.
+
+- ### 👆 예외 처리
+  ```js
+  const url = 'https://www.omdbapi.com/?i=tt3896198&apikey=7035c60c111'
+  axios(url)
+    .then(res => {
+      console.log(res)
+    })
+    .catch(err => {
+      console.log('error!!!!!!!', err)
+    })
+    .finally(() => {
+      console.log('완료')
+    })
+  ```
+  axios 라이브러리를 사용하여 API 요청을 보냈다. 응답이 성공하면 then 부분이 실행되고, 실패하면 catch 블럭이 실행된다.    
+  마지막으로 응답의 성공 여부와 상관 없이 finally 블럭이 실행된다.
+
+- ### 👆 async/await
+  ```js
+  async function template(){
+    const res = await axios.get(url)
+    await a(res)
+    await b()
+    await c()
+    ...
+  }
+  ```
+  - async로 정의된 함수 안에서 await 키워드를 사용하여 함수가 종료될 때까지 기다리도록 만들 수 있다.   
+  - await 키워드를 사용하면 함수의 결과 값을 할당 연산자를 이용하여 반환 받을 수 있다.
+
+
+
