@@ -127,3 +127,10 @@ const objA = {
 const {a, b:myKey} = objA
 console.log(a)
 console.log(myKey)
+
+// 깊은 복사
+arrOrigin = [1,2,3]
+arrCopy = _.cloneDeep(arrOrigin)
+
+arrOrigin[0] = 10
+console.log(arrCopy[0])
