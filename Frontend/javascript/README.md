@@ -354,7 +354,26 @@ this를 사용할 때 undifined 값이 들어올 수 있다.
 - #### `.reverse()`
   - 배열의 순서를 뒤집는다. 원본 배열이 변경된다.
 
+## Object API
 
+- #### `Object.assign(target, source1, source2 ...)`
+  - 열거할 수 있는 하나 이상의 출처 객체로부터 대상 객체로 속성을 복사한다.
+  - target 객체를 반환한다.
+  - target 객체가 바뀐다. 새로운 객체를 만들고 싶다면 target에 빈 객체`{}`를 주면 된다.
+  ```js
+  source = {a :1, b: 2}
+  source2 ={c: 3, b: 9}
+  target = {d :5, e: 6}
+  returnedTarget = Object.assign(target, source, source2)
+  
+  console.log(target) // {d: 5, e: 6, a: 1, b: 9, c: 3}
+  ```
+  key의 값이 같다면 더 뒤에오는 인수의 값으로 덮어씌어 진다.
+    
+- #### `Object.keys(obj)`
+  - 지정된 객체의 속성 이름(key)을 배열로 반환한다.
+  
+  
 ## 🧐 DOM API
 > Document Object Model, Application Programming Interface. HTML을 제어하는 명령들.
 
