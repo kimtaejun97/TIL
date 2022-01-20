@@ -23,10 +23,11 @@ function c(res){
 }
 
 a()
-  .then(b)
+.then(() => b())
   .then(c)
 
 
+// 예외 처리
 const url = 'https://www.omdbapi.com/?i=tt3896198&apikey=7035c60c'
 axios(url)
   .then(res => {
@@ -39,3 +40,11 @@ axios(url)
     console.log('완료')
   })
   
+// async/ await
+
+async function template(){
+  await axios.get(url)
+  await a()
+  await b()
+  await c()
+}
