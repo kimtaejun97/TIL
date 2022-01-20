@@ -5,7 +5,9 @@ const app = Vue.createApp({
       tooltip: "wheel up and down ~~ ",
       message: 'Hello',
       myName: ' kim',
-      showMessage: false,
+      showMessage1: false,
+      showMessage2: true,
+      showMessage3: false,
       fruits: ['Apple', 'Banana', 'Cherry'],
       movie: {},
       

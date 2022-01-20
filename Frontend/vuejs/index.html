@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.25.0/axios.min.js" integrity="sha512-/Q6t3CASm04EliI1QyIDAA/nDo9R8FQ/BULoUFyN4n/BDdyIxeH7u++Z+eobdmr11gG5D/6nPFyDlnisDwhpYA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://unpkg.com/vue@next"></script>
+  <script defer src="./main.js"></script>
+</head>
+<body>
+  <div id="bigave">
+    <!-- v-once -->
+    <h1 v-once @wheel = "increase" :title="tooltip"> v-once{{ counter }}</h1>
+
+    <!-- v-vind:title -->
+    <h1 @wheel = "increase" :title="tooltip"> {{ counter }}</h1>
+
+    <span>{{ message }}</span>
+    <!-- computed -->
+    <div>{{ newMessage }}</div>
+    <div>{{ reversedMessage() }}</div>
+    <div>{{ computedReversedMessage }}</div>
+    <!-- computed - setter -->
+    <button @click="computedReversedMessage = 1234">
+      setter
+    </button>
+
+    <!-- v-if -->
+    <div v-if="showMessage1">message1: {{ myName }}</div>
+    <div v-else-if="showMessage2">message2: {{ myName }}</div>
+    <div v-else="showMessage3">message3: {{ myName }}</div>
+
+    <!-- event -->
+    <button @click="reverseMessage">
+      reverse
+    </button>
+
+    <button v-on:click="showMyName">
+      Show Name!!
+    </button>
+
+    <!-- v-for -->
+    <ul>
+      <li v-for="fruit in fruits"> {{ fruit }} </li>
+    </ul>
+
+    <h1>{{ movie.Title }}</h1>
+    <p>MetaScore: {{ movie.Metascore }}점</p>
+
+    <!-- v-html -->
+    <h1 v-html="htmlMessage"></h1>
+
+    <!-- v-vind:style -->
+    <h1 :style="myStyle">MyStyle~</h1>
+
+    <!-- 클래스의 동적 전환 -->
+    <h1 :class="{ active: isActive}"
+        @click = "isActive = !isActive">
+      Hello world!
+    </h1>
+
+    <h1
+      :style = "{
+        color: myColor,
+        fontSize: '16px',
+        backgroundColor: 'orange'
+      }"
+      @click = "myColor = 'blue'">
+      Hello Style~
+    </h1>
+
+  </div>
+</body>
+</html>
