@@ -37,40 +37,6 @@ app.mount('#bigave')
 - `methods()`: 메서드 옵션, `v-on:event` 로 메서드를 언제 실행할 것인지 지정 가능하다. `@event` 로 축약 가능하다.
 
 
-### 👆 반복문과 조건문
-```js
-const app = Vue.createApp({
-  data() {
-    return {
-      myName: ' kim',
-      showMessage: false,
-      fruits: ['Apple', 'Banana', 'Cherry']
-    }
-  },
-  methods: {
-    showMyName() {
-      this.showMessage = true
-    }
-  }
-})
-app.mount('#bigave')
-```
-
-```html
-<h1 v-if="showMessage">{{ myName }}</h1>
-
-<button v-on:click="showMyName">
-      Show Name!!
-</button>
-
-
-<ul>
-  <li v-for="fruit in fruits"> {{ fruit }} </li>
-</ul>
-```
-- 조건문은 `v-if` 디렉티브를 사용할 수 있다. 값으로는 boolean 값이 들어온다.
-- 반복문은 `v-for` 디렉티브를 사용한다. 배열 등 반복 가능한 데이터를 순회하며 HTML 요소를 생성할 수 있다.
-
 ## 🧐 라이프사이클 
 ![img_2.png](img_2.png)
 ### 👆 라이프사이클 훅
@@ -246,3 +212,86 @@ watch는 해당 값이 변경되는지를 감시하고 있다가 변경되면 �
         ```html
         <h1 :style="[myStyle1, myStyle2]"></h1>
         ```
+      
+
+## 🧐 조건부 렌더링
+- ### 👆 v-if
+    ```html
+    <div v-if="showMessage1">message1: {{ myName }}</div>
+    <div v-else-if="showMessage2">message2: {{ myName }}</div>
+    <div v-else="showMessage3">message3: {{ myName }}</div>
+    ```
+    - 조건문은 `v-if` 디렉티브를 사용할 수 있다. 값으로는 boolean 값이 들어온다.
+    - 일반 적인 프로그래밍과 같이 else if, else 구문을 사용할 수 있다.
+    - v-if 는 html 에서 보면 `<!--v-if-->` 라는 주석만을 남기고 요소 자체를 삭제한다. => 전환 비용이 높다.
+
+- ### 👆 v-show
+    - `v-if`와 달리 실제로 사라지는 것이 아니라 css style의 `display` 속성을 `none`으로 변경한다.
+    - css style 만을 변경하기 때문에 전환 비용이 더 저렴하다.
+    - 그러나 필요 없는데도 렌더링을 하기 때문에 초기 렌더링 비용이 높다.
+
+
+
+## 🧐 리스트 렌더링 v-for
+- ### 👆 배열의 순회
+  ```js
+  const app = Vue.createApp({
+    data() {
+      return {
+        fruits: ['Apple', 'Banana', 'Cherry']
+      }
+    }
+  })
+  app.mount('#bigave')
+  ```
+  ```html
+  <ul>
+    <li v-for="fruit in fruits"> {{ fruit }} </li>
+  </ul>
+  ```
+  - 반복문은 `v-for` 디렉티브를 사용한다. 배열 등 반복 가능한 데이터를 순회하며 HTML 요소를 생성할 수 있다.
+    - 두번 째 매개변수로 index를 받을 수 있다.
+
+- ### 👆 Object의 순회
+  ```js
+  user: {
+        name: 'kim',
+        age: '26',
+        email: 'asd@gmail.com'
+      }
+  ```
+  ```html
+  <ul>
+    <li v-for="(value, key, index) in user">
+        <!-- (0): name = kim -->
+      ({{ index }}): {{ key }} = {{ value }} 
+    </li>
+  </ul>
+  ```
+  - 값만 받을 수도 있지만, key, value, index 를 받는 것이 가능하다.(value, key, index 순서임에 유의)
+      
+- ### 💡 :key
+  v-for 에서 데이터 항목의 순서가 변경되거나 재사용하는 등의 경우 key 속성을 이용하여 vue가 고유한 데이터를 구분할 수 있도록 이를 알려줄 수 있다.   
+  v-for를 사용할때에는 항상 명시해주는 것이 좋다(유일한 값으로). key의 값은 항상 기본 타입(문자열이나 숫자 )로 사용한다.
+  ```html
+  <ul>
+    <li v-for="(value, name, index) in user"
+        :key="name">
+      ({{ index }}): {{ name }} = {{ value }}  
+    </li>
+  </ul>
+  ```
+  key는 고유한 값이어야 하기 때문에 대부분의 경우에 배열을 순회하는 경우에도 객체로 묶어내어 사용한다.
+  ```js
+  fruits: [
+    { id: '123', name:'apple'}
+            ...
+  ]
+  ```
+
+- ### 👆 정수 순회
+  `v-for` 을 이용하여 정수를 순회할 수 있다.(zero based가 아님에 주의. 1부터 시작.)
+  ```html
+  <!--  12345678910-->
+  <span v-for="n in 10">{{ n }}</span> 
+  ```

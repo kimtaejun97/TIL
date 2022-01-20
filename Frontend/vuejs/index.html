@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:v-on="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -72,6 +72,15 @@
       Hello Style~
     </h1>
 
+    <!-- Object의 for -->
+    <ul>
+      <li v-for="(value, key, index) in user"
+          :key="key">
+        ({{ index }}): {{ key }} = {{ value }}  
+      </li>
+    </ul>
+    
+    <div v-for="n in 10">{{ n }}</div>
   </div>
 </body>
 </html>

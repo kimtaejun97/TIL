@@ -16,6 +16,12 @@ const app = Vue.createApp({
       abc: 'click',
       isActive: false,
       myColor: 'red',
+
+      user: {
+        name: 'kim',
+        age: '26',
+        email: 'asd@gmail.com',
+      }
     }
   },
   computed: {
