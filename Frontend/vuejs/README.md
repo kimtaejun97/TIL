@@ -200,3 +200,49 @@ watch는 해당 값이 변경되는지를 감시하고 있다가 변경되면 �
 - 첫 번째 인자로는 변경된 후의 값을 가져올 수 있다.
 - 두 번째 인자로는 변경 전의 값을 가져올 수 있다.
 
+## 🧐 클래스와 스타일 바인딩
+- ### 👆 :class
+    HTML 클래스의 동적 전환.
+    ```html
+    <h1 :class="{ active: isActive}"
+            @click = "isActive = !isActive">Hello world!</h1>
+    ```
+    - isActive라는 data의 값에 따라 `active` 클래스가 추가 되거나 추가되지 않거나 한다.
+    - css를 적용 여부로 응용이 가능하다.
+    - 클래스 이름에 대시기호를 넣기 위해서는 `'class-name'`과 같이 사용해야 한다. 아래의 예시에서 함께 본다. 
+    
+    ```js
+    computed: {
+        myClasses () {
+            return {
+                active: isActive,
+                'dash-class': isDash,
+            }
+        }
+    }
+    ```
+    와 같이 작성하고 
+    ```html
+    <h1 :class="myClasses"
+            @click = "isActive = !isActive">Hello world!</h1>
+    ```
+    로 사용하여도 된다.
+
+- ### 👆 :style
+    ```html
+    <h1
+      :style = "{
+        color: myColor,
+        fontSize: '16px',
+        backgroundColor: 'orange'
+      }"
+      @click = "myColor = 'blue'">
+      Hello Style~
+    </h1>
+    ```
+    - font-size 이지만 vue에서 이를 카멜케이스로 적을 수 있도록 지원해주기 때문에 fontSize와 같이 적어도 된다.(그렇지 않으면 `'font-size'`로 적어야 한다.)
+    - 스타일 속성의 값으로 data 값을 사용 가능 하다(myColor와 같이)
+    - style을 담은 여러개의 객체 data를 적용하기 위해서는 배열 구문 `[ ]`을 사용할 수 있다.
+        ```html
+        <h1 :style="[myStyle1, myStyle2]"></h1>
+        ```

@@ -53,6 +53,23 @@
 
     <!-- v-vind:style -->
     <h1 :style="myStyle">MyStyle~</h1>
+
+    <!-- 클래스의 동적 전환 -->
+    <h1 :class="{ active: isActive}"
+        @click = "isActive = !isActive">
+      Hello world!
+    </h1>
+
+    <h1
+      :style = "{
+        color: myColor,
+        fontSize: '16px',
+        backgroundColor: 'orange'
+      }"
+      @click = "myColor = 'blue'">
+      Hello Style~
+    </h1>
+
   </div>
 </body>
 </html>

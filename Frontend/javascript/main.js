@@ -12,6 +12,8 @@ const app = Vue.createApp({
       htmlMessage: '<div style="color:red"> 원시 HTML!</div>',
       myStyle: 'color: red; font-size: 100px;',
       abc: 'click',
+      isActive: false,
+      myColor: 'red',
     }
   },
   computed: {
