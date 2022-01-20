@@ -124,7 +124,7 @@ app.mount('#bigave')
         v-bind는 생략할 수 있다.
     
 - ### 👆 동적 전달인자.
-    `[ ]`를 사용하여 동적으로 인자를 전달할 수 있따.
+    `[ ]`를 사용하여 동적으로 인자를 전달할 수 있다.
     ```js
     data() {
         return {
@@ -136,5 +136,67 @@ app.mount('#bigave')
     <h1 @[abc]="method">{{ counter }}</h1> // 클릭할때 method 실행.
     ```
         
+## 🧐 Computed 속성
+```js
+computed: {
+    //getter
+    newMessage() {
+      return this.message + '!!'
+    }
+    
+  }
+```
+```html
+<div>{{ newMessage }}</div>
+```
+- 기존의 데이터를 기반으로 계산한 값을 반환하기 때문에, 기존 데이터가 변경되면 함께 변경된다. (유지 보수)
+- 한번 계산된 값을 캐싱하고 있기 때문에 여러번 사용할 때 비용이 절약된다.
 
-  
+예를 들어 메서드로도 동일한 기능을 구현할 수 있다.
+```js
+methods: {
+    reversedMessage() {
+        return this.message + '!!'
+    }
+}
+```
+위의 메서드도 동일한 기능을 가진다. 하지만 메서드가 여러번 호출된다면, 호출 될 때마다 연산을 진행하게 된다.    
+이런 간단한 메서드가 아니라 비용이 비싼 연산이라면 많은 부담이 생길 것이다.    
+Computed는 캐싱을 이용하여 여러번 호출하더라도 한번만 연산한다는 장점을 가진다.
+
+```js
+computedReversedMessage: {
+  get() {
+    return this.message
+                  .split('')
+                  .reverse()
+                  .join('')
+  },
+  set(value) {
+    console.log(value) //1234
+  }
+}햐««
+```
+```html
+<button @click="computedReversedMessage = 1234">
+    setter
+</button>
+```
+이전에 작성된 코드에서는 기본적인 getter의 기능만을 가진다.   
+위의 코드처럼 변경하여 getter와 setter의 기능을 모두 가질 수도 있다. 할당 연산자를 이용하여 값을 전달할 수 있다.
+
+
+
+## 🧐 watch
+```js
+watch: {
+    message(newValue, oldValue) {
+      console.log(`message 데이터 ${oldValue}에서 ${newValue}로 변경됨.`)
+
+    }
+}
+```
+watch는 해당 값이 변경되는지를 감시하고 있다가 변경되면 실행된다. watch 안에서 대상 값을 다시 변경한다면 무한루프에 빠지게 되니 주의하자.
+- 첫 번째 인자로는 변경된 후의 값을 가져올 수 있다.
+- 두 번째 인자로는 변경 전의 값을 가져올 수 있다.
+

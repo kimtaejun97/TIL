@@ -14,12 +14,23 @@
   <div id="bigave">
     <!-- v-once -->
     <h1 v-once @wheel = "increase" :title="tooltip"> v-once{{ counter }}</h1>
-    <!-- :title -->
+
+    <!-- v-vind:title -->
     <h1 @wheel = "increase" :title="tooltip"> {{ counter }}</h1>
 
+    <span>{{ message }}</span>
+    <!-- computed -->
+    <div>{{ newMessage }}</div>
+    <div>{{ reversedMessage() }}</div>
+    <div>{{ computedReversedMessage }}</div>
+    <!-- computed - setter -->
+    <button @click="computedReversedMessage = 1234">
+      setter
+    </button>
+
     <!-- v-if -->
-    <span>{{ message }}</span> <span v-if="showMessage">{{ myName }}</span>
-  
+    <span v-if="showMessage">{{ myName }}</span>
+
     <!-- event -->
     <button @click="reverseMessage">
       reverse
@@ -40,6 +51,7 @@
     <!-- v-html -->
     <h1 v-html="htmlMessage"></h1>
 
+    <!-- v-vind:style -->
     <h1 :style="myStyle">MyStyle~</h1>
   </div>
 </body>
