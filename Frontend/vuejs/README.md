@@ -324,3 +324,19 @@ watch는 해당 값이 변경되는지를 감시하고 있다가 변경되면 �
     > - self 수식어를 사용하면 실제로 이벤트가 붙어 있는 영역을 클릭했을 때만 이벤트가 발생한다.
   
   이벤트 수식어는 `@click.stop.prevent` 처럼 체이닝이 가능하다.
+
+- ### 👆 키 수식어
+  - #### 키 명령어
+    ```html
+    <input @keyup.enter = :submit></input>
+    ```
+    이 외에 tab, delete, esc, space, up, down, left, right, a, b, c, ... 등 다양한 키 명령어가 존재한다.
+  
+  - #### 시스템 수식어 키 목록
+    - ctrl, alt, shift, meta(command) ...
+    - 해당 수식어 키가 눌러진 경우에만 이벤트 리스너를 트리거 할 수 있다 (ex> .shift.a)
+  
+  - ##### `.extract` 수식어
+    `@click.ctrl` 이라는 트리거가 정의되었다고 할 때, 기본적으로는 alt, shift 등의 키가 함께 눌려도 ctrl 키만 눌려있다면 핸들러는 실행된다.    
+    하지만 `@click.ctrl.extract` 처럼 `.extract` 수식어를 사용한다면 ctrl 키만 눌려져 있을 때만 실행된다.
+    
