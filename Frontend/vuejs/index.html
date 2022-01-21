@@ -107,10 +107,12 @@
     <!-- 컴포넌트 -->
     <my-btn my-color="red">Hello Component!!</my-btn>
     <my-btn @custom-event="hello" >WOW~</my-btn>
-    
+
     <my-btn v-model="message" ></my-btn>
 
-    <text-field v-model="message"></text-field>
+    <text-field v-model="message">
+      <h2>WOW~~~</h2>
+    </text-field>
 
   </div>
 </body>

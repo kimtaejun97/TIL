@@ -128,6 +128,7 @@ app.component('my-btn', {
 app.component('text-field', {
   template:
 `<label>
+  <slot><h2>Slot Default</h2></slot>
   <input
    :value = "modelValue"
     @input="$emit('update:modelValue', $event.target.value)" />

@@ -494,3 +494,25 @@ app.component('my-btn', {
   ```
   - `modelValue` 라는 값은 변경할 수 없다. 정해진 것.
   - 마찬가지로 `update:modelValue` 또한 정해진 것이다.
+  
+- ### 👆 slot
+  ```js
+  app.component('text-field', {
+    template:
+  `<label>
+    <slot><h2>Slot Default</h2></slot>
+    <input
+     :value = "modelValue"
+      @input="$emit('update:modelValue', $event.target.value)" />
+    {{ modelValue }}
+  </label>`,
+    }
+  })
+  ```
+  ```html
+  <text-field v-model="message">
+        <h2>WOW</h2>
+      </text-field>
+  ```
+  - component 내부의 모든 내용이 slot의 위치에서 출력된다.
+  - 내용이 없다면 slot에 있는 default 값이 출력된다.
