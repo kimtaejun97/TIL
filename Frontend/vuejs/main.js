@@ -3,7 +3,7 @@ const app = Vue.createApp({
     return {
       counter: 100,
       tooltip: "wheel up and down ~~ ",
-      message: '안녕하세요',
+      message: 'Hello world',
       myName: ' kim',
       showMessage1: false,
       showMessage2: true,
@@ -87,8 +87,56 @@ const app = Vue.createApp({
     },
     showMyName() {
       this.showMessage = true
-    }
+    },
 
+    hello(event) {
+      console.log(event)
+    },
+
+  }
+})
+app.component('my-btn', {
+  template:
+`<div
+  :style="{
+    display: 'inline-block',
+    backgroundColor: myColor,
+    color: 'white',
+    padding: '10px',
+  }"
+  @click="log">
+  {{ modelValue }}
+</div>`,
+  props: {
+    myColor: {
+      type: String,
+      default: 'royalblue'
+    },
+    modelValue: {
+      type: String,
+    }
+  },
+  emits: ['update:modelValue'],
+  methods: {
+    log() {
+      this.$emit('update:modelValue', 'My CustomEvent!')
+    },
+
+  }
+})
+
+app.component('text-field', {
+  template:
+`<label>
+  <input
+   :value = "modelValue"
+    @input="$emit('update:modelValue', $event.target.value)" />
+  {{ modelValue }}
+</label>`,
+  props: {
+    modelValue: {
+      type: String,
+    },
   }
 })
 app.mount('#bigave')

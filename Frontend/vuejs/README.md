@@ -383,3 +383,114 @@ watch는 해당 값이 변경되는지를 감시하고 있다가 변경되면 �
     - `.trim`
       - 입력된 문자의 앞 뒤 공백을 제거해준다.
 
+
+  
+## 🧐 컴포넌트
+```js
+app.component('my-btn', {
+  template:
+`<div
+  style="
+    display: inline-block;
+    background-color: royalblue;
+    color: white;
+    padding: 10px;
+  "
+  @click="log">
+  <slot></slot>
+</div>`,
+  methods: {
+    log() {
+      console.log('Comp!');
+    }
+  }
+})
+```
+- 템플릿 영역에서는 컴포넌트의 메서드를 사용할 때 this 를 생략할 수 있다(this.log -> log)
+
+```html
+<my-btn>Hello Component!!</my-btn>
+```
+
+- ### 👆 props
+  컴포넌트에 등록할 수 있는 커스텀 속성.
+  ```js
+  app.component('my-btn', {
+    template:
+  `<div
+    :style="{
+      display: 'inline-block',
+      backgroundColor: myColor,
+      color: 'white',
+      padding: '10px',
+    }"
+    @click="log">
+    <slot></slot>
+  </div>`,
+    props: {
+      myColor: {
+        type: String,
+        required: true,
+        default: 'royalblue',
+      },
+    }
+  })
+  ```
+  ```html
+  <my-btn my-color="red">Hello Component!!</my-btn>
+  ```
+  - `v-bind` 를 사용하기 위해 `:style`로 변경.
+  - js 문법이 되기 때문에 문법에 맞춰 변경.
+  - js는 카멜케이스를 쓰지만 html에서는 케밥 케이스로 써야함에 유의하자.
+
+- ### 👆 Emits
+  컴포넌트 안(하위)에서 밖으로(상위) 이벤트를 알림.
+  ```js
+  // 컴포넌트 methods
+  emits: ['customEvent'],
+  methods: {
+    log() {
+      this.$emit('customEvent', 'My CustomEvent!')
+    }
+  }
+  ```
+  ```js
+  // 부모 methods:
+  hello(event) {
+      console.log(event)
+  },
+  ``` 
+  ```html
+  <my-btn @custom-event="hello" >WOW~</my-btn>
+  ```
+  - emits 는 실제적인 기능은 아니지만 어떤 emit 들이 있는지 명시해주는 역할을 한다.
+  - 사실상 @click 에 바로 `"$emit( ... )"` 넣어준 것과 동일하다.
+  - `emit` 의 첫 번째 인자는 발생되는 이벤트, 두번 째 인자는 같이 전달할 데이터 이다.(event 객체에 담긴다.)
+  
+- ### 👆 v-model 사용하기
+  ```js
+  app.component('my-btn', {
+    template:
+  `<div
+    @click="emit">
+    {{ modelValue }}
+  </div>`,
+    props: {
+      modelValue: {
+        type: String,
+      }
+    },
+    emits: ['update:modelValue'],
+    methods: {
+      emit() {
+        this.$emit('update:modelValue', 'My CustomEvent!')
+      },
+    }
+  })
+  ```
+  
+  ```html
+  <my-btn v-model="message"></my-btn>
+  ```
+  - `modelValue` 라는 값은 변경할 수 없다. 정해진 것.
+  - 마찬가지로 `update:modelValue` 또한 정해진 것이다.
