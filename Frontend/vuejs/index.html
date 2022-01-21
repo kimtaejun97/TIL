@@ -81,6 +81,29 @@
     </ul>
     
     <div v-for="n in 10">{{ n }}</div>
+
+
+    <!-- v-model -->
+    <h1>{{ message }}</h1>
+    기본 v-modl: <input type="text" v-model="message"><br>
+
+    <!-- 한글 입력 지연 해결 v-model을 풀어서 쓴다.-->
+    한글 입력 이슈 해결: <input type="text" :value="message" @input="message = $event.target.value"><br>
+
+    <!-- lazy, 값의 입력이 끝났을 때. => @change 이벤트. -->
+    lazy: <input type="text" v-model.lazy="message">
+
+
+    <br>
+    <input type="checkbox" v-model="checkedNames" value="apple"> 
+    <input type="checkbox" v-model="checkedNames" value="banana">
+    <input type="checkbox" v-model="checkedNames" value="cherry">
+    <div>{{ checkedNames }}</div>
+
+   
+    <h1>{{ message }}</h1>
+
+
   </div>
 </body>
 </html>

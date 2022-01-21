@@ -3,7 +3,7 @@ const app = Vue.createApp({
     return {
       counter: 100,
       tooltip: "wheel up and down ~~ ",
-      message: 'Hello',
+      message: '안녕하세요',
       myName: ' kim',
       showMessage1: false,
       showMessage2: true,
@@ -21,7 +21,9 @@ const app = Vue.createApp({
         name: 'kim',
         age: '26',
         email: 'asd@gmail.com',
-      }
+      },
+
+      checkedNames: [],
     }
   },
   computed: {

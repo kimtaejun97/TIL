@@ -340,3 +340,46 @@ watch는 해당 값이 변경되는지를 감시하고 있다가 변경되면 �
     `@click.ctrl` 이라는 트리거가 정의되었다고 할 때, 기본적으로는 alt, shift 등의 키가 함께 눌려도 ctrl 키만 눌려있다면 핸들러는 실행된다.    
     하지만 `@click.ctrl.extract` 처럼 `.extract` 수식어를 사용한다면 ctrl 키만 눌려져 있을 때만 실행된다.
     
+## 🧐 폼 입력 바인딩
+
+- ### 👆 v-model
+  - input, textarea, select 요소들에 `양방향 데이터 바인딩`을 생성한다.
+    ```html
+    <input type="text" v-model="message">
+    <input type="checkbox" v-model="checked"> <!-- true, false -->
+    ```
+    input 입력창에 데이터를 수정,입력 하면 바인드된 message 데이터 또한 변경된다. 즉 value 속성의 값과 바인드 된다.
+    
+  - checkbox와 배열 데이터를 연결하면 어떤 것을 체크 했는지도 표기할 수 있다.
+    ```js
+    data() {
+        return {
+            checkedNames: []
+        }
+    }
+    ```
+    ```html
+    <input type="checkbox" v-model="checkedNames" value="apple"> 
+    <input type="checkbox" v-model="checkedNames" value="banana">
+    <input type="checkbox" v-model="checkedNames" value="cherry">
+    ```
+    checkebox를 체크하면 value에 있는 값이 바인드 된 checkedNames 배열에 추가된다.
+    
+  - v-model은 한글 입력에 대해 한 글자가 완성될 때 까지 반영이 `지연되는 이슈`가 있다. 이를 해결 하기 위해 아래와 같이 바인딩할 수 있다.
+    ```html
+    <input type="text" :value="message" @input="message = $event.target.value">
+    ```
+    위의 코드는 v-model을 풀어 쓴 코드이다. `:value`로 message data에서 단방향 바인딩을, `@input=""` 으로 반대 방향도 바인딩 한다.
+  
+  - #### 수식어
+    - `.lazy`
+      ```html
+      <input type="text" v-model.lazy="message">
+      ```
+      - 바로 반영되는 것이 아니라. 데이터의 변경이 끝났을 때(엔터, 언포커싱 등..) 반영한다.
+      - `@change` 와 같다.
+    - `.number`
+      - 입력받은 데이터는 1234와 같이 숫자를 넣어도 String 형태를 가진다. `.number`는 이를 숫자 데이터의 타입으로 입력할 수 있도록 해준다.
+    - `.trim`
+      - 입력된 문자의 앞 뒤 공백을 제거해준다.
+
