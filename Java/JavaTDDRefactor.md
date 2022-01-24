@@ -28,27 +28,42 @@
 
 
 ### 🧐 Test
-```java
-@BeforeAll // 클래스 단위로 테스트가 시작하기 전 처리.
-@AfterAll // 클래스 단위로 테스트가 시작하기 후 처리.
 
-@BeforeEach // 메서드 단위로 테스트가 시작하기 전 처리.
-@AfterEach // 메서드 단위로 테스트가 시작하기 후 처리.
-```
+- #### 👆 @Before, @After
+  ```java
+  @BeforeAll // 클래스 단위로 테스트가 시작하기 전 처리.
+  @AfterAll // 클래스 단위로 테스트가 시작하기 후 처리.
+  
+  @BeforeEach // 메서드 단위로 테스트가 시작하기 전 처리.
+  @AfterEach // 메서드 단위로 테스트가 시작하기 후 처리.
+  ```
 
-#### 👆 ParameterizedTest
-```java
-@ValueSource(ints = {4,5,6,7,8,9})
-@ParameterizedTest
-void 원볼_원스트라이크(int num){
-
-    // given
-    Balls player = new Balls((Arrays.asList(1, num, 2)));
-
-    // when
-    String result = judgement.compare(computer, player);
-
-    // then
-    assertThat(result).isEqualTo("1스트라이크 1볼");
-}
-```
+- #### 👆 ParameterizedTest
+  ```java
+  @ValueSource(ints = {4,5,6,7,8,9})
+  @ParameterizedTest
+  void 원볼_원스트라이크(int num){
+  
+      // given
+      Balls player = new Balls((Arrays.asList(1, num, 2)));
+  
+      // when
+      String result = judgement.compare(computer, player);
+  
+      // then
+      assertThat(result).isEqualTo("1스트라이크 1볼");
+  }
+  ```
+- #### 👆 문자열 테스트
+  ```java
+  String str = null;
+  
+  Assertions.assertAll(
+          () -> assertThat("상수문자열".equals(str)).isTrue(),
+          () -> assertThat(str.euqals("상수문자열")).isTrue()
+  )
+  ```
+  - 위의 코드에서 첫번째 테스트는 그냥 테스트 실패가 되지만 두번째 테스트는 NullPointException이 발생한다.
+  - 문자열의 동등성 테스트를 할때는 상수리터럴을 앞으로 빼는 것이 안전하다.
+  - 💡 `Assertions.assertAll`은 앞의 테스트가 실패해도 뒤의 테스트도 모두 실행한다.
+  
