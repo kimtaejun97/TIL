@@ -516,3 +516,200 @@ app.component('my-btn', {
   ```
   - component 내부의 모든 내용이 slot의 위치에서 출력된다.
   - 내용이 없다면 slot에 있는 default 값이 출력된다.
+
+
+# 📌 Vue3
+
+## 🧐 프로젝트 세팅
+`npm init`
+
+```
+"devDependencies": {
+    "@babel/core": "^7.16.10",
+    "@babel/plugin-transform-runtime": "^7.16.10",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/runtime-corejs3": "^7.16.8",
+    "@vue/compiler-sfc": "^3.2.27",
+    "autoprefixer": "^10.4.2",
+    "babel-loader": "^8.2.3",
+    "css-loader": "^6.5.1",
+    "eslint": "^8.7.0",
+    "eslint-plugin-vue": "^8.3.0",
+    "html-webpack-plugin": "^5.5.0",
+    "postcss": "^8.4.5",
+    "postcss-loader": "^6.2.1",
+    "sass": "^1.49.0",
+    "sass-loader": "^12.4.0",
+    "vue-loader": "^17.0.0",
+    "vue-style-loader": "^4.1.3",
+    "webpack": "^5.66.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.7.3"
+  },
+  "dependencies": {
+    "vue": "^3.2.27"
+  }
+```
+- `npm init` 으로 처음 package.json 초기화.
+- npm을 이용해서 필요한 패키지 설치.
+  - devDependencies는 `npm i -D` 로 다운로드.
+  - 일반 의존성은 `npm i` 
+  
+- ### 👆 babel 설정
+  ```json
+  // babel.config.json
+  {
+    "presets": ["@babel/preset-env"],
+    "plugins": [
+      [
+        "@babel/plugin-transform-runtime",
+        {
+          "corejs": 3
+        }
+      ]
+    ]
+  }
+  ```
+
+- ### 👆 scripits
+  ```json
+  "scripts": {
+    "dev": "webpack-dev-server --mode development",
+    "build": "webpack --mode development",
+    "babel": "babel src/main.js --out-dir dist"
+  },
+  ```
+
+- ### 👆 sass 설정
+  ```js
+  // postcss.config.js
+  module.exports = {
+    plugins: [
+      require('autoprefixer')
+    ]
+  }
+  ```
+- cli 명령어 세팅.
+- dev: 개발 서버 띄윅(localhost:8080)
+- build: 프로젝트 빌드.
+
+- ### 👆 webpack
+  ```js
+  // webpack.config.js
+  const { VueLoaderPlugin } = require('vue-loader')
+  const HtmlPlugin = require('html-webpack-plugin')
+  
+  module.exports = (env, options) => {
+    return {
+      entry: './src/main.js',
+      output: {
+        // path: `${__dirname}/dist`,
+        publicPath: '/',
+        clean: true
+      },
+      module: {
+        rules: [
+          {
+            test: /\.vue$/,
+            use: 'vue-loader'
+          },
+          {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: 'babel-loader'
+          },
+          {
+            test: /\.s?css$/,
+            use: [
+              'vue-style-loader',
+              'css-loader',
+              'postcss-loader',
+              'sass-loader',
+            ]
+          }
+        ]
+      },
+      plugins: [
+        new VueLoaderPlugin(),
+        new HtmlPlugin({
+          template: './src/index.html'
+        }),
+      ]
+    }
+  }
+  ```
+
+- ### 👆 Vetur 확장 프로그램.
+  vue 파일에서의 코드 하이라이팅.
+
+- ### 👆 lint
+  ```json
+  // .eslintrc.json
+  {
+    "env": {
+      "browser": true,
+      "node": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:vue/vue3-recommended"
+    ],
+    "rules": {
+      "semi": ["error", "never"],
+      "quotes": ["error", "single"],
+      "eol-last": ["error", "always"],
+  
+      "vue/html-closing-bracket-newline": ["error", {
+        "singleline": "never",
+        "multiline": "never"
+      }],
+      "vue/html-self-closing": ["error", {
+        "html": {
+          "void": "always",
+          "normal": "never",
+          "component": "always"
+        },
+        "svg": "always",
+        "math": "always"
+      }],
+      "vue/comment-directive": "off"
+    }
+  }
+  ```
+  
+## 🧐 시작하기
+
+- main.js
+```js
+import { createApp } from 'vue'
+import App from './App.vue'
+
+const app = createApp(App)
+app.mount('#app')
+```
+- App.vue
+```js
+<template>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+    }
+  },
+  methods: {
+ 
+  }
+}
+</script>
+
+<style lang="scss">
+h1 {
+  // const color = 'red'
+  $color: red;
+  background-color: $color;
+  display: flex;
+}
+</style>
+```
