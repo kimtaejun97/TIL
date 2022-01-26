@@ -713,3 +713,39 @@ h1 {
 }
 </style>
 ```
+
+## 🧐 Plugin 만들기.
+- #### fetch.js
+  ```js
+  import axios from 'axios'
+  
+  export default {
+    install(app) {
+      app.config.globalProperties.$fetch = async (url = '', method, data) => {
+        const { data: returnValue } = await axios(`https://asia-northeast3-heropy-api.cloudfunctions.net/api/todos/${url}`, {
+          headers: {
+            'content-type': 'application/json',
+            'apikey': 'FcKdtJs202110',
+            'username': 'bigave',
+          },
+          method,
+          data
+        })
+        return returnValue
+      }
+    }
+  }
+  ```
+  
+- #### main
+  ```js
+  import fetch from './plugins/fetch'
+  app.use(fetch)
+  ```
+
+- #### 사용.
+  ```js
+  async readTodos() {
+    this.todos = await this.$fetch(null, 'GET', )
+  }
+  ```
