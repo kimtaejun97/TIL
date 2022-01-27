@@ -749,3 +749,79 @@ h1 {
     this.todos = await this.$fetch(null, 'GET', )
   }
   ```
+  
+
+## 🧐 Store: vuex
+- #### store 정의
+  ```js
+  export default {
+    // 필수 옵션.
+    namespaced: true,
+    state: () => ({
+      // data
+      message: 'Hello'
+      
+    }),
+    getters: {
+      // computed
+    },
+    mutations: {
+      // 수정 권한을 가짐.
+      updateMessage(state) {
+        state.message = 'changedMessage'
+      }
+    },
+    actions: {
+      // methods
+      onNav({ commit }) {
+          // context.commit
+        commit('updateMessage')
+      }
+    }
+  }
+  ```
+  - mutations에 등록된 메서드는 context의 commit으로 action에서 사용할 수 있다.
+
+- #### store 생성
+  ```js
+  import { createStore } from 'vuex'
+  import navigation from './navigation'
+  
+  export default createStore({
+    modules: {
+      navigation
+    }
+  })
+  ```
+  - navigation.js(store 정의 파일)을 import 하고 스토어의 모듈에 등록한다.
+  
+- #### main.js에 plugin 등록
+  ```js
+  import { createApp } from 'vue'
+  import App from '~/App.vue'
+  import store from '~/store'
+  
+  const app = createApp(App)
+  app.use(store)
+  app.mount('#app')
+  ```
+
+- #### vue 컴포넌트에서 store 의 state 값 가져오기.
+  ```js
+  computed: {
+      message() {
+        return this.$store.state.navigation.message
+      }
+  }
+  ```
+  - $store 변수의 state에서 꺼낸다. namespace(여기선 navigation) 에서 꺼낸다.
+  
+- #### vue 컴포넌트에서 store의 actions의 메서드 호출.
+  ```js
+  methods: {
+    onNav() {
+      this.store.dispatch('navigation/onNav')
+    }
+  }
+  ```
+  - dispatch 를 사용하고 메서드 이름을 명시할때는 namespace를 함께 명시한다.
