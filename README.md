@@ -52,6 +52,7 @@
 
 - ### [HTML/CSS](Frontend/html:css)
 - ### [Javascript](Frontend/javascript)
+- ### [Vue.js](Frontend/vuejs)
 
 <br>
 
@@ -73,4 +74,5 @@
 ## 🗄 ETC
 ***
 - ### [Database Connection Pool](ETC/DBCP.md)
+- ### [Git](Git)
 
