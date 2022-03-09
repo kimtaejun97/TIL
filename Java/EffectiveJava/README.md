@@ -9,6 +9,7 @@
 - #### [Item09. try-finally보다는 rty-with-resources를 사용하라.](#-item09-try-finally보다는-rty-with-resources를-사용하라)
 - #### [Item10. equals는 일반 규약을 지켜 재정의하라.](#-item10-equals는-일반-규약을-지켜-재정의하라)
 - #### [Item17. 변경 가능성을 최소화 하라.](#-Item17-변경-가능성을-최소화하라)
+- #### [Item18. 상속보다는 컴포지션을 사용하라.](#-Item18-상속보다는-컴포지션을-사용하라)
 
 
 <br><br>
@@ -925,3 +926,90 @@ try (MyResource myResource1 = new MyResource();
   - 모든 객체를 불변으로 만들 수는 없다. 불변으로 만들 수 없는 객체라면 변경할 수 있는 부분을 최소화한다.
   - 합당한 이유가 없다면 모든 필드는 private final 이다.
   ```
+
+
+## 📌 Item18.상속보다는 컴포지션을 사용하라
+
+상속은 객체 지향에서 굉장히 중요한 개념이지만 잘못 사용한다면 많은 부작용(캡슐화 파괴 등)을 안겨줄 수 있다.
+상속은 완벽한 IS-A 관계에서만 사용하는 것이 좋다.(IS-A 관계라도 서로 다른 패키지에서의 상속은 피하자)
+
+- ### 👆 상속의 단점
+  - #### 상위 클래스에 따라 하위 클래스의 동작 이상이 생길 수 있다.
+    > - 상위 클래스의 구현에 따라 하위 클래스의 동작에 이상이 발생할 수 있다.(사용자가 생각하지 못한 상위 클래스의 사용 방식)
+    - HashSet을 예시로 들어보자. 다음은 초기 생성 이후에 몇개의 원소가 더해졌는지 구하는 myHashSet의 예시이다.
+      ```java
+      public class myHashSet<E> implements HashSet<E> {
+      
+              ...
+        
+        @Override
+        public boolean add(E e){
+              addCount ++;
+              return super.add(e);
+        }
+      
+        @Override
+        public boolean addAll(Collection<? extends E> c) {
+              addCount += c.size();
+              return super.addAll(c);
+        }
+      }
+      ```
+      해당 클래스를 만들면서 addAll로 3개의 원소를 더하면 addCount는 3이 될 것이라고 기대하면서 구현하였을 것이다.     
+      하지만 해당 코드의 결과는 6이 나온다(3 + 1 + 1 + 1) HashSet의 addAll은 내부적으로 add를 호출하도록 구현되어 있다.    
+      때문에 size인 3을 더하고 add 메서드에서 각각 1씩 3번을 더해 addCount의 값은 6이 된다.    
+      > 상속의 사용은 상위 클래스의 영향을 받기 때문에 생각지 못한 버그가 발생할 수 있다.
+      
+  - #### 상속을 이용한 방법에서는 보안의 취약점을 가져올 수도 있다.
+    > - 컬렉션에 보안을 위해 조건을 검사하는 기능을 추가한다고 가정해보자. 우리는 컬렉션을 상속받아 하위 클래스에서 메서드를 모두 재정의해 조건을 검사하는 로직을 추가할 것이다.
+    > - 하지만 상위 클래스(컬렉션)에 새로운 메서드가 추가 되었을 때, 하위 클래스에서 이를 재정의하지 않는다면, 보안에 취약점이 발생할 수 있다.
+    - 🤔 재정의 말고 하위 클래스에서 새로운 메서드를 추가하면 안되나요?
+      > 보다 안전하지만 우연히 상위 클래스에 내가 정의한 메서드와 일치하는 시그니처의 다른 반환타입 메서드가 추가된다면? 잘 돌아가던 프로그램에 컴파일 에러가 발생할 것이다.
+
+
+- ### 🤔 그래서 어떻게 해결하나요?
+
+이러한 문제점들을 해결할 수 있는 설계가 **컴포지션Lcomposition)** 이다. 컴포지션 에서는 기존 클래스가 새로운 클래스의 구성요소로 사용된다.    
+새로운 컴포지션 클래스는 기존의 클래스(위 예시에서의 HashSet과 같은)의 메서드를 호출하여 사용한다. 클래스를 감싸는 꼴이기 때문에 Wrapping 클래스라고도 표현하며
+데코레이터 패턴 이라고도 한다.
+
+- #### 전달 클래스
+  ```java
+  public class ForwardingSet<E> implements Set<E> {
+      private final Set<E> set;
+      
+      // Set의 메서드들 구현, set 인스턴스 에게 위임한다. 다른 메서드들도 마찬가지로 구현된다.
+      public boolean add(E e){
+          return s.add(e);
+      }
+  }
+  ```
+- #### Wrapper 클래스
+  ```java
+  public class mySet<E> implements ForwardingSet<E> {
+      
+          ...
+    
+    @Override
+    public boolean add(E e){
+          addCount ++;
+          return super.add(e);
+    }
+  
+    @Override
+    public boolean addAll(Collection<? extends E> c) {
+          addCount += c.size();
+          return super.addAll(c);
+    }
+  }
+  ```
+
+위와 같은 구현에서는 mySet의 상위 클래스인 ForwardingSet의 addAll을 호출하게 되고, ForwardingSet의 addAll은 자신이 인스턴스로 가지고 있는
+set의 addAll을 호출하기 때문에 mySet의 addCount에 영향을 주지 않는다. 상위 클래스에서 새로운 메서드가 생성된다고 해도 영향을 받지도 않는다.
+또한, Set 인터페이스를 구현하기 때문에 HashSet, TreeSet 등 다양한 인스턴스를 사용할 수 있게 된다.
+
+### 🙋‍♂️Wrapper 클래스에는 단점이 없나요?
+Wrapper 클래스는 기본적으로 콜백 프레임 워크와 잘 맞지 않는다.
+자신의 참조를 다른 객체에게 넘겨주어 사용하도록 하는데, 내부에서는 이를 감싸고 있는 Wrapper 클래스의 존재를 모르니 자신의 참조를 넘기게 될 수 있다.
+>  컴포지션 클래스가 아닌 컴포지션 클래스가 가지고 있는 사용할 인스턴스 객체를 넘기는 경우. 래퍼가 아닌 내부 객체를 사용하게 된다.
+
