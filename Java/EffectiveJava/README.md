@@ -8,8 +8,8 @@
 - #### [Item07. 다 쓴 객체 참조를 해제하라.](#-item07-다-쓴-객체-참조를-해제하라)
 - #### [Item09. try-finally보다는 rty-with-resources를 사용하라.](#-item09-try-finally보다는-rty-with-resources를-사용하라)
 - #### [Item10. equals는 일반 규약을 지켜 재정의하라.](#-item10-equals는-일반-규약을-지켜-재정의하라)
-- #### [Item17. 변경 가능성을 최소화 하라.](#-Item17-변경-가능성을-최소화하라)
-- #### [Item18. 상속보다는 컴포지션을 사용하라.](#-Item18-상속보다는-컴포지션을-사용하라)
+- #### [Item17. 변경 가능성을 최소화 하라.](#-item17-변경-가능성을-최소화하라)
+- #### [Item18. 상속보다는 컴포지션을 사용하라.](#-item18-상속보다는-컴포지션을-사용하라)
 
 
 <br><br>
@@ -969,11 +969,12 @@ try (MyResource myResource1 = new MyResource();
 
 - ### 🤔 그래서 어떻게 해결하나요?
 
-이러한 문제점들을 해결할 수 있는 설계가 **컴포지션Lcomposition)** 이다. 컴포지션 에서는 기존 클래스가 새로운 클래스의 구성요소로 사용된다.    
-새로운 컴포지션 클래스는 기존의 클래스(위 예시에서의 HashSet과 같은)의 메서드를 호출하여 사용한다. 클래스를 감싸는 꼴이기 때문에 Wrapping 클래스라고도 표현하며
-데코레이터 패턴 이라고도 한다.
+이러한 문제점들을 해결할 수 있는 설계가 **컴포지션(composition)** 이다. 컴포지션 에서는 기존 클래스가 새로운 클래스의 구성요소로 사용된다.    
+새로운 컴포지션 클래스는 기존의 클래스(위 예시에서의 HashSet과 같은)의 메서드를 호출하여 사용한다.   
+이러한 방식의 메서드를 **전달 메서드(Forwarding method)** 라고 한다.
 
-- #### 전달 클래스
+
+- #### 전달 클래스(Composition)
   ```java
   public class ForwardingSet<E> implements Set<E> {
       private final Set<E> set;
@@ -987,8 +988,10 @@ try (MyResource myResource1 = new MyResource();
 - #### Wrapper 클래스
   ```java
   public class mySet<E> implements ForwardingSet<E> {
-      
-          ...
+    
+    public mySet(Set<E> e){
+        super(e);
+    }
     
     @Override
     public boolean add(E e){
@@ -1005,8 +1008,10 @@ try (MyResource myResource1 = new MyResource();
   ```
 
 위와 같은 구현에서는 mySet의 상위 클래스인 ForwardingSet의 addAll을 호출하게 되고, ForwardingSet의 addAll은 자신이 인스턴스로 가지고 있는
-set의 addAll을 호출하기 때문에 mySet의 addCount에 영향을 주지 않는다. 상위 클래스에서 새로운 메서드가 생성된다고 해도 영향을 받지도 않는다.
-또한, Set 인터페이스를 구현하기 때문에 HashSet, TreeSet 등 다양한 인스턴스를 사용할 수 있게 된다.
+set의 addAll을 호출하기 때문에 mySet의 addCount에 영향을 주지 않는다. 마찬가지로 상위 클래스에서 새로운 메서드가 생성되거나 변경되어도 영향을 받지도 않는다.    
+또한, Set 인터페이스를 구현하기 때문에 HashSet, TreeSet 등 다양한 인스턴스를 사용할 수 있게 된다.    
+이러한 방식으로 구현된 클래스를 다른 인스턴스를 감싸고 있다고 하여 **래퍼 클래스** 라고 하고, 기존 클래스에 새로운 기능을 덧 붙인다고 하여 **데코레이터 패턴** 이라고 한다.
+
 
 ### 🙋‍♂️Wrapper 클래스에는 단점이 없나요?
 Wrapper 클래스는 기본적으로 콜백 프레임 워크와 잘 맞지 않는다.
