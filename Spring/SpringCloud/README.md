@@ -146,8 +146,6 @@ Cloud Native Applicationd은 다음을 따른다
 더 자세한 것은 뒤에서 다시 알아본다.
 
 
-
-
 ## 🤔 SOA 와 MSA 는 어떻게 다를까?
 > - SOA: Service Oriented Architecture
 > - MSA: :Micro Service Architecture
@@ -158,6 +156,46 @@ SOA는 기본적으로 재상요을 통한 비용의 절감에 목적이 있고,
 SOA 방식에서는 공통의 서비스를 버스(ESB)를 통해 한곳에 모은 후 하나의 서비스로 사용하고, MSA는 각 독립된 서비스가 REST API 방식으로 통신한다.
 
 
+
+# 📌 Spring Cloud Netfilx Eureka
+> 프로젝트 생성시 의존성 Eureka Server 추가.
+
+
+### - @EnableEurekaServer
+```java
+@SpringBootApplication
+@EnableEurekaServer // #1
+public class SpringcloudApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudApplication.class, args);
+    }
+
+}
+```
+- (#1): 유레카 서버로 등록하는 애노테이션, Service Discovery 로서 프로젝트를 실행시킨다.
+
+### - 기본 설정
+```yml
+server:
+  port: 8761
+
+#1
+spring:
+  application:
+    name: discoveryservice
+
+# 2
+eureka:
+  client:
+    register-with-eureka: false  
+    fetch-registry: false
+```
+- (#1): 마이크로 서비스에서 애플리케이션을 식별하기 위한 고유한 ID 부여
+- (#2): 유레카 라이브러리를 사용하게 되면 기본적으로 유레카 클라이언트로 등록하려고 시도하게 되는데, 현재 프로젝트는 유레카 서버로 사용할 것이기 대문에 false로 지정.
+
+### - 유레카 대시보드
+![img_7.png](img_7.png)
 
 <br><br>
 ### 🔑 참고
