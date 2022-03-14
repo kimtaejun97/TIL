@@ -158,44 +158,86 @@ SOA 방식에서는 공통의 서비스를 버스(ESB)를 통해 한곳에 모�
 
 
 # 📌 Spring Cloud Netfilx Eureka
+
+## 🧐 Eureka Server
 > 프로젝트 생성시 의존성 Eureka Server 추가.
 
+- ### @EnableEurekaServer
+  ```java
+  @SpringBootApplication
+  @EnableEurekaServer // #1
+  public class SpringcloudApplication {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(SpringcloudApplication.class, args);
+      }
+  
+  }
+  ```
+  - (#1): 유레카 서버로 등록하는 애노테이션, Service Discovery 로서 프로젝트를 실행시킨다.
 
-### - @EnableEurekaServer
-```java
-@SpringBootApplication
-@EnableEurekaServer // #1
-public class SpringcloudApplication {
+- ### 기본 설정
+  ```yml
+  server:
+    port: 8761
+  
+  #1
+  spring:
+    application:
+      name: discoveryservice
+  
+  # 2
+  eureka:
+    client:
+      register-with-eureka: false  
+      fetch-registry: false
+  ```
+  - (#1): 마이크로 서비스에서 애플리케이션을 식별하기 위한 고유한 ID 부여
+  - (#2): 유레카 라이브러리를 사용하게 되면 기본적으로 유레카 클라이언트로 등록하려고 시도하게 되는데, 현재 프로젝트는 유레카 서버로 사용할 것이기 대문에 false로 지정.
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringcloudApplication.class, args);
-    }
+- ### 유레카 대시보드
+  ![img_7.png](img_7.png)
 
-}
-```
-- (#1): 유레카 서버로 등록하는 애노테이션, Service Discovery 로서 프로젝트를 실행시킨다.
 
-### - 기본 설정
-```yml
-server:
-  port: 8761
+## 🧐 Eureka Client
+> Eureka-client 의존성 추가.
 
-#1
-spring:
-  application:
-    name: discoveryservice
+- ### @EnableEurekaClient, @EnableDiscoveryClient
+  ```java
+  @EnableDiscoveryClient
+  @SpringBootApplication
+  public class UserServiceApplication {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(UserServiceApplication.class, args);
+      }
+  
+  }
+  ```
+  - DiscoveryClient 를 조금 더 구현해 놓은 것이 EurekaClient 
 
-# 2
-eureka:
-  client:
-    register-with-eureka: false  
-    fetch-registry: false
-```
-- (#1): 마이크로 서비스에서 애플리케이션을 식별하기 위한 고유한 ID 부여
-- (#2): 유레카 라이브러리를 사용하게 되면 기본적으로 유레카 클라이언트로 등록하려고 시도하게 되는데, 현재 프로젝트는 유레카 서버로 사용할 것이기 대문에 false로 지정.
+- ### 기본 설정
+  ```yml
+  server:
+    port: 9001
+  
+  spring:
+    application:
+      name: user-service
+  
+  eureka:
+    client:
+      register-with-eureka: true
+      fetch-registry: true #1
+      service-url:
+        defaultZone: http://127.0.0.1:8761/eureka #2
+  ```
+  - (#1): 유레카 서버로부터 인스턴스들의 정보를 주기적으로 가져올 것인지 설정하는 속성.
+  - (#2): 등록할 서버의 위치, 이전에 생성한 유레카 서버의 호스트 주소를 적고, 엔드포인트를 명시해 주었다.   
+  
+  ![img_6.png](img_6.png)    
 
-### - 유레카 대시보드
-![img_7.png](img_7.png)
+  이전에 살펴보았던 유레카 서버의 대시보드로 돌아가보면 방금 실행시킨 user-service가 실행되고 있는 것을 확인할 수 있다.
 
 <br><br>
 ### 🔑 참고
