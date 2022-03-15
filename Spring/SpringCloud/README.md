@@ -239,6 +239,31 @@ SOA 방식에서는 공통의 서비스를 버스(ESB)를 통해 한곳에 모�
 
   이전에 살펴보았던 유레카 서버의 대시보드로 돌아가보면 방금 실행시킨 user-service가 실행되고 있는 것을 확인할 수 있다.
 
+
+### 💡 서비스의 실행 방법
+```
+1. Application Run
+  - 여러개의 Application 인스턴스를 생성(Edit configurations)후 -Dserver.port 옵션을 다르게 설정해 주어 여러개의 인스턴스를 띄울 수 있다.
+2. 빌드 도구를 이용하여 실행
+  - 빌드 도구를 이용하여 build and run
+  - gradle의 경우 ./gradlew build 후 ./gradlew bootRun --args='--server.port=9003'
+3. java -jar 로 실행
+  - 빌드
+  - java -jar -Dserver.port=9004 ./build/libs/user-service-0.0.1-SNAPSHOT.jar
+```
+
+- ### 랜덤포트를 이용한 간단한 로드밸런싱
+  - server.port: 0 으로 설정.
+  - 유레카 서버에서 동일 호스트, 애플리케이션 이름, port=0 를 가지기 때문에 하나밖에 등록이 되지 않음.
+  - 식별 아이디를 변경
+     ```
+    eureka:
+      instance:
+        instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+    ```
+
+
+
 <br><br>
 ### 🔑 참고
 > -  https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%ED%81%B4%EB%9D%BC%EC%9A%B0%EB%93%9C-%EB%A7%88%EC%9D%B4%ED%81%AC%EB%A1%9C%EC%84%9C%EB%B9%84%EC%8A%A4/dashboard
