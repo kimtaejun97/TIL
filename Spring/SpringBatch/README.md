@@ -1,3 +1,12 @@
+# 📔 목차
+- ### [Batch 란?](#-batch-란)
+- ### [Spring Batch?](#-spring-batch)
+- ### [Spring Batch 아키텍쳐](#-spring-batch-아키텍쳐)
+- ### [Spring Boot와 Spring Batch](#-spring-boot와-spring-batch)
+  - ### [Tasklet 방식을 사용한 간단한 배치 프로그램](#-tasklet-방식을-사용한-간단한-배치-프로그램)
+<br>
+
+****
 ### 🤔 Batch 란?
 
 정해진 시간에 일괄적으로 작업을 처리할 수 있도록 해주 프로그램으로 주로 대용량 데이터를 다룬다.    
@@ -61,7 +70,7 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
 - ### 🧐 Step
   ![img_4.png](img/img_4.png)
   - 작업의 처리 단위.
-  - Chunk 기반 Step 으로 하나의 트랜잭션에서 데이터르 처리한다.
+  - Chunk | Tasklet 기반으로 하나의 트랜잭션에서 데이터를 처리한다.
   - commitInterval 만큼 데이터를 읽고, 데이터를 처리한 뒤, ChunkSize 만큼 한번에 Write 한다.
 
 - ### 🧐 Meta Data Schema
@@ -110,8 +119,52 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
   
     
     
-
-
+- ### 🧐 Tasklet 방식을 사용한 간단한 배치 프로그램
+  ```java
+  @RequiredArgsConstructor
+  @Configuration
+  public class JobConfig {
+  
+      // #1
+      private final JobBuilderFactory jobBuilderFactory; 
+      private final StepBuilderFactory stepBuilderFactory;
+  
+      @Bean
+      public Job myJob() {
+          return jobBuilderFactory.get("myJob") // #2
+              .start(myStep())
+              .next(myStep2())
+              .build();
+      }
+  
+      @Bean
+      public Step myStep() {
+          return stepBuilderFactory.get("myStep1") // #2
+              .tasklet((contribution, chunkContext) -> {
+                  System.out.println("================ My Step1 =============");
+                  return RepeatStatus.FINISHED; // #3
+              })
+              .build();
+      }
+  
+      @Bean
+      public Step myStep2() {
+          return stepBuilderFactory.get("muStep2")
+              .tasklet((contribution, chunkContext) -> {
+                  System.out.println("================ My Step2 =============");
+                  return RepeatStatus.FINISHED;
+              })
+              .build();
+      }
+  }
+  ```
+  - 모든 Job과 Step은 빈으로 등록되어야 한다.
+  - **(#1)**: Job, Step을 생성하는 빌더 팩톹리
+  - **(#2)**: Job, Step의 이름을 지정해준다.
+  - **(#3)**: tasklet은 기본적으로 무한반복한다. 때문에 이와 같은 값을 반환하여 한번 실행 후 종료할 수 있도록 한다.(반복 false)
+  
+  - 결과
+  ![img.png](img.png)
 <br><br>
 
 ### 🔑 참조
