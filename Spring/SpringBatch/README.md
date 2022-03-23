@@ -2,6 +2,7 @@
 - ### [Batch 란?](#-batch-란)
 - ### [Spring Batch?](#-spring-batch)
 - ### [Spring Batch 아키텍쳐](#-spring-batch-아키텍쳐)
+- ### [Meta Date Schema](#-meta-data-schema)
 - ### [Spring Boot와 Spring Batch](#-spring-boot와-spring-batch)
   - ### [Tasklet 방식을 사용한 간단한 배치 프로그램](#-tasklet-방식을-사용한-간단한-배치-프로그램)
 <br>
@@ -38,6 +39,8 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
   - 조건에 따라 흐름을 구성하는 등 체계적이고 유연한 배치 모델을 구성한다.
   - 반복하거나, 재시도, Skip 처리(중요하지 않은 예외를 스킵, 계속 실행될 수 있도록)등..
 
+<br>
+
 ## 📌 Spring Batch 아키텍쳐
 
 ![img_1.png](img/img_1.png)
@@ -73,12 +76,61 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
   - Chunk | Tasklet 기반으로 하나의 트랜잭션에서 데이터를 처리한다.
   - commitInterval 만큼 데이터를 읽고, 데이터를 처리한 뒤, ChunkSize 만큼 한번에 Write 한다.
 
-- ### 🧐 Meta Data Schema
-  ![img_5.png](img/img_5.png)
-  - 스프링 배치가 실행될 때의 기록.
-  - Execution, Instance, Params .. 등을 저장.
-  - Job 의 이력, 파라미터 등 실행 결과를 조회할 수 있다.
+<br>
 
+## 📌 Meta Data Schema
+  ![img_5.png](img/img_5.png)    
+
+  스프링 배치가 실행 및 관리를 위한 목적으로 여러 도메인(Job, Step, Execution, Instance JobParams ...) 의 정보를 저장할 수 있는 스키마를 제공한다.    
+  Job 의 이력(성공, 실패), 파라미터 등 실행 결과를 조회할 수 있다. -> 리스크 발생시 빠른 대처 가능.    
+
+  DB와 연동할 경우 필수적으로 메타 테이블이 생성되어야 하며 스키마 파일의 위치는 /org/springframework/batch/core/schema-*.sql 이다.(DB 유형별로 제공)
+
+- ### 🧐 테이블
+  - BATCH_JOB_INSTANCE
+    >  Job 이 실행될 때 JobInstance 정보가 저장되며, job_name과 job_key로 하여 하나의 데이터가 저장된다 (인스턴스는 유일)
+      - version: 업데이트 마다 1씩 증가하는 값
+      - job_name: job을 구성할 때 부여한 이름.
+      - job_key: name 과 parmas를 합쳐 해싱한 값
+  
+  - BATCH_JOB_EXECUTION
+    > Job의 실행 정보(생성, 시작, 종료 시간, 실행 상태, 종료 코드, 실패 원인 메시지, 마지막 실행 시점 등)
+  - BATCH_JOB_EXECUTION_PARAMS
+    > Job과 함께 실행되는 JobParams 정보를 저장.
+      - type_cd : String, Long, Date 등의 타입 정보
+      - key_name: 파라미터 키 값.
+      - string_val: 파라미터 문자 값
+      - data_val: 파라미터 날짜 값.
+      - long_val
+      - double_val
+      - identifying: 식별 여부 (boolean)
+  - BATCH_JOB_EXECUTION_CONTEXT
+    > Job의 실행동안 여러가지 상태정보, 공유 데이터를 JSON 형식으로 직렬화하여 저장한다. Step간의 공유가 가능하다.
+      - short_context: job의 실행 상태정보, 공유데이터 등의 정보를 **문자열**로 저장
+      - serialized_context: 직렬화 된 전체 컨텍스트
+  - BATCH_STEP_EXECUTION
+    > - Step의 실행 정보(생성, 시작, 종료 시간, 실행 상태, 종료 코드, 실패 원인 메시지, 마지막 실행 시점 등)
+    > - 부모(Job)의 ID
+    > - 트랜잭션당 Commit, Read, Write, Filter, Read skip, Write skip, ProcessSkip, Rollback 수
+  - BATCH_STEP_EXECUTION_CONTEXT
+    > Job의 경우와 동일하지만, Step 별로 저장되며 Step간 공유할 수 없다. 
+    
+  테이블간의 관계(1:N) 에 주의하여 살펴보자.
+
+- ### 🧐 스키마 생성 설정
+  - 수동 생성: 쿼리 복사 후 직접 생성.
+  - 자동 생성: properties 에서 spring.batch.jdbc.initialize-schema 설정.
+    - ALWAYS
+      > 스크립트 항상 실행, RDBMS 설정이 되어있을 경우 내장 DB보다 우선적으로 실행한다.
+    - EMBEDDED
+      > 내장 DB 일때만 실행된다. (기본값)
+    - NEVER
+      > - 스크립트를 항상 실행하지 않는다. 테이블이 없다거나 내장 DB 라면 오류 발생.
+      > - 운영에서 수동으로 스크립트 생성 후 설정하는 것을 권장한다.
+
+ 
+
+<br>
 
 ## 📌 Spring Boot로 Spring Batch 시작하기
 
@@ -105,11 +157,11 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
   
   - ### 👆 스프링 배치 설정 클래스
     - BatchAutoConfiguration
-    > 스프링 배치가 초기화 될 때 자동으로 실행, Job을 수행하는 JobLauncherApplicationRunner 빈을 생성한다.(ApplicationRunner를 구현했기 떄문에 스프링이 실행시킨다.)
+      > 스프링 배치가 초기화 될 때 자동으로 실행, Job을 수행하는 JobLauncherApplicationRunner 빈을 생성한다.(ApplicationRunner를 구현했기 떄문에 스프링이 실행시킨다.)
     
     - SimpleBatchConfiguration
-    > - JobBuilderFactory 와 StepBuilderFactory를 생성한다.    
-    > - 스프링 배치의 주요 구성 요소를 생성한다.(프록시 객체로 생성된다.) - jobRepository, jobLauncher, hobRegistry, jobExplorer
+      > - JobBuilderFactory 와 StepBuilderFactory를 생성한다.    
+      > - 스프링 배치의 주요 구성 요소를 생성한다.(프록시 객체로 생성된다.) - jobRepository, jobLauncher, hobRegistry, jobExplorer
     
     - BatchConfigurerConfiguration
       - BasicBatchConfigurer
@@ -165,6 +217,8 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
   
   - 결과
   ![img.png](img.png)
+    
+
 <br><br>
 
 ### 🔑 참조
