@@ -15,6 +15,7 @@
 - ### [AOP](./Spring/AOP.md)
 - ### [Spring MVC](Spring/SpringMVC/MVC.md)
 - ### [Srping Cloud](Spring/SpringCloud)
+- ### [Spring Batch](Spring/SpringBatch)
 <br>
 
 ## 📚 JPA
@@ -76,4 +77,6 @@
 ***
 - ### [Database Connection Pool](ETC/DBCP.md)
 - ### [Git](Git)
+- ### [GraphQL](ETC/graphQL.md)
+- ### [Elasticsearch](ETC/Elasticsearch.md)
 
