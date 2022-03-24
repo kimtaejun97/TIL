@@ -41,7 +41,7 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
 
 <br>
 
-## 📌 Spring Batch 아키텍쳐
+# 📌 Spring Batch 아키텍쳐
 
 ![img_1.png](img/img_1.png)
 
@@ -78,7 +78,7 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
 
 <br>
 
-## 📌 Meta Data Schema
+# 📌 Meta Data Schema
   ![img_5.png](img/img_5.png)    
 
   스프링 배치가 실행 및 관리를 위한 목적으로 여러 도메인(Job, Step, Execution, Instance JobParams ...) 의 정보를 저장할 수 있는 스키마를 제공한다.    
@@ -132,7 +132,7 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
 
 <br>
 
-## 📌 Spring Boot로 Spring Batch 시작하기
+# 📌 Spring Boot로 Spring Batch 시작하기
 
 - #### 의존성 추가
   ```groovy
@@ -155,22 +155,21 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
   - 스프링 배치를 작동시키기 위해 선언하는 애노테이션으로, 총 4개의 설정 클래스를 실행시키며 스프링 배치의 모든 초기화 및 실행 구성이 이루어진다.
   - 스프링 부트 배치의 자동설정 클래스가 실행되어 등록된 모든 Job을 검색하여 초기화하고 동시에 Job 을 수행하도록 구성한다.
   
-  - ### 👆 스프링 배치 설정 클래스
-    - BatchAutoConfiguration
+  - ### 🧐 스프링 배치 설정 클래스
+    - ### BatchAutoConfiguration
       > 스프링 배치가 초기화 될 때 자동으로 실행, Job을 수행하는 JobLauncherApplicationRunner 빈을 생성한다.(ApplicationRunner를 구현했기 떄문에 스프링이 실행시킨다.)
     
-    - SimpleBatchConfiguration
+    - ### SimpleBatchConfiguration
       > - JobBuilderFactory 와 StepBuilderFactory를 생성한다.    
       > - 스프링 배치의 주요 구성 요소를 생성한다.(프록시 객체로 생성된다.) - jobRepository, jobLauncher, hobRegistry, jobExplorer
     
-    - BatchConfigurerConfiguration
+    - ### BatchConfigurerConfiguration
       - BasicBatchConfigurer
         > SimpleBatchConfiguration 에서 생성한 프록시 객체의 실제 타겟을 생성하는 설정 클래스.
       - JpaBatchConfigurer
         > JPA 관련 객체를 생성하는 설정 클래스.
   
-    
-    
+        
 - ### 🧐 Tasklet 방식을 사용한 간단한 배치 프로그램
   ```java
   @RequiredArgsConstructor
@@ -218,6 +217,44 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
   - 결과
   ![img.png](img.png)
     
+
+<br>
+
+# 📌 도메인의 이해
+
+## 🧐 Job
+Job Configuration에 의해 생성되는 객체 단위로, 배치 계층 구조에서 가장 상위에 있는 개념이며 하나의 배치작업 자체에 해당한다.(최상위 인터페이스)    
+배치 작업을 어떻게 구성하고 실행할지를 설정하고 명세해 놓은 객체로 여러 step을 포함하는 컨테이너 로서의 역할을 한다. (1개 이상의 Step)
+
+- ### 👆 구현체 (AbstractJab을 구현)
+  ```
+  - name : Job 이름
+  - restartable: 재시작 여부 기본값 true
+  - JobRepository: 메타데이더 저장소
+  - JobExecutionListener: Job 이벤트 리스너
+  - JobParametersIncrementer: JobParameter 증가기
+  - JobParametersValidator: JobParameter 검증기
+  - SimpleStepHandler: Step을 실행하는 핸들러.
+  ```  
+
+  - SimpleJob
+    > - 순차적으로 Step을 실행시키는 Job으로, 표준 기능을 가지고 있다.(steps를 가지고 있음)
+  - FlowJob
+    > - 특정 조건과 흐름에 따라 Step을 구성하는 Job으로, Flow 객체를 실행시켜 작업을 진행한다.
+    
+  JobLauncher의 run(job, jobParameters) 메서드에서 job을 받아 실행시키게 되는데, job.execute(execution)로 step을 하나하나 실행시킨다.   
+  구현체인 SimpleJobLauncher 코드를 보면 jobRepository에서 해당 잡의 마지막 Execution을 가져와 상태를 확인한 후 새로운 JobExecution을 생성하고,생성된 JobExecution으로 Job을 실행한다.
+  Job의 execute(AbstractJob 의) 에서는 구현체의 doExecute()를 호출하고, 해당 메서드에서 handleStep(step, jobExecution)을 실행시킨다. 
+  
+  handleStep 에서도 마찬가지로 AbstractStep 의 execute 를 호출하고, 구현체의 doExecute가 호출된다.   
+
+  
+  
+  
+  
+
+
+
 
 <br><br>
 

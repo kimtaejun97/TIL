@@ -19,26 +19,26 @@ public class JobConfig {
     @Bean
     public Job myJob() {
         return jobBuilderFactory.get("myJob")
-            .start(myStep())
+            .start(myStep1())
             .next(myStep2())
             .build();
     }
 
     @Bean
-    public Step myStep() {
-        return stepBuilderFactory.get("myStep1")
-            .tasklet((contribution, chunkContext) -> {
-                System.out.println("================ My Step1 =============");
-                return RepeatStatus.FINISHED;
-            })
-            .build();
+    public Step myStep1() {
+       return stepBuilderFactory.get("myStep1")
+           .tasklet((contribution, chunkContext) -> {
+               System.out.println("================ execute myStep1");
+               return RepeatStatus.FINISHED;
+           })
+           .build();
     }
 
     @Bean
     public Step myStep2() {
-        return stepBuilderFactory.get("muStep2")
+        return stepBuilderFactory.get("myStep2")
             .tasklet((contribution, chunkContext) -> {
-                System.out.println("================ My Step2 =============");
+                System.out.println("================ Execute myStep2");
                 return RepeatStatus.FINISHED;
             })
             .build();
