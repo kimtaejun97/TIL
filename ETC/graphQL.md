@@ -168,5 +168,6 @@ query {
 
 ### 🔑 참조
 > - https://graphql-kr.github.io/
+> - https://graphql.org/learn/
 > - https://jinhokwon.github.io/springboot/springboot-graphql/
 > - https://github.com/graphql-java-kickstart/graphql-spring-boot#using-gradle
