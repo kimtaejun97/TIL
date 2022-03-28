@@ -308,6 +308,56 @@ JobExecution의 실행 결과가 `COMPLETED` 이면 인스턴스의 실행이 �
 동일한 Job Instance에 대해 성곻할 때까지 Execution이 생성됨을 확인할 수 있다.
   
   
+## 🧐 Step
+Batch Job을 구성하는 독립적인 하나의 단계로, 실제 배치럴 처리하는 모든 정보를 가지고 있는 도메인 객체이다.      
+배치작업을 어떻게 구성하고 실행할 것인지 세부작업을 Task 기반으로 설정하고 명세해 놓은 객체.
+
+- ### 👆 필드
+  - name
+  - startLimit: 실행 제한 횟수.
+  - allowStartIfComplete: 완료 후 재실행 가능여부.
+  - stepExecutionListener: 이벤트 리스너.
+  - jobRepository: 메타데이터 저장.
+
+- ### 👆 구현체
+  - TaskletStep: 가장 기본적인 구현체, Taklet 타입의 구현체를 제어한다.
+  - PartitionStep: 멀티 스레드 방식으로 스텝을 여러개로 분리 실행한다.
+  - JobStep: Step 내에서 Job을 실행한다.( Job -> Step -> Job .. )
+  - FlowStep: Step 내에서 Flow를 실행하도록 한다.
+  
+Step을 실행시키는 execute(StepExecution)가 있고, StepExecution에는 실행 결과의 상태가 저장된다.    
+
+- ### 👆 API
+  - Tasklet 직접 생성
+    ```java
+    stepBuilderFactory.get("myStep1")
+             .tasklet(myTasklet())
+             .build();
+    ```
+  - ChunkOrientedTasklet
+    ```java
+    stepBuilderFactory.get("myStep3")
+            .<String, String>chunk(100) // <input, output>
+            .reader(reader())
+            .processor(processor())
+            .writer(writer())
+            .build();
+    ``` 
+  - JobStep
+    ```java
+    stepBuilderFactory.get("jobStep")
+            .job(myJob())
+            .launcher(jobLauncher)
+            .parametersExtractor(jobParametersExtractor())2
+            .build();
+    ```
+  - FlowStep
+    ```java
+    stepBuilderFactory.get("jobStep")
+            .flow(myFlow())
+            .build();
+    ```
+
 
 <br><br>
 
