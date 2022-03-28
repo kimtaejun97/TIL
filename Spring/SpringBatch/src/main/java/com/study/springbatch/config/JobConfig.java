@@ -49,7 +49,7 @@ public class JobConfig {
         return stepBuilderFactory.get("myStep2")
             .tasklet(new MyTasklet("myStep2"))
             .build();
-    }
+    } 
 
     @Bean
     public Step myStep3() {

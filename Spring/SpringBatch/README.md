@@ -364,9 +364,21 @@ Step을 실행시키는 execute(StepExecution)가 있고, StepExecution에는 �
 - Job이 재시작 되더라도 이미 성공적으로 완료된 Step은 skip 하고, 실패했던 Step만 실행된다.(allowStartIfComplete 로 설정 가능.)   
 - 모든 StepExecution이 성공해야 JobExecution도 성공으로 끝난다.
 
+## 🧐 StepContribution
+- 청크 프로세스의 변경 사항을 저장해뒀다가 StepExecution의 상태를 업데이트 하는 도메인 객체이다.
+- 청크 커밋 직전에 StepExecution의 apply()를 호출하여 상태를 업데이트 한다.
+- 사용자 정의 ExitStatus를 지정할 수 있다.
 
-
+- ### 👆 필드
+  - stepExecution
+  - read, write, filter(ItemProcessor에 의해 필터링된) count
+  - parent(StepExecution), read, write, process SkipCount
+  - ExitStatus
   
+  
+  TaskletStep -> StepExecution -> StepContribution 순으로 생성되고,   
+  chunkOrientedTasklet과 같은 구현체에서 실행된 ItemReader, Processor, Writer 의 상태들이 StepContribution에 저장된다.    
+  그리고, 최종적으로 커밋되기 전에 StepExecution에 저장해뒀던 상태를 업데이트 한다.
 
 
 <br><br>
