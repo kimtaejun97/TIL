@@ -11,7 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-//@Component
+@Component
 public class JobRunner implements ApplicationRunner {
 
     private final JobLauncher jobLauncher;
@@ -22,7 +22,7 @@ public class JobRunner implements ApplicationRunner {
         JobParameters jobParameters = new JobParametersBuilder()
             .addString("name", "kim2")
             .addLong("seq", 1L)
-            .addDate("data", new Date())
+//            .addDate("data", new Date())
             .addDouble("weight", 70.5)
             .toJobParameters();
 

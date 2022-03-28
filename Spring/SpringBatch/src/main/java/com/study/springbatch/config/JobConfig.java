@@ -45,6 +45,7 @@ public class JobConfig {
         return stepBuilderFactory.get("myStep2")
             .tasklet((contribution, chunkContext) -> {
                 System.out.println("================ Execute myStep2");
+//                throw new RuntimeException("Step2 Failed");
                 return RepeatStatus.FINISHED;
             })
             .build();
