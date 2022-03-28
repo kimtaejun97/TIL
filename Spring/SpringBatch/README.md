@@ -4,7 +4,18 @@
 - ### [Spring Batch 아키텍쳐](#-spring-batch-아키텍쳐)
 - ### [Meta Date Schema](#-meta-data-schema)
 - ### [Spring Boot와 Spring Batch](#-spring-boot와-spring-batch)
-  - ### [Tasklet 방식을 사용한 간단한 배치 프로그램](#-tasklet-방식을-사용한-간단한-배치-프로그램)
+  - #### [Tasklet 방식을 사용한 간단한 배치 프로그램](#-tasklet-방식을-사용한-간단한-배치-프로그램)
+- ### [Batch 도메인](#-도메인의-이해)
+  - #### [Job](#-job)
+  - #### [JobInstance](#-jobinstance)
+  - #### [JobParameter](#-jobparameter)
+  - #### [JobExecution](#-jobexecution)
+  - #### [Step](#-step)
+  - #### [StepExecution](#-stepexecution)
+  - #### [StepContribution](#-stepcontribution)
+  - #### [ExecutionContext](#-executioncontext)
+  - #### [JobRepository](#-jobrepository)
+  - #### [JobLauncher](#-joblauncher)
 <br>
 
 ****
@@ -404,6 +415,65 @@ Step, Job Execution 객체의 상태를 저장하는 공유 객체로 key:value 
   ```
 상기의 getJobExecutionContext, getStepExecutionContext는 ExecutionContext를 가져오는 것이 아닌 저장되어 있는 값을 복사해 돌려주는 메서드이다.   
 실제로 메서드를 살펴보았을 때 Map을 만들어 내용을 복사하고 이를 unmodifiableMap 으로 돌려줌을 확인할 수 있었다.
+
+
+## 🧐 JobRepository
+배치 작업 중의 정보를 저장하는 저장소로, 배치 작업의 수행과 관련된 모든 메타데이터를 저장한다.   
+JobLauncher, Job, Step 구현체 내부에서 CRUD 기능을 처리한다.   
+
+- ### 👆 주요 메서드
+  - isJobInstanceExist(jobName, jobParameters)
+  - createJobExecution(jobName, jobParameters)
+  - getLastJobExecution(jobName, jobParameters)
+  - getLastStepExecution(jobInstance, stepName)
+  - update(jobExecution): Job의 실행 정보 업데이트
+  - update(stepExecution)
+  - add(stepExecution): 실행 중인 Step의 새로운 stepExecution 저장.
+  - updateExecutionContext(jobExecution)
+  - updateExecutionContext(stepExecution)
+  
+@EnableBatchProcessing 애노테이션을 선언하면 JobRepository가 자동으로 빈으로 등록된다.    
+BatchConfigurer 인터페이스나 구현이다 BasicBatchConfigurer를 상속하여 jobRepository를 커스텀 하는 것이 가능하다.
+
+- ### JDBC
+  JDBC 방식으로 설정하기 위해서는 `JobRepositoryFactoryBean`을 사용하는데, AOP 방식으로 트랜잭션 처리가 이루어진다. 격리 레벨은 기본적으로`SERIALIZEBLE`이고, 다른 레벨로 변경 가능하다.      
+  테이블의 기본 prefix는 "BATCH_"이며 변경 가능하다.
+  ```java
+  @Configuration
+  public class CustomBatchConfigurer extends BasicBatchConfigurer {
+  
+      private final DataSource dataSource;
+  
+      protected CustomBatchConfigurer(BatchProperties properties, DataSource dataSource,
+          TransactionManagerCustomizers transactionManagerCustomizers) {
+          super(properties, dataSource, transactionManagerCustomizers);
+          this.dataSource = dataSource;
+      }
+  
+      @Override
+      protected JobRepository createJobRepository() throws Exception {
+          JobRepositoryFactoryBean factoryBean = new JobRepositoryFactoryBean();
+          factoryBean.setDataSource(dataSource); // 설정하지 않아도 기본적으로 설정 됨.
+          factoryBean.setTransactionManager(getTransactionManager()); // BasicBatchConfigurer에 있는 메서드
+          factoryBean.setIsolationLevelForCreate("ISOLATION_READ_COMMITTED");
+          factoryBean.setTablePrefix("LOG_BATCH");
+  
+          return factoryBean.getObject();
+      }
+  }
+  ```
+
+- ### In Memory
+  DB의 저장까지는 필요가 없다면 `MapJobRepositoryFactoryBean`을 사용하여 인메모리로 사용할 수도 있다.
+
+- ### JobRepository 에서 값 조회
+  ```java
+  JobExecution lastJobExecution = jobRepository.getLastJobExecution(jobName, jobParameters);
+  if(lastJobExecution != null) {
+      lastJobExecution.getStepExecutions()
+          .forEach(s -> System.out.println(s.getExitStatus()));
+  }
+  ```
 
 <br><br>
 

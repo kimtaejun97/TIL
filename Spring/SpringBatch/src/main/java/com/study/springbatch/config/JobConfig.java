@@ -1,17 +1,12 @@
 package com.study.springbatch.config;
 
 import com.study.springbatch.MyTasklet;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,6 +16,7 @@ public class JobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+    private final JobExecutionListener jobExecutionListener;
 
     @Bean
     public Job myJob() {
@@ -29,14 +25,15 @@ public class JobConfig {
             .next(myStep2())
             .next(myStep3())
             .next(myStep4())
+            .listener(jobExecutionListener)
             .build();
     }
 
     @Bean
     public Step myStep1() {
-       return stepBuilderFactory.get("myStep1")
-           .tasklet(new MyTasklet("myStep1"))
-           .build();
+        return stepBuilderFactory.get("myStep1")
+            .tasklet(new MyTasklet("myStep1"))
+            .build();
     }
 
     @Bean
