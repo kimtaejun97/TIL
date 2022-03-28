@@ -248,7 +248,7 @@ Job Configuration에 의해 생성되는 객체 단위로, 배치 계층 구조�
   
   handleStep 에서도 마찬가지로 AbstractStep 의 execute 를 호출하고, 구현체의 doExecute가 호출된다.   
 
-## 🧐 JonInstance
+## 🧐 JobInstance
 ![img_3.png](img_3.png)
 
 Job이 실행될 때 생성되는 논리적 실행 단위 객체로 고유하게 식별 가능한 작업 실행을 나타낸다.   
@@ -257,6 +257,44 @@ Job이 실행될 때 생성되는 논리적 실행 단위 객체로 고유하게
 처음 시작하는 Job + JobParameter의 구성일 경우 새로운 JobInstance를 생성하고, 이전과 동일한 구성이라면 이미 존재하는 JobInstance를 리턴한다.   
 (동일한 구성으로 실행할 수 없어 예외가 발생하고 Job의 실행을 중단한다 ) `A job instance already exists and is complete for parameters={ ... }`    
 실행된 파라미터는 BATCH_JOB_EXECUTION_PARAMS에서 확인할 수 있으며 내부적으로는 job_name + params_key 의 해시값을 가지고 인스턴스 객체를 식별한다. 
+
+## 🧐 JobParameter
+Job을 실행할 때 함께 사용되는 파라미터를 가진 도메인 객체로, 하나의 JobInstance를 구분하기 위한 용도로 사용된다.
+- JobParameters: `LinkedHashMap<String, Parameter>`를 멤버변수로 가지는 Wrapper 클래스.
+- JobParameter: `Object parameter`, `ParameterType parameterType`, `boolean identifying`
+- ParameterType: `String`, `Date`, `Long`, `Double`
+
+- #### JobParameter의 생성과 바인딩
+  - 어플리케이션 실행시 옵션으로 주입.
+    - `Java -jar batch.jar name=user1 seq(long)=2L date(date)=2022/03/28 weight(double)=70.5`
+  - 코드에서 생성
+    - `JobParameterBuilder`, `DefaultJobParametersConverter`
+      ```java
+      JobParameters jobParameters = new JobParametersBuilder()
+      .addString("name", "kim2")
+      .addLong("seq", 1L)
+      .addDate("data", new Date())
+      .addDouble("weight", 70.5)
+      .toJobParameters();
+      ```
+  - SpEL 이용
+    - @Value("#{jobParameter[requestDate]}")
+  
+- #### JobParameter 꺼내기
+    ```java
+    // StepContribution에서 꺼내기
+    JobParameters jobParameters = contribution.getStepExecution().getJobExecution().getJobParameters();
+    jobParameters.getParameters() // Map<String, parameter>
+    jobParameters.getString("key");
+    jobParameters.getDate("key");
+    jobParameters.getLong("key");
+    jobParameters.getDouble("key");
+        
+    // ChunkContext 에서 꺼내기
+    Map<String, Object> chunkJobParameters = chunkContext.getStepContext().getJobParameters();
+    ```
+  
+
 
 
   
