@@ -358,6 +358,16 @@ Step을 실행시키는 execute(StepExecution)가 있고, StepExecution에는 �
             .build();
     ```
 
+## 🧐 StepExecution
+![img_1.png](img_1.png)
+- Step에 대한 한번의 시도를 의미하는 객체로 실행중 발생한 정보들을 저장하고 있는 객체. (시작,종료 시간, 상태, commit count, rollback count ...)    
+- Job이 재시작 되더라도 이미 성공적으로 완료된 Step은 skip 하고, 실패했던 Step만 실행된다.(allowStartIfComplete 로 설정 가능.)   
+- 모든 StepExecution이 성공해야 JobExecution도 성공으로 끝난다.
+
+
+
+  
+
 
 <br><br>
 
