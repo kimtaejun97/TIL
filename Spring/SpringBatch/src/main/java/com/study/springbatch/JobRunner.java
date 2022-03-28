@@ -11,7 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-@Component
+//@Component
 public class JobRunner implements ApplicationRunner {
 
     private final JobLauncher jobLauncher;

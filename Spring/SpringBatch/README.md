@@ -381,6 +381,30 @@ Step을 실행시키는 execute(StepExecution)가 있고, StepExecution에는 �
   그리고, 최종적으로 커밋되기 전에 StepExecution에 저장해뒀던 상태를 업데이트 한다.
 
 
+## 🧐 ExecutionContext
+Step, Job Execution 객체의 상태를 저장하는 공유 객체로 key:value 쌍으로 된 컬렉션이며 DB에 직렬화 한 값으로 저장되게 된다.
+
+- StepExecution 의 값은 Step 간 공유 불가능.
+- JobExecution 의 값은 Job 간 공유는 안되지만, Job의 Step간 공유는 가능하다.(필요한 정보를 저장해뒀다 꺼내쓰기에 유용할 것 같다)
+  > Job 재시작시 이미 처리한 데이터를 Skip하고 수행할 때 해당 상태 정보를 활용한다. 
+
+- ExecutionContext 가져오기.
+  ```java
+  ExecutionContext jobExecutionContext = contribution.getStepExecution().getJobExecution().getExecutionContext();
+  ExecutionContext stepExecutionContext = chunkContext.getStepContext().getStepExecution().getExecutionContext();
+  ```
+  ChunkContext, Contribution 객체 둘다에서 가져오는 것이 가능하다.    
+  get, put 메서드는 ExecutionContext의 Map<String,Object> 에서 값을 넣고, 가져오는 메서드이다. 커밋 시점에 DB에 데이터를 저장한다.    
+  JobInstance 가 동일하고, 이전 실행이 COMPLETED 상태가 아니라면 이전까지의 ExecutionContext에 저장된 값을 불러온 후, 나머지 Step을 다시 실행한다.
+
+- getJob(Step)ExecutionContext?
+  ```java
+  Map<String, Object> jobExecutionContext = chunkContext.getStepContext().getJobExecutionContext();
+  Map<String, Object> stepExecutionContext = chunkContext.getStepContext().getStepExecutionContext();
+  ```
+상기의 getJobExecutionContext, getStepExecutionContext는 ExecutionContext를 가져오는 것이 아닌 저장되어 있는 값을 복사해 돌려주는 메서드이다.   
+실제로 메서드를 살펴보았을 때 Map을 만들어 내용을 복사하고 이를 unmodifiableMap 으로 돌려줌을 확인할 수 있었다.
+
 <br><br>
 
 ### 🔑 참조
