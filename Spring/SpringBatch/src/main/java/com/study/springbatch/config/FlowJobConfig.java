@@ -1,46 +1,42 @@
 package com.study.springbatch.config;
 
+
 import com.study.springbatch.MyTasklet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @RequiredArgsConstructor
 @Configuration
-public class JobConfig {
+public class FlowJobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private final JobExecutionListener jobExecutionListener;
 
     @Bean
-    public Job myJob() {
-        return jobBuilderFactory.get("myJob")
-            .start(myStep1())
-            .next(myStep2())
-            .next(myStep3())
+    public Job flowJob() {
+        return jobBuilderFactory.get("flowJob")
+            .start(myFlow())
+            .end()
+            .build();
+    }
+
+
+    @Bean
+    public Flow myFlow() {
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("myFlow");
+        flowBuilder.start(myStep3())
             .next(myStep4())
-            .listener(jobExecutionListener)
-            .build();
-    }
+            .end();
 
-    @Bean
-    public Step myStep1() {
-        return stepBuilderFactory.get("myStep1")
-            .tasklet(new MyTasklet("myStep1"))
-            .build();
-    }
+        return flowBuilder.build();
 
-    @Bean
-    public Step myStep2() {
-        return stepBuilderFactory.get("myStep2")
-            .tasklet(new MyTasklet("myStep2"))
-            .build();
     }
 
     @Bean

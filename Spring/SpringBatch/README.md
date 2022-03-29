@@ -16,6 +16,10 @@
   - #### [ExecutionContext](#-executioncontext)
   - #### [JobRepository](#-jobrepository)
   - #### [JobLauncher](#-joblauncher)
+- ### [배치 설정](#-배치-설정)
+- ### [Job의 실행](#-job의-실행)
+- ### [Step의 실행](#-step의-실행)
+- ### [참조](#-참조)
 <br>
 
 ****
@@ -226,7 +230,7 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
   - **(#3)**: tasklet은 기본적으로 무한반복한다. 때문에 이와 같은 값을 반환하여 한번 실행 후 종료할 수 있도록 한다.(반복 false)
   
   - 결과
-  ![img.png](img.png)
+  ![img.png](img/img.png)
     
 
 <br>
@@ -517,7 +521,7 @@ JobLauncher 인터페이스로 주입 받더라도 프록시 객체이기 떄문
 때문에 BasicBatchConfigurer에서 프록시가 아닌 실제 객체를 가져와 타입 캐스팅을 해준다.
 
 
-# 📌 배치의 초기화 설정
+# 📌 배치 설정
 
 ### 👆 JobLauncherApplicationRunner
   - ApplicationRunner의 구현체로 BatchAutoConfifuration에서 생성된다.
@@ -532,7 +536,32 @@ JobLauncher 인터페이스로 주입 받더라도 프록시 객체이기 떄문
   - `Spring.batch.jhob.names: ${job.name:NONE}` 지정한 Job만 실행하도록 한다.
     - NONE는 임의의 문자.
     - `--job.name=name1, name2`
+    - properties를 설정해두고 옵션을 주지 않으면 아무 Job도 실행되지 않는다.
 <br><br>
+      
+# 📌 Job의 실행
+
+## 🧐 JobBuilderFactory
+Job을 쉽게 생성하고 설정할 수 있도록 util 성격의 빌더 클래스인 `JobBuilderFactory`를 제공한다.    
+JobBuilderFactory 에서는 JobBuilder(SimpleJobBuilder, FlowBuilder)를 생성하여 Job의 생성을 위임한다.    
+
+![img_5.png](img_5.png)
+- #### SimpleJob의 생성    
+  JobBuilderFactory를 통해서 JobBuilder를 생성하고 `start(step)` 메서드를 호출하면 SimpleJobBuilder가 생성되고 최종적으로 `SimpleJob`이 생성된다.    
+
+- #### FlowJob, Flow의 생성
+  JobBuilder에서 `start(flow)` 또는 `flow(step)`을 실행하면 FlowJobBuilder를 생성하고, 최종적으로 `FlowJob`이 생성된다.    
+  FlowJobBuilder 에서는 또 내부적으로 JobFlowBuilder -> FlowBuilder를 생성하고, 여기서 `Flow`를 생성하게 된다.
+
+```java
+public JobBuilder get(String name) {
+		JobBuilder builder = new JobBuilder(name).repository(jobRepository);
+		return builder;
+}
+```
+SimpleJobBuilder와 FlowJobBuilder는 JobBuilderHelper 클래스를 상속하며, 해당 클래스들에서 만들어진 Job들에 SimpleJobRepository가 전달되어
+CRUD를 통해 메타정보들을 기록하게 된다.
+
 
 ### 🔑 참조
 

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class JobLauncherController {
 
-    private final Job job;
+    private final Job simpleJob;
     private final BasicBatchConfigurer basicBatchConfigurer;
 
 
@@ -32,7 +32,7 @@ public class JobLauncherController {
         SimpleJobLauncher jobLauncher = (SimpleJobLauncher) basicBatchConfigurer.getJobLauncher();
         jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
 
-        jobLauncher.run(job, new JobParametersBuilder()
+        jobLauncher.run(simpleJob, new JobParametersBuilder()
             .addString("id", member.getId())
             .addDate("date", new Date())
             .toJobParameters());
