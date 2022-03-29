@@ -474,6 +474,49 @@ BatchConfigurer 인터페이스나 구현이다 BasicBatchConfigurer를 상속�
           .forEach(s -> System.out.println(s.getExitStatus()));
   }
   ```
+  
+## 🧐 JobLauncher
+Job과 파라미터를 인자로 받으며 배치 작업을 실행시킨 후 클라이언트에게 JobExecution을 반환한다.   
+스프링 부트 배치가 구동되면 자동으로 빈이 생성되기 때문에 따로 만들어주지 않아도 된다.
+
+ApplicationRunner를 구현한 JobLauncherApplicationRunner가 JobLauncher를 자동으로 실행시키게 된다.    
+동기적(SyncTaskExecutor), 비동기적(SimpleAsyncExecutor) 실행이 가능하며 기본값은 동기적 실행이다.       
+두 방식의 차이는 언제 JobExecution을 클라이언트에게 반환하느냐이다. 동기적 방식은 배치 처리가 최종적으로 완료되면 클라이언트에게 반환하지만,      
+비동기적 실행에서는 JobExecution을 획득하면 바로 클라이언트에게 반환한다.(ExitStatus.UNKNOWN)   
+동기적 실행은 스케줄러에 의한 배치처리와 같이 배치처리시간이 길어도 상관 없는 경우에 적합하고, 비 동기적 실행은 HTTP요청에 의한 배치 처리에 적합하다.
+
+
+- 비 동기적 실행
+```java
+
+@RequiredArgsConstructor
+@RestController
+public class JobLauncherController {
+
+private final Job job;
+private final BasicBatchConfigurer basicBatchConfigurer;
+
+
+@PostMapping("/batch")
+public String launch(@RequestBody Member member)
+    throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+
+    SimpleJobLauncher jobLauncher = (SimpleJobLauncher) basicBatchConfigurer.getJobLauncher();
+    jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+
+    jobLauncher.run(job, new JobParametersBuilder()
+        .addString("id", member.getId())
+        .addDate("date", new Date())
+        .toJobParameters());
+
+    return "batch completed";
+}
+```
+setTaskExecutor는 JobLauncher의 메서드가 아닌 SimpleJobLauncher의 메서드이기 때문에 빈으로 주입받아 사용할 수 없다.   
+JobLauncher 인터페이스로 주입 받더라도 프록시 객체이기 떄문에 SimpleJobLauncher 로의 강제 형변환 또한 불가능하다.    
+때문에 BasicBatchConfigurer에서 프록시가 아닌 실제 객체를 가져와 타입 캐스팅을 해준다.
+
+
 
 <br><br>
 
