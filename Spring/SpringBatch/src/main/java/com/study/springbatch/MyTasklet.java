@@ -32,7 +32,7 @@ public class MyTasklet implements Tasklet {
         ExecutionContext stepExecutionContext = chunkContext.getStepContext().getStepExecution().getExecutionContext();
         stepExecutionContext.put("name", name);
 
-        Thread.sleep(3000);
+//        Thread.sleep(3000);
         System.out.println(stepExecutionContext.get("name") + "was executed");
         System.out.println("지금까지 실행된 Step 수: " + jobExecutionContext.get("count"));
 

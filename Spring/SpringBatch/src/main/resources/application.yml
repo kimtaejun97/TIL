@@ -32,6 +32,8 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+#      table-prefix: LOG_BATCH
     job:
       enabled: false
+      names: ${job.name:NONE}
 

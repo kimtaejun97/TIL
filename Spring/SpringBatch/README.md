@@ -517,7 +517,21 @@ JobLauncher 인터페이스로 주입 받더라도 프록시 객체이기 떄문
 때문에 BasicBatchConfigurer에서 프록시가 아닌 실제 객체를 가져와 타입 캐스팅을 해준다.
 
 
+# 📌 배치의 초기화 설정
 
+### 👆 JobLauncherApplicationRunner
+  - ApplicationRunner의 구현체로 BatchAutoConfifuration에서 생성된다.
+  - 기본적으로 빈으로 등록된 모든 job을 실행시킨다.(특정 job만 실행하도록 설정도 가능.)
+
+### 👆 BatchProperties
+  - 환경 설정 클래스로 job 이름, 스키마 초기화 설정, 테이블 prefix 등 설정 가능.
+  - properties | yml 파일에 설정 가능하다.
+    - `batch.job.names`, `batch.initialize-schema: never | always | embedded`, `batch.tablePrefix: ` ... 
+
+### 👆 Job 실행 옵션
+  - `Spring.batch.jhob.names: ${job.name:NONE}` 지정한 Job만 실행하도록 한다.
+    - NONE는 임의의 문자.
+    - `--job.name=name1, name2`
 <br><br>
 
 ### 🔑 참조
