@@ -24,7 +24,6 @@ public class JobLauncherController {
     private final Job simpleJob;
     private final BasicBatchConfigurer basicBatchConfigurer;
 
-
     @PostMapping("/batch")
     public String launch(@RequestBody Member member)
         throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {

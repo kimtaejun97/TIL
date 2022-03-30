@@ -555,13 +555,63 @@ JobBuilderFactory 에서는 JobBuilder(SimpleJobBuilder, FlowBuilder)를 생성�
 
 ```java
 public JobBuilder get(String name) {
-		JobBuilder builder = new JobBuilder(name).repository(jobRepository);
-		return builder;
+    JobBuilder builder = new JobBuilder(name).repository(jobRepository);
+    return builder;
 }
 ```
 SimpleJobBuilder와 FlowJobBuilder는 JobBuilderHelper 클래스를 상속하며, 해당 클래스들에서 만들어진 Job들에 SimpleJobRepository가 전달되어
 CRUD를 통해 메타정보들을 기록하게 된다.
 
+
+## 🧐 SimpleJob API
+- ### .start(), next()
+  - start() 에서 처음 실행할 step을 설정하고 SImpleJobBuilder를 생성, 반환한다, 후 next() 에서는 순차적으로 실행할 step을 등록한다.
+- ### .incrementer(JobParametersIncrementer): 파라미터의 값을 자동으로 증가해주는 설정.
+  - JobParameters의 값을 증가시켜 다음에 사용될 값 객체를 반환한다.
+      - Long 값을 넣어주고, 실행할때 마다 해당 값을 증가시킨다.
+      - 기존의 파라미터 값에는 변화가 없지만 넣어준 Long 값이 변하기 떄문에 여러번 실행 가능하다.
+  - RunIdIncrementer 구현체를 지원하며, 필요하다면 인터페이스를 직접 구현하여 정의할 수 있다.
+    ```java
+    @Override
+    public JobParameters getNext(JobParameters parameters) {
+        String date = new SimpleDateFormat("yyyyMMdd-hhmmss").format(new Date());
+        return new JobParametersBuilder(parameters).addString("run.date", date).toJobParameters();
+    }
+    ```
+    - 💡 incrementer.getNext()가 적용된 후 ApplicationRunner들을 실행하기 때문에 Runner 클래스에서 jobParameters를 넣어준다면   
+      incrementer이 적용되지 않을 수 있다.(덮어씌워 짐)
+      
+- ### .preventRestart(): Job의 재시작 가능 여부 설정.
+  - restartable 의 default 값은 true, .preventRestart() 하면 false로 변경됨.
+  - 해당 옵션을 false로 주게 되면 job의 실행이 실패해도 재시작이 불가능하다. (JobRestartException 발생)
+  - SimpleJobLaunch에서 lastJobExecution을 가져온 뒤 조건을 확인한다.
+- ### .validator(jobParameterValidator): 파라미터 구성 검증.
+  - DefaultJobParametersValidator 구현체를 지원한다.
+    - `public DefaultJobParametersValidator(String[] requiredKeys, String[] optionalKeys)`
+    - 필수키가 없거나, 필수키, 옵션키 둘다에 없는 파라미터가 들어오면 예외가 발생한다.
+  - 커스텀한 제약 조건을 생성하고 싶다면 인터페이스를 직접 구현할 수도 있다.
+    ```java
+    @Override
+    public void validate(JobParameters parameters) throws JobParametersInvalidException {
+      if(parameters.getString("name") == null) {
+          throw  new JobParametersInvalidException("name parameters is null");
+      }
+    }
+    ```
+- #### .listener(JobExecutionListener): Job의 실행 전, 후에 콜백을 설정.
+  ```java
+  @Component
+  public class JobListener implements JobExecutionListener {
+  
+      @Override
+      public void beforeJob(JobExecution jobExecution) {
+      }
+  
+      @Override
+      public void afterJob(JobExecution jobExecution) {
+      }
+  }
+  ```
 
 ### 🔑 참조
 
