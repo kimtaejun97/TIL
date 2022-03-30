@@ -164,6 +164,95 @@ query {
 그러나 단점으로는 모든 필드를 반환받고 싶어도 와일드카드가 없고, 모든 필드를 명시해 주어야 한다.
 > https://github.com/graphql/graphql-spec/issues/127
 
+
+## 📌 Spring Boot 에서 GraphQL로 API 요청 보내기
+- 의존성
+```groovy
+implementation 'com.graphql-java-kickstart:graphql-webclient-spring-boot-starter:1.0.0'
+```
+
+
+
+- ### resource로 쿼리 작성 (.graphql)
+
+  ```graphql
+  #logDataSchema.graphqls
+  type dataLog {
+      dataSeq: String
+      dataType: String
+      dataTypeDtls: String
+      data: [String]
+      ordNo: String
+      prdNo: String
+      mallClf: String
+      mallClfDtlCd: String
+      createIp: String
+      createNo: String
+      createDt: String
+  }
+  
+  type Query {
+      findDataLogByOrdNo(ordNo: String!, requiredDataFields: [String]): [dataLog]
+  }
+  ```
+  
+  ```graphql
+  # dataLogQuery.graphql
+  query findDataLogByOrdNo($ordNo : String!, $requiredDataFields : [String]) {
+      findDataLogByOrdNo(ordNo : $ordNo, requiredDataFields : $requiredDataFields) {
+          dataSeq
+          dataType
+          data
+          ordNo
+          prdNo
+         
+      }
+  }
+  ```
+  
+  ```java
+  WebClient webClient = WebClient.builder()
+            .baseUrl("http://localhost:8080/graphql")
+            .build();
+  
+  GraphQLRequest resourceRequest = GraphQLRequest.builder()
+      .resource("dataLogQuery.graphql")
+      .variables(new HashMap<>() {
+          {
+              put("ordNo", "20220322399038900");
+              put("requiredDataFields", new String[] {"orderProductBO", "updateDt"});
+          }
+      })
+      .build();
+  
+  GraphQLWebClient graphQLWebClient = GraphQLWebClient.newInstance(webClient, new ObjectMapper());
+  GraphQLResponse response = graphQLWebClient.post(resourceRequest)
+      .block();
+  
+  List<DataLogREsponseDto> dataLogs = response.getList("findDataLogByOrdNo", DataLogResponseDto.class);
+  ```
+  Map을 이용하여 파라미터에 값을 바인딩 해준다.
+
+- ### String으로 쿼리 작성 (.graphql)
+  String 으로 작성하게 되면 얻고 싶은 필드를 동적으로 얻는게 가능해진다.   
+  graphql 파일들이 필요없고 GraphQLRequest를 만드는 것 빼고는 resource를 이용해 요청을 보낼때 코드와 동일하다.
+  ```java
+  GraphQLRequest stringRequest = GraphQLRequest.builder()
+  .query("query {"
+  + "     findDataLogByOrdNo(ordNo : \"20220322399038900\", requiredDataFields : [\"orderProductBO\", \"updateDt\"]) {"
+  + "         dataSeq"
+  + "         dataType "
+  + "         data "
+  + "         ordNo "
+  + "         prdNo "
+  + "         mallClf "
+  + "         createIp "
+  + "         createDt "
+  + "         createNo"
+  + "     }"
+  + "}")
+  .build();
+  ```
   
 
 ### 🔑 참조
