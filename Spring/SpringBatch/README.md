@@ -613,6 +613,17 @@ CRUD를 통해 메타정보들을 기록하게 된다.
   }
   ```
 
+## 🧐 SimpleJob 아키텍처
+![img.png](img.png)
+1. JobLauncher 에서 Job, JobParameter를 가지고 JobInstance를 생성
+2. JobExecution을 생성하고, ExecutionContext 할당.
+3. JobExecutionListener.beforeJob()
+4. 각 Step이 실행되며 StepExecution,ExecutionContext 생성
+5. StepExecution에 최종 상태 업데이트.
+6. JobListener.afterJob() 호출
+7. JobExecution에 최종 상태 업데이트.(Status, ExitStatus)
+8. JobLauncher에 반환.
+
 ### 🔑 참조
 
 > - https://fastcampus.app/course-detail/206067
