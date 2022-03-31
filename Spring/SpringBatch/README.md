@@ -653,7 +653,73 @@ StepBuilder를 생성하는 팩토리 클래스. 구조는 JobBuilderFactory와 
   나머지 빌더들은 StepBuilderHelper를 직접 상속 받는다.
   
   
+## 🧐 TaskletStep
+Tasklet은 스프링 배치에서 제공하는 Step의 구현체로 Tasklet을 실행시킨다.    
+Task 기반과 Chunk 기반이 있으며, RepeatTEmplate를 사용하여 Tasklet 구문을 트랜잭션 내에서 반복 실행한다.
+
+
+- #### Task 기반
+  - 단일 작업으로 처리되는 것이 더 나은 경우 사용한다.
+  - Tasklet 구현체를 생성하여 사용한다.
+    ```java
+    @Bean
+    public Step myStep() {
+        return stepBuilderFactory.get("myStep")
+        .tasklet(new Tasklet() {
+            @Override
+            public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+                return RepeatStatus.FINISHED;
+            }
+        })
+        .build();
+        }
+    ```
+
+- #### chunk 기반
+  - n개의 조각으로 나누어 실행한다, 대량 처리에 효과적으로 대처할 수 있도록 설계 되었다.
+  - ChunkOrientedTasklet 구현체가 제공되며, ItemReader, ItemProcessor, ItemWriter을 사용한다.
+    ```java
+    @Bean
+    public Step chunkStep() {
+        return stepBuilderFactory.get("chunkStep")
+            .<String, String>chunk(3)
+            .reader(new ItemReader<String>() {
+                @Override
+                public String read()
+                    throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+                    if(!strings.isEmpty()) {
+                        return strings.remove(0);
+                    }
+                    return null;
+                }
+            })
+            .processor(new ItemProcessor<String, String>() {
+                @Override
+                public String process(String item) throws Exception {
+                    return item.toUpperCase(Locale.ROOT);
+                }
+            })
+            .writer(new ItemWriter<String>() {
+                @Override
+                public void write(List<? extends String> items) throws Exception {
+                    items.forEach(System.out::println);
+                }
+            })
+            .build();
+    }
+    ```
+
+- ### 👆 API
+  - #### .tasklet(Tasklet), chunk(int size)
+    
+  - #### .startLimit(int)
+    - 실행 횟수 설정, 기본값은 INTEGER.MAX_VALUE
+  - #### .allowStartIfComplete()
+    - startable 변경, 기본은 true, 설정시 false
+  - #### listener(StepExecutionListener)
   
+
+
 
 
 ### 🔑 참조
