@@ -711,15 +711,23 @@ Task 기반과 Chunk 기반이 있으며, RepeatTEmplate를 사용하여 Tasklet
 
 - ### 👆 API
   - #### .tasklet(Tasklet), chunk(int size)
-    
+    - 반복적으로 수행되는 Tasklet 타입의 클래스를 설정한다.
+    - 반환 값에 따라 반복 여부는 변경 가능, `RepeatStatus.FINISHED`, `RepeatStatus.CONTINUABLE`
+    - 한개만 설정이 가능하고, 여러개 설정시 마지막 설정만 실행된다.
+    - 익명 또는 Tasklet을 구현한다.
+    - execute()는 StepContribution, ChunkContext를 인자로 받는다.
   - #### .startLimit(int)
-    - 실행 횟수 설정, 기본값은 INTEGER.MAX_VALUE
-  - #### .allowStartIfComplete()
-    - startable 변경, 기본은 true, 설정시 false
+    - Step의 최대 실행 횟수 설정, 기본값은 INTEGER.MAX_VALUE, 초과하면 예외가 발생한다.
+    - Step 마다 개별로 설정한다.
+    - 동일한 JobInstance에서 실행되는 동일한 Step에 대한 실행 횟수 제한이다. 
+  - #### .allowStartIfComplete(true)
+    - Job을 재시작할 때 Step의 이전 실행의 성공 여부와 상관 없이 항상 Step을 실행하기 위한 설정이다.
+    - Step 1~4중에 1,2까지 성공하고 실패하여 Job을 재실행할 수 있을 때 기본적으로는 3부터 다시 시작한다.    
+      하지만 1,2의 작업이 무조건 선행되어야 하는 Flow라면, 해당 옵션을 활성화하여 1부터 시작하도록 변경할 수 있다.
   - #### listener(StepExecutionListener)
+    - Step의 실행 전 후의 콜백.
   
-
-
+  
 
 
 ### 🔑 참조

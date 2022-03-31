@@ -58,6 +58,8 @@ public class SimpleJobConfig {
     public Step myStep1() {
         return stepBuilderFactory.get("myStep1")
             .tasklet(new MyTasklet("myStep1"))
+            .allowStartIfComplete(true)
+            .startLimit(3)
             .build();
     }
 
