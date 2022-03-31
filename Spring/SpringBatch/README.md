@@ -18,6 +18,9 @@
   - #### [JobLauncher](#-joblauncher)
 - ### [배치 설정](#-배치-설정)
 - ### [Job의 실행](#-job의-실행)
+  - #### [JobBuilderFactory](#-jobbuilderfactory)
+  - #### [SimpleJob API](#-simplejob-api)
+  - #### [SimpleJob 아키텍처](#-simplejob-아키텍처)
 - ### [Step의 실행](#-step의-실행)
 - ### [참조](#-참조)
 <br>
@@ -623,6 +626,35 @@ CRUD를 통해 메타정보들을 기록하게 된다.
 6. JobListener.afterJob() 호출
 7. JobExecution에 최종 상태 업데이트.(Status, ExitStatus)
 8. JobLauncher에 반환.
+
+
+# 📌 Step의 실행
+
+## 🧐 StepBuilderFactory
+StepBuilder를 생성하는 팩토리 클래스. 구조는 JobBuilderFactory와 유사하다.
+
+- ### 👆 StepBuilder 구현체
+  - #### TaskletStepBuilder
+    - API: tasklet(tasklet())
+  - #### SimpleStepBuilder
+    - TaskletStepBuilder와 마찬가지로 TaskletStep을 생성하지만, 내부적으로 청크기반의 작업을 처리하는 ChunkOrientedTasklet을 생성한다.
+    - API: chunk(chunkSize) | chunk(completionPolicy)
+  - #### PartitionStepBuilder
+    - PartitionStep을 생성하며 멀티 스레드 방식으로 Job을 실행한다.
+    - API: partitioner(stepName, partitioner) | partitioner(step) 
+  - #### JobStepBuilder
+    - JobStep을 생성하고, Step안에서 Job을 실행한다.
+    - API: job(job)
+  - #### FlowStepBuilder
+    - FlowStep을 생성하고, Step안에서 Flow를 실행한다.
+    - API: flow(flow)
+
+  TaskletStepBuilder와 SimpleStepBuilder는 StepBuilderHelper를 상속받은 AbstractTaskletStepBuilder를 상속받고,   
+  나머지 빌더들은 StepBuilderHelper를 직접 상속 받는다.
+  
+  
+  
+
 
 ### 🔑 참조
 
