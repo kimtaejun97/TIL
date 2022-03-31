@@ -727,7 +727,18 @@ Task 기반과 Chunk 기반이 있으며, RepeatTEmplate를 사용하여 Tasklet
   - #### listener(StepExecutionListener)
     - Step의 실행 전 후의 콜백.
   
-  
+
+## 🧐 TaskletStep 아키텍쳐
+![img_8.png](img_8.png)
+
+1. ExecutionContext를 가지는 StepExecution이 생성된다.
+2. TaskletStep에서 StepExecution을 받아 Step을 실행시킨다.
+3. StepExecutionListener.beforeStep()을 호출한다.
+4. RepeatTemplate 에서 Tasklet을 반복 실행한다.    
+   loop 에서는 RepeatStatus를 확인하여 FINISHED 라면 루프를 빠져나오고 CONTINUABLE 이라면 다시 RepeatTemplate에서 Tasklet을 반복시킨다.
+5. StepExecution의 Status를 업데이트 한다.
+6. StepExecutionListener.afterStep()을 호출한다.
+7. StepExecution의 ExitStatus를 업데이트 한다.
 
 
 ### 🔑 참조
