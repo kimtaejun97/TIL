@@ -740,6 +740,55 @@ Task 기반과 Chunk 기반이 있으며, RepeatTEmplate를 사용하여 Tasklet
 6. StepExecutionListener.afterStep()을 호출한다.
 7. StepExecution의 ExitStatus를 업데이트 한다.
 
+## 🧐 JobStep
+또 다른 Job을 실행시키는 Step으로, 시스템을 작은 모듈로 쪼개 Job의 흐름을 나누고자 할 때 사용한다.
+
+- ### 👆 API
+  - #### .job(Job)
+    - 실행할 Job을 설정한다.  
+    - 추가한 Job도 Bean 으로 등록하면 자동으로 실행되어 2번 실행될 수 있으므로 설정이 필요하다. 
+  - #### .launcher(JobLauncher)
+    - Job을 실행할 JobLauncher를 설정한다.
+    - null을 넘겨 주면 SimpleJobLauncher로 실행한다.
+      ```java
+      // JobBuilder
+      if (jobLauncher == null){
+          SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+          ...
+      }
+      ```
+  - #### .parametersExtractor(JobParametersExtractor)
+    - Step의 ExecutionContext에서 값을 추출해 JobParameters로 변환한다.
+    - 제공되는 DefaultJobParametersExtractor나 `JobParametersExtractor`를 구현한 구현체를 사용한다.
+    - 부모의 JobParameter들은 기본적으로 추가되고, setKeys() 를 이용해 StepExecution의 ExecutionContext에서 값을 찾아 파라미터에 추가할 수 있다.
+      ```java
+      // 해당 Step의 ExecutionContext에 값 추가.
+      .listener(new StepExecutionListener() {
+          @Override
+          public void beforeStep(StepExecution stepExecution) {
+              stepExecution.getExecutionContext().put("date", new Date());
+          }
+        
+          @Override
+          public ExitStatus afterStep(StepExecution stepExecution) {
+              return null;
+          }
+      })
+      ```  
+      ```java
+      private JobParametersExtractor jobParametersExtractor() {
+          DefaultJobParametersExtractor extractor = new DefaultJobParametersExtractor();
+          extractor.setKeys(new String[] {"date"});
+  
+          return extractor;
+      }
+      ```
+      ![img_9.png](img_9.png)
+      
+      부모 Job(7), jobStep의 Job(8)
+  
+  
+
 
 ### 🔑 참조
 
