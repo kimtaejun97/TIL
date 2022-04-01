@@ -17,9 +17,9 @@ public class MyTasklet implements Tasklet {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        if (name.equals("myStep1")){
-            throw new RuntimeException("Failed Step 1");
-        }
+//        if (name.equals("myStep1")){
+//            throw new RuntimeException("Failed Step 1");
+//        }
         ExecutionContext jobExecutionContext = contribution.getStepExecution().getJobExecution().getExecutionContext();
         Integer count = (Integer) jobExecutionContext.get("count");
         if (count == null) {

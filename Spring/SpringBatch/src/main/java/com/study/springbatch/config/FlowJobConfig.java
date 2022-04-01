@@ -7,6 +7,8 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,13 +22,37 @@ public class FlowJobConfig {
     @Bean
     public Job flowJob() {
         return jobBuilderFactory.get("flowJob")
-            .start(myStep1())
-            .on("COMPLETED").to(myStep3())
-            .from(myStep1())
-            .on("FAILED").to(myStep2())
+            .start(flowA())
+            .next(stepA())
+            .next(flowB())
             .end()
             .build();
     }
+
+    @Bean
+    public Flow flowA() {
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowA");
+        return flowBuilder.start(myStep1())
+            .on("COMPLETED").to(myStep3())
+            .from(myStep1())
+            .on("FAILED").to(myStep2())
+            .end();
+    }
+
+    private Step stepA() {
+        return stepBuilderFactory.get("stepA")
+            .tasklet(new MyTasklet("stepA"))
+            .build();
+    }
+
+    private Flow flowB() {
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowA");
+        return flowBuilder.start(myStep1())
+            .next(myStep2())
+            .next(myStep3())
+            .end();
+    }
+
 
     @Bean
     public Step myStep1() {
