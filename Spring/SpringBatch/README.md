@@ -855,7 +855,22 @@ on의 `FAILED` 패턴과 매칭되어 myStep2가 실행된 것을 확인할 수 
 실제로 COMPLETE의 조건만을 주고 Step을 실패시켰을 때에는 Job 또한 실패했다.
 
 
+## 🧐 Transition
 
+- ### 👆 배치 상태
+  - #### BatchStatus
+    Job, Step의 종료 후 최종 결과 상태로, SimpleJob 에서는 가장 마지막에 실행 된 Step의 상태가되고,    
+    FlowJob 에서는 마지막 Flow의 FlowExecutionStatus 값이 된다.
+    > COMPLETE, STARTING, STARTED, STOPPED, FAILED, ABANDONED(실패, 그러나 재시작시 건너 뛰어야하는 단계), UNKOWN
+  - #### ExitStatus
+    어떤 상태로 종료되었는지를 의미한다. 기본적으로는 BatchStatus와 동일한 값으로 설정되지만, 임의로 변경할 수 있다.(contribution.setExitStatus()    
+    SimpleJob, FlowJob에서의 값의 설정은 BatchStatus와 같다.
+    > COMPLETED, FAILED, STOPPED, EXECUTING, UNKNOWN
+  - #### FlowEcecutionStatus
+    FlowExecution의 속성으로 FLow 실행 후 결과 상태를 가지고 있다.    
+    Flow 내의 Step의 ExitStatus 값을 FlowExecutionStatus 값으로 저장하며ㅡ FlowJob의 배치 결과 상태에 관여한다.
+    > COMPLETED, STOPPED, FAILED, UNKNOWN
+  
 
 
 
