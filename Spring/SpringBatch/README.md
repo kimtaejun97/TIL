@@ -22,6 +22,13 @@
   - #### [SimpleJob API](#-simplejob-api)
   - #### [SimpleJob 아키텍처](#-simplejob-아키텍처)
 - ### [Step의 실행](#-step의-실행)
+  - #### [StepBuilderFactory](#-stepbuilderfactory)
+  - #### [TaskletStep](#-taskletstep)
+  - #### [TaskletStep 아키텍처](#-tasklet-아키텍처)
+  - #### [JobStep](#-jobstep)
+- ### [FLow](#-flow)
+  - #### [FlowJob](#-flowjob)
+  - ###
 - ### [참조](#-참조)
 <br>
 
@@ -787,7 +794,71 @@ Task 기반과 Chunk 기반이 있으며, RepeatTEmplate를 사용하여 Tasklet
       
       부모 Job(7), jobStep의 Job(8)
   
+
+# 📌 Flow
+
+## 🧐 FlowJob
+Step의 순차적 실행이 아니라 상태에 따라 흐름을 전환하도록 구성할 수 있다.    
+ 
+  - Step이 실패하더라도 Job은 실패하지 않게 할 수 있다.
+  - 다음에 실행할 step을 구분하여 실행할 수 있다.
+    - ex) 성공시 Step2, 실패시 Step3 ...
+  - 특정 Step을 실행되지 않게 구성할 수 있다.
+
+`JobBuilderFactory` ▶ `JobBuilder` ▶ `JobFlowBuilder` ▶ `FlowBuilder` ▶ `FlowJob`
+
+- ### 👆 API
   
+  - #### .start(Step), .next(Step)
+  - #### .from(Step)
+    - 이전에 정의한 Step의 flow를 추가적으로 정의한다.
+    
+  - #### .on(String pattern)
+    - Step의 ExitStatus를 캐치하여 매칭하는 패턴, TransitionBuilder를 반환한다. TrabsutitionBuilder는 아래의 API를 가진다.
+    - #### .to(Step)
+      - 다음으로 실행할 Step을 지정한다.
+    - #### .stop(), .fail(), .end(), .stopAndRestart()
+      - flow를 중지, 실패, 종료하도록 한다.
+    
+  - #### end()
+    - FlowBuilder 를 종료하고 SimpleFlow 객체를 생성한다.
+    - FlowJobBuilder에서는 flowJob을 생성하고 Simpleflow를 실행시킨다.
+  
+`start, next, from` 은 flow를 정의하고, `on, to, stop, fail, end, stopAndRestart`는 조건에 따라 흐름을 전환시킨다.   
+on()을 호출하면 TransitionBuilder가 생성되고, `to, stop, fail, end, stopAndRestart`를 설정할 수 있다.
+
+
+```java
+@Bean
+public Job flowJob() {
+    return jobBuilderFactory.get("flowJob")
+        .start(myStep1())
+        .on("COMPLETED").to(myStep3())
+        .from(myStep1())
+        .on("FAILED").to(myStep2())
+        .end()
+        .build();
+}
+```
+FlowJob을 다음과 같이 구성하면 myStep1이 성공하면 myStep3로, 실패하면 myStep2를 실행한다는 흐름이 만들어진다.    
+
+![img_10.png](img_10.png)   
+DB에 저장된 메타 데이터를 확인하면 myStep 1과 3이 실행된 것을 확인 할 수 있다.
+
+이번에는 myStep1 에서 예외를 발생시켜 일부러 실패한 후 메타데이터 값을 살펴보겠다.     
+![img_11.png](img_11.png)        
+on의 `FAILED` 패턴과 매칭되어 myStep2가 실행된 것을 확인할 수 있다.   
+한 가지 더 특이 사항이 있다면, FlowJob에서는 Step의 실패가 Job의 실패로 연결되지 않는다는 것이다. 위의 상황에서 JobExecution을 확인해 보았다.     
+![img_12.png](img_12.png)    
+분명 myStep1을 실패시켰지만 Job은 성공적으로 끝난 것을 확인할 수 있다.
+모든 상황에서 이런 것은 아니고, 실패했을 경우 어떤 것을 하는지 정의가 되어있을 때만 해당한다.    
+실제로 COMPLETE의 조건만을 주고 Step을 실패시켰을 때에는 Job 또한 실패했다.
+
+
+
+
+
+
 
 
 ### 🔑 참조
