@@ -15,6 +15,7 @@
 - #### [Item51. 메서드 시그니처를 신중히 설계하라.](#-item51-메서드-시그니처를-신중히-설계하라)
 - #### [Item54. null이 아닌 빈 컬레션이나 배열을 반환하라.](#-item54-null이-아닌-빈-컬렉션이나-배열을-반환하라)
 - #### [Item57. 지역변수의 범위를 최소화하라.](#-item57-지역변수의-범위를-최소화하라)
+- #### [Item58. 전통적인 for 문보다는 for-each 문을 사용하라.](#-item58-전통적인-for-문보다는-for-each-문을-사용하라)
 
 
 <br><br>
@@ -1247,5 +1248,43 @@ for(int i=0; i<10; i++){
 ```
 상기의 코드는 컴파일 에러도, 논리적 오류도 없이 잘 돌아갈 것이다. for 문에서 정의한 반복 조건 변수는 해당 반복문 안에서만 유효하기 때문이다.   
 때문에 동일한 변수명을 사용할 수도 있고, 두 번째 반복문에서 i2로 선언하고 실수로 조건에서 i를 사용한다면 컴파일 에러가 발생할 것이다.   
+
+
+## 📌 Item58. 전통적인 for 문보다는 for-each 문을 사용하라
+반복에서 인덱스나 반복자는 필요없고 단지 원소만을 필요로 한다면 for-each를 사용하는 것이 좋다.
+for-each는 컬렉션과 배열을 모두 다룰 수 있기 떄문에 어떤 컨테이너를 다루는지 신경쓰지않고 구현할 수 있다.
+
+예를 들어 다음과 같은 코드를 보자.
+```java
+List<String> alphabets = new ArrayList<>(List.of("A", "B", "C"));
+List<String> numbers = new ArrayList<>(List.of("1", "2", "3", "4", "5"));
+
+List<String> comb = new ArrayList<>();
+for (Iterator<String> aIt = alphabets.iterator(); aIt.hasNext(); ) {
+    for(Iterator<String> nIt = numbers.iterator(); nIt.hasNext(); ) {
+        comb.add(aIt.next() + nIt.next());
+    }
+}
+```
+알파벳과 숫자의 모든 조합을 기대하고 코드를 작성하였다고 해보자. 그러나 위의 코드에서는 숫자마다 aIt.next()도 같이 호출 하기 때문에 4번째 반복에서   
+알파벳의 원소가 바닥나 예외가 발생할 것이다.
+위의 상황에서는 두 중첩 for문 사이에 aIt.next()를 저장하는 변수를 두어 해결할 수 있다. 하지만 여기서 for-each 문을 사용한다면 더 깔끔하게 해결할 수 있다.
+
+```java
+for(String alphabet : alphabets) {
+    for(String number : numbers) {
+        comb.add(alphabet + number);
+    }     
+}
+```
+
+그러나 for-each를 사용하지 못하는 경우들이 있다.
+1. 컬렉션을 순회하며 선택된 원소를 제거하거나, 값을 변경해야 한다.
+2. 여러개의 컬렉션 또는 배열을 병렬로 순회해야 한다.
+위 의 두가지 상황에서는 인덱스 또는 반복자가 필요하기 때문에 for-each 문으로 작성하기에 적합하지 않다.
+   
+
+사용할 수 있다면 for-each를 사용하는 것이 가독성, 오류 발생률 면에서도 큰 장점을 가진다.   
+만약 클래스를 설계하는데 내부의 값을 순회해야 한다면 `Iterable<E>` 인터페이스를 구현하는 것도 좋을 것 같다.
 
 
