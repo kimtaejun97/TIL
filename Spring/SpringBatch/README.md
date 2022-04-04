@@ -1064,7 +1064,18 @@ handle() 메서드를 통해 실행 후 FlowExecutionStatus를 반환한다. 마
   3. nextState를 호출하여 StateMap에서 다음 State를 실행한다.
   ```
   
+## 🧐 FlowStep
+Step 내에 Flow를 가지고 있는 도메인 객체. FlowStep의 Status 들은 Flow의 최종 상태값에 따라 결정된다.    
 
+`StepBuilderFactory` ▶ `StepBuilder` ▶ `FlowStepBuilder` ▶ `FlowStep`
+```java
+@Bean
+public Step flowStep() {
+    return stepBuilderFactory.get("flowStep")
+        .flow(flowA()) // FlowStepBuilder 반환.
+        .build(); // FlowStep 반환.
+}
+```
 
 
 

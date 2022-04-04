@@ -89,4 +89,11 @@ public class FlowJobConfig {
             .tasklet(new MyTasklet("myStep3"))
             .build();
     }
+
+    @Bean
+    public Step flowStep() {
+        return stepBuilderFactory.get("flowStep")
+            .flow(flowA())
+            .build();
+    }
 }
