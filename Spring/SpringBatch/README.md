@@ -990,6 +990,14 @@ public class CustomDecider implements JobExecutionDecider {
 이전에 API를 이용하여 ExitStatus 코드에 따라 flow를 진행하는 방식과 동일하게 동작한다. Job을 구성하는 상황에 따라 더 알맞다고 생각되는 방법을 선택하면 되겠다.
 
 
+## 🧐 FlowJob 아키텍처
+![img_15.png](img_15.png)
+
+대부분은 SimpleJob과 동일하다.   
+다른 점은 SimpleFlow 에서 State라는 속성을 가진다는 것과, 작업이 종료되었을 때 StepExecution의 상태를 반영하는 것이 아니라 `FlowExecutionStatus`   
+의 상태로 업데이트 한다는 것이다.
+
+
 ### 🔑 참조
 
 > - https://fastcampus.app/course-detail/206067
