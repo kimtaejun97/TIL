@@ -24,6 +24,11 @@ public class FlowJobConfig {
         return jobBuilderFactory.get("flowJob")
             .start(flowA())
             .next(stepA())
+            .on("FAILED")
+            .stop()
+            .from(stepA())
+            .on("*")
+            .end()
             .next(flowB())
             .end()
             .build();
@@ -32,7 +37,8 @@ public class FlowJobConfig {
     @Bean
     public Flow flowA() {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowA");
-        return flowBuilder.start(myStep1())
+        return flowBuilder
+            .start(myStep1())
             .on("COMPLETED").to(myStep3())
             .from(myStep1())
             .on("FAILED").to(myStep2())
@@ -47,9 +53,16 @@ public class FlowJobConfig {
 
     private Flow flowB() {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowA");
-        return flowBuilder.start(myStep1())
-            .next(myStep2())
-            .next(myStep3())
+        return flowBuilder
+            .start(myStep1())
+                .on("FAILED")
+                .stop()
+            .from(myStep1())
+                .on("COMPLETED")
+                .end()
+            .from(myStep1())
+                .on("*")
+                .stopAndRestart(myStep1())
             .end();
     }
 
