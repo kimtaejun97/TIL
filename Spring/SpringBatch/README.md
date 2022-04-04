@@ -948,6 +948,46 @@ myStep1이 COMPLETED로 끝나 myStep2가 실행되고 마찬가지로 COMPLETED
 `on("PASS")` 패턴에 매칭되어 `.stop()`이 호출되고, Job은 STOPPED 상태로 마치게 된다.
 
 
+## 🧐 JobExecutionDecider
+ExitStatus의 조작이나 StepEcecutionListener의 등록없이 Transition 처리를 위한 클래스로Step과 Transition의 역할을 명확하게 분리할 수 있게 해준다.
+
+기존에는 Step의 ExitStatus가 JobExecutionStatus의 상태 값에 반영되고, 이 값이 JobFlow에 반영하는 것과 달
+JobExecutionDecider에서 FlowExecutionStatus 상태값을 새롭게 생성해서 반환한다.
+
+```java
+@Bean
+public Job job() {
+    return jobBuilderFactory.get("job")
+        .incrementer(new RunIdIncrementer())
+        .start(firstStep())
+        .next((decider()))
+        .on("ODD").to(oddStep())
+        .on("EVEN").to(evenStep())
+        .end()
+        .build();
+}
+
+@Bean
+public JobExecutionDecider decider() {
+    return new CustomDecider();
+}
+```
+
+```java
+public class CustomDecider implements JobExecutionDecider {
+
+    private int count = 0;
+
+    @Override
+    public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
+        if (++count % 2 == 0) {
+            return new FlowExecutionStatus("EVEN");
+        }
+        return new FlowExecutionStatus("ODD");
+    }
+}
+```
+이전에 API를 이용하여 ExitStatus 코드에 따라 flow를 진행하는 방식과 동일하게 동작한다. Job을 구성하는 상황에 따라 더 알맞다고 생각되는 방법을 선택하면 되겠다.
 
 
 ### 🔑 참조
