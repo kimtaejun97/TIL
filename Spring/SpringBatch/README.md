@@ -998,7 +998,78 @@ public class CustomDecider implements JobExecutionDecider {
 의 상태로 업데이트 한다는 것이다.
 
 
+## 🧐 SimpleFlow
+Flow의 구현체로 Step, Flow, JobExecutionDecider을 담고 있는 State를 실행시키는 도메인 객체로, FlowBuilder를 통해 생성된다.    
+Flow는 중첩될 수 있다
+
+```java
+@Bean
+public Job flowJob() {
+    return jobBuilderFactory.get("flowJob")
+        .start(flowA()) // SimpleFlowA
+        .end() // SimpleFlow 생성
+        .build();
+}
+```
+결과적으로 FlowJob ( SimpleFlow( SimpleFlowA ) )와 같은 형태가 된다.
+- ### Flow
+  - `getName()`
+  - `getStatus(stateName)`
+  - `FlowExecution start(flowExcecutor)` : Flow를 실행.
+  - `resume(stateName, flowExecutor)` : 다음에 실행할 State를 구해 FlowExecutor 에게 실행을 위임한다.
+  - `getStates()` : Flow가 가지고 있는 모든 State를 Collection 으로 반환.
+  
+- ### SimpleFlow implements Flow
+  - `String name`
+  - `State startState`: 가장 처음으로 시작할 State(StepState, FlowState, DecisionState, SplitState) 
+  - `Map<String, Set<StateTransition>> transitionMap` : State 이름으로 매핑 State 별 Transition Set
+  - `Map<String, State> stateMap`: 이름으로 매핑되어 있는 State Map
+  - `List<StateTransition> stateTransitions` : State + Transition 정보를 가진 객체의 리스트.    
+    StateTransition 은 현재 State 와(state) on()에 매칭되는 패턴(pattern), 다음 State(next) 의 속성으로 이루어져 있다.
+  
+
+- ### SimpleFlow 생성
+  ```java
+  @Bean
+  public Flow flow() {
+      FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow");
+      return flowBuilder
+          .start(myStep1())
+          .next(myStep())
+          .end();
+  }
+  ```
+  또는 flowBuilder.build()를 return 해도 된다. (end() 가 내부적으로는 build()를 호출하여 SimpleFlow 객체를 생성한다.)
+  
+
+## 🧐 SimpleFlow 아키텍처
+![img_16.png](img_16.png)
+
+start(), next(), from() 전달되는 객체에 따라 State 객체를 생성하여 전달된 객체를 저장한다.     
+이렇게 생성된 State는 SimpleFlow 에서 StateTransition 객체로 관리되며, 해당 객체를 토대로 SimpleFlow의 다른 속성들의 값을 설정하게 된다.
+
+![img_17.png](img_17.png)
+
+SimpleFlow가 `State` 를 실행시칸다.(StateTransition 을 참고하여 currentState를 실행한다. Map에 저장된 모든 State를 순회하며 실행.)    
+`State` 에서는 Step, Flow, JobExecutionDecider 요소들을 저장하며,Flow를 구성하면 자동으로 State가 생성되며 Transition과 연동된다.   
+handle() 메서드를 통해 실행 후 FlowExecutionStatus를 반환한다. 마지막 실행 상태가 FlowJob의 최종 상태가 된다.
+
+- SimpleFlow는 또 SimpleFlow를 가질 수 있기 때문에 중첩되어 객체가 생성되며 실행된다.
+- SplitState 는 여러개의 SimpleFlow를 가지고 병렬적으로 실행시킬 수 있다.
+
+### SimpleFlow의 실행
+  ```
+  1. SimpleFlow의 start() 메서드를 호출하여 첫 State를 실행시킨다.   
+  2. 그 이후 resume() 메서드 에서는 loop를 돌며 다음에 실행할 State가 있다면 실행시키고, null이거나 실행 불가능한 상태라면 종료한다.   
+  3. nextState를 호출하여 StateMap에서 다음 State를 실행한다.
+  ```
+  
+
+
+
+
+
 ### 🔑 참조
 
-> - https://fastcampus.app/course-detail/206067
 > - https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%B0%B0%EC%B9%98
+> - https://fastcampus.app/course-detail/206067

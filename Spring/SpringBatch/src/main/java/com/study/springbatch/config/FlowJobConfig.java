@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @RequiredArgsConstructor
-//@Configuration
+@Configuration
 public class FlowJobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
@@ -35,6 +35,7 @@ public class FlowJobConfig {
     @Bean
     public Flow flowA() {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowA");
+
         return flowBuilder
             .start(myStep1())
             .on("COMPLETED")
