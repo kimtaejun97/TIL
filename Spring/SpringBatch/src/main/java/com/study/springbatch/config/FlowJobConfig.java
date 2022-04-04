@@ -2,6 +2,7 @@ package com.study.springbatch.config;
 
 
 import com.study.springbatch.MyTasklet;
+import com.study.springbatch.PasscheckingListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -24,9 +25,6 @@ public class FlowJobConfig {
         return jobBuilderFactory.get("flowJob")
             .start(flowA())
             .next(stepA())
-            .on("FAILED")
-            .stop()
-            .from(stepA())
             .on("*")
             .end()
             .next(flowB())
@@ -39,9 +37,11 @@ public class FlowJobConfig {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowA");
         return flowBuilder
             .start(myStep1())
-            .on("COMPLETED").to(myStep3())
-            .from(myStep1())
-            .on("FAILED").to(myStep2())
+            .on("COMPLETED")
+            .to(myStep2())
+            .on("PASS")
+            .stop()
+            .next(myStep3())
             .end();
     }
 
@@ -78,6 +78,7 @@ public class FlowJobConfig {
     public Step myStep2() {
         return stepBuilderFactory.get("myStep2")
             .tasklet(new MyTasklet("myStep2"))
+            .listener(new PasscheckingListener())
             .build();
     }
 

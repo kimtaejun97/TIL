@@ -28,7 +28,13 @@
   - #### [JobStep](#-jobstep)
 - ### [FLow](#-flow)
   - #### [FlowJob](#-flowjob)
-  - ###
+  - #### [Trasition](#-transition)
+  - #### [사용자 정의 ExitStatus](#-사용자-정의-exitstatus)
+  - #### [JobExecutionDecider](#-jobexecutiondecider)
+  - #### [FlowJob 아키텍처](#-flowjob-아키텍처)
+  - #### [SimpleFlow](#-simpleflow)
+  - #### [FlowStep](#-flowstep)
+
 - ### [참조](#-참조)
 <br>
 
@@ -834,8 +840,6 @@ Step의 순차적 실행이 아니라 상태에 따라 흐름을 전환하도록
   
 `start, next, from` 은 flow를 정의하고, `on, to, stop, fail, end, stopAndRestart`는 조건에 따라 흐름을 전환시킨다.   
 on()을 호출하면 TransitionBuilder가 생성되고, `to, stop, fail, end, stopAndRestart`를 설정할 수 있다.
-
-
 ```java
 @Bean
 public Job flowJob() {
@@ -879,8 +883,69 @@ Flow 내 Step의 조건부 전화을 정의한다. on()을 호출하면 Transiti
     FlowExecution의 속성으로 FLow 실행 후 결과 상태를 가지고 있다.    
     Flow 내의 Step의 ExitStatus 값을 FlowExecutionStatus 값으로 저장하며 FlowJob의 배치 결과 상태에 관여한다.(Step에는 영향을 주지 않는다)
     > COMPLETED, STOPPED, FAILED, UNKNOWN
-  
 
+
+## 🧐 사용자 정의 ExitStatus
+기본적으로 정의되어 있는 ExitStatus 이외의 exitCode를 새롭게 정의 할 수 있다.    
+StepExecutionListener의 `afterStep()` 에서 생성한 후에 만들어진 ExitStatus를 반환할 수 있다.
+```java
+new ExitStatus("CUSTOM_STATUS")
+```
+
+afterStep()) 에서 새로운 ExitStatus를 반환하면 TaskletStep의 exitStatus를 세팅하는 부분에서 이를 반영한다.    
+원래의 ExitStatus를 설정한 후 afterStep()을 호출하여 다시 ExitStatus를 가져오기 때문에 덮어 씌워진다.
+
+
+```java
+@Bean
+public Flow flowA() {
+    FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowA");
+    
+    return flowBuilder
+        .start(myStep1())
+        .on("COMPLETED")
+        .to(myStep2())
+        .on("PASS")
+        .stop()
+        .next(myStep3())
+        .end();
+}
+```
+
+```java
+@Bean
+public Step myStep2() {
+    return stepBuilderFactory.get("myStep2")
+        .tasklet(new MyTasklet("myStep2"))
+        .listener(new PasscheckingListener())
+        .build();
+}
+```
+
+```java
+public class PasscheckingListener implements StepExecutionListener {
+
+    ...
+    
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        ExitStatus exitCode = stepExecution.getExitStatus();
+
+        if(!exitCode.getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
+            return new ExitStatus("PASS");
+        }
+        return exitCode;
+    }
+}
+```
+![img_14.png](img_14.png)
+
+myStep2의 EXIT_CODE가 PASS로 변경되었다.
+
+![img_13.png](img_13.png)
+
+myStep1이 COMPLETED로 끝나 myStep2가 실행되고 마찬가지로 COMPLETED로 끝나기 때문에 afterStep() 에서 ExitStatus가 `PASS` 로 변경된다.   
+`on("PASS")` 패턴에 매칭되어 `.stop()`이 호출되고, Job은 STOPPED 상태로 마치게 된다.
 
 
 
