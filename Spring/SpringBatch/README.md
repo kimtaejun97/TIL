@@ -1142,8 +1142,8 @@ Chunk 란 여러개의 아이템을 묶은 덩어리 블록으로, 아이템을 
 ![img_20.png](img_20.png)
 
 - `Chunk<I>` 는 `ItemReader` 로부터 읽은 아이템을 `Chunk Size` 만큼 반복해서 저장한다.
-- `Chunk<O>` 는 `ItemReader`로 부터 전달받은 Chunk<I>를 참조하여 `ItemProcessor`에서 가공된 아이템들을 `ItemWriter` 에게 전달한다.
-- ItemReader 와 Processor 는 아이템을 개별적으로 처리하지만 ItemWriter는 일괄적으로 처리한다.(List를 받아)
+- `Chunk<O>` 는 `ItemReader`로 부터 전달받은 `Chunk<I>`를 참조하여 `ItemProcessor`에서 가공된 아이템들을 `ItemWriter` 에게 전달한다.
+- ItemReader 와 Processor 는 아이템을 개별적으로 처리하지만 ItemWriter 는 일괄적으로 처리한다.(List 를 받아)
 
 ```java
 @Bean
@@ -1167,14 +1167,39 @@ public Step chunkStep() {
         .build();
 }
 ```
-
-
 - ### 속성
   - List Items
   - List<SkipWrapper> skips: 오류 발생으로 스킵된 아이템
   - List<Exception> errors
   - iterator()
     > Inner Class인 ChunkIterator가 반환된다.
+
+## 🧐 ChunkOrientedTasklet
+스프링 배치에서 제공하는 Tasklet의 구현체로, Chunk 기반 프로세싱을 담당하는 도메인 객체이다.    
+Tasklet에 의해 반복적으로 실행되며 실행될 때마다 새로운 트랜잭션이 생성되어 처리가 이루어진다. 때문에 예외 발생으로 롤백이 이루어져도 이전에 커밋한 Chunk는 롤백되지 않는다.
+
+내부에는 ItemReader 를 핸들링하는 `ChunkProvider` 와 ItemProcessor, ItemWriter 를 핸들링하는 `ChunkProcessor` 타입의 구현체가 존재한다.
+
+`TaskletStep` ▶ `ChunkOrientedTasklet.execute()` ▶ `ChunkProvider` ▶ `ItemReader를 통해 read(chunkSize 만큼 반복)` ▶ `ChunkProcessor를 통해 process(inputs)`    
+▶ `ItemProcessor에게 처리 위임 Iterator로 순회하며 처리` ▶ `ItemWriter` ▶ `ChunkOrientedTasklet 으로 돌아가 아이템이 없을 때 까지 반복`
+
+Chunk를 진행하며 `ChunkContext` 에 item 들을 캐싱한다. 그리고 예외가 발생하여 **재 시도할 경우 아이템을 다시 읽어오는 것이 아니라 캐싱된 아이템을 꺼내 다시 처리한다.**    
+캐싱된 데이터는 해당 Chunk가 모두 수행되었을 경우 제거하게 된다.
+
+### 👆 API
+  - #### .<I, O>chunk(size)
+      - input, output 제네릭 타입의 설정, commit interval 지정.
+      - SimpleStepBuilder 를 반환한다.
+  - #### .<I, O>chunk(CompletionPolicy)
+    - Chunk 프로세스를 완료허기 위한 정책을 설정하는 클래스.
+  - #### .reader(ItemReader), .processor(ItemProcessor), .writer(ItemWriter))
+    - Processor는 필수적으로 사용하지 않아도 된다.
+  - #### .stream(ItemStream)
+    - 재시작 데이터를 관리하는 콜백에 대한 스트림.
+  - #### .readerIsTransactionalQueue()
+    - MQS, JMS 같이 트랜잭션 외부에서 읽고, 캐시할 것인지의 여부, 기본은 false 이다.
+  - #### .listener(CHunkListener)
+
 
 
 ### 🔑 참조
