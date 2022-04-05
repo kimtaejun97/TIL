@@ -1240,6 +1240,96 @@ Chunk를 진행하며 `ChunkContext` 에 item 들을 캐싱한다. 그리고 예
   
 대부분 ItemReader와 ItemWriter는 스프링에서 제공하는 구현체를 사용하는 경우가 많고, ItemProcessor는 비즈니스 로직을 담기 때문에
 직접 구현한다.
+
+
+## 🧐 ItemStream
+ExecutionContext 를 매개변수로 받아 ItemReader, ItemWriter 처리시 상태를 저장하고, 오류가 발생하면 해당 상태를 참조하여 재시작 하도록 지원한다.    
+ItemReader, ItemWriter 의 구현체는 ItemSteam 을 구현해야 한다.(ItemStreamReader, ItemStreamWriter 을 구현하면 된다.)   
+
+- #### open(ExecutionContext)
+  - read(), write() 전에 파일이나 커넥션이필요한 리소스제 접근하도록 초기화하는 작업.
+- #### update(ExecutionContext) 
+  - 현재까지의 상태를 저장
+- #### close(ExecutionContext) 
+  - 열려있는 리소스 해제. (예외가 발생했을 때도 호출되어 리소스를 해제한다)
+  
+ItemReader, ItemWriter 가 동작하기 전에 ItemStream에서 open() 을 통해 리소스를 열고 초기화 한다.    
+그 후 아이템을 읽어올 때, 쓸 때 chunk 마다 update()를 호출하여 DB에 저장한다.
+
+```java
+public class CustomItemReader implements ItemStreamReader<Member> {
+
+    private final List<Member> items;
+    private int index;
+    private boolean restartable;
+
+    public CustomItemReader(List<Member> items) {
+        this.items = new ArrayList<>(items);
+        this.index = 0;
+        this. restartable = false;
+    }
+
+    @Override
+    public Member read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+        Member item = null;
+
+        if(this.index < this.items.size()) {
+            item = this.items.get(index++);
+        }
+
+        if(index == 8 && !restartable) {
+            throw  new RuntimeException("Restart is required");
+        }
+
+        return item;
+    }
+
+    @Override
+    public void open(ExecutionContext executionContext) throws ItemStreamException {
+        if(executionContext.containsKey("index")) {
+            index = executionContext.getInt("index");
+            this.restartable = true;
+        }
+        else {
+            executionContext.put("index", index);
+        }
+    }
+
+    @Override
+    public void update(ExecutionContext executionContext) throws ItemStreamException {
+        executionContext.put("index", index);
+    }
+
+    @Override
+    public void close() throws ItemStreamException {
+        System.out.printf("리소스 해제.");
+    }
+}
+```
+- open() 에서 이전에 실행해 index가 존재한다면 해당 index 값을 불러와 그 위치부터 실행한다.
+- close(): 예외가 발생했을 때 호출되어, 리소스를 해제시킨다.
+
+Chunk Size를 2로 주고, 리소스로 10개의 아이템을 주었다.    
+8번째 아이템을 읽은 후에 예외가 발생하도록 설정해 보았다. 아래 이미지는 테스트의 결과이다.
+
+![img_21.png](img_21.png)
+
+최초에 Reader와 Writer의 Stream이 Open 되고, Update 가 한번 호출 된다.    
+그 뒤에 아이템을 청크 사이즈만큼 읽고, Processor가 동작한 후 Write가 이루어 진다.(USER1, USER2 와 같이 출력하도록 함)     
+read(), process(), write() 가 한 chunk에 대해 모두 실행되면 Reaader, Writer의 Stream에서 Update()가 호출되어 상태를 저장한다.
+
+![img_22.png](img_22.png)
+
+8번째 아이템에서 예외가 발생하면 Close()를 호출하여 리소스를 해제하고 종료한다.    
+물론 예외가 발생하지 않아도 Close()를 호출하여 리소스를 해제한다.
+
+다음에 해당 인스턴스를 다시 실행하게 되면 ExecutionContext 에서 인덱스를 가져오고(8을 실행하다 롤백 되었으므로 이전 Chunk인 6까지 저장되었다.)   
+restartable이 true로 바뀌기 떄문에 item 10 까지 정상적으로 실행된다.
+
+
+
+
+
   
 
 ### 🔑 참조

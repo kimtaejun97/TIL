@@ -31,14 +31,14 @@ public class ChunkConfig {
         return jobBuilderFactory.get("simpleJob")
             .start(chunkStep1())
             .next(myStep2())
-            .incrementer(new RunIdIncrementer())
+//            .incrementer(new RunIdIncrementer())
             .build();
     }
 
     @Bean
     public Step chunkStep1() {
         return stepBuilderFactory.get("chunkStep1")
-            .<Member, Member>chunk(5)
+            .<Member, Member>chunk(2)
             .reader(itemReader())
             .processor(itemProcessor())
             .writer(itemWriter())
@@ -51,12 +51,20 @@ public class ChunkConfig {
             .tasklet(new MyTasklet("myStep2"))
             .build();
     }
-    
+
     @Bean
     public ItemReader<Member> itemReader() {
         return new CustomItemReader(Arrays.asList(
-            new Member("0", "user1"),
-            new Member("1", "user2")));
+            new Member("1", "user1"),
+            new Member("2", "user2"),
+            new Member("3", "user3"),
+            new Member("4", "user4"),
+            new Member("5", "user5"),
+            new Member("6", "user6"),
+            new Member("7", "user7"),
+            new Member("8", "user8"),
+            new Member("9", "user9"),
+            new Member("10", "user10")));
     }
 
     @Bean
