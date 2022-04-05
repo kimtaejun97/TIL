@@ -1218,6 +1218,29 @@ Chunk를 진행하며 `ChunkContext` 에 item 들을 캐싱한다. 그리고 예
   
   기본 구현체로는 SimpleChunkProcessor 와 FaultTolerantChunkProcessor가 있다.
 
+## 🧐 ItemReader, ItemWriter, ItemProcessor
+
+- ### ItemReader
+  - csvm txt 등의 플랫 파일 
+  - XML, JSON
+  - DB
+  - JMS와 같은 Message Queuing 서비스
+  - Custom Reader
+  
+  등의 다양한 소스에서 데이터를 읽어 제공하는 인터페이스로 아이템을 하니씩읽어 반환하고, 더 이상 없다면 null을 반환한다.     
+  ExecutionContext에 read와 관련된 여러 상태 정보를 저장해 재시작시 다시 참조하도록 지원한다.
+
+- ### ItemWriter
+  ItemReader 에서 읽은 아이템들을 리스트로 전달받아 출력한다. 출력이 완료되고 트랜잭션이 종료되면 새로운 Chunk 단위 프로세스를 진행한다.
+
+- ### ItemProcessor
+  데이터를 출력하기전 데이터를 가공, 변형, 필터링(null을 반환하면 필터링 된다) 한다.
+  ItemReader 와 ItemWriter 와 독립되어 비즈니스 로직을 구현한다. Reader 에서 받은 아이템을 특정 타입으로 변환하여 Wirter에 넘겨준다.   
+  중간 처리의 역할이기 때문에 필수요소가 아니고, Processor 가 없으면 아이템은 그대로 Writer에 전달된다.
+  
+대부분 ItemReader와 ItemWriter는 스프링에서 제공하는 구현체를 사용하는 경우가 많고, ItemProcessor는 비즈니스 로직을 담기 때문에
+직접 구현한다.
+  
 
 ### 🔑 참조
 
