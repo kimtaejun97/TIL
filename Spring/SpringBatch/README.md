@@ -1201,6 +1201,23 @@ Chunk를 진행하며 `ChunkContext` 에 item 들을 캐싱한다. 그리고 예
   - #### .listener(CHunkListener)
 
 
+## 🧐 ChunkProvider / ChunkProcessor
+
+- ### ChunkProvider 
+  ItemReader를 사용해서 소스로부터 아이템을 chunk size 만클 읽어 제공하는 도메인 객체이다.   
+  `Chunk<I>`를 만들고 반복문을 사용해 ItemReader.read()를 호출하며 아이템을 chunk에 쌓고, 사이즈만큼 아이템 읽기를 마치면 ChunkProcessor로 넘어간다.     
+  만약 더이상 읽을 아이템이 없는경우(null) chunk 프로세스를 종료한다.
+  
+  기본 구현체로 SimpleChunkProvider, FaultTolerantChunkProvider(예외 발생시 skip, retry) 이 있다.
+
+- ### ChunkProcessor
+  ItemProcessor를 사용해서 Item을 가공하고, ItemWriter를 사용해서 Chunk 데이터를 저장, 출력한다.     
+  `Chunk<O>`를 생성하고 넘어온 `Chunk<I>` 에서 아이템을 한 건씩 꺼내 처리한 후 `Chunk<O>` 에 결과를 저장한다.      
+  ItemProcessor는 필수 사항이 아니기 때문에 없다면 아무처리 없이 그대로 `Chunk<O>`에 저장되게 된다.   
+  ItemWriter 까지의 처리가 완료되면 해당 Chunk 트랜잭션이 종료되고, 다음 ChunkOrientedTasklet이 실행된다.
+  
+  기본 구현체로는 SimpleChunkProcessor 와 FaultTolerantChunkProcessor가 있다.
+
 
 ### 🔑 참조
 
