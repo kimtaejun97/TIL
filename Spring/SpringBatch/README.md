@@ -35,6 +35,7 @@
   - #### [SimpleFlow](#-simpleflow)
   - #### [FlowStep](#-flowstep)
 - ### [@JobScope, @StepScope](#-jobscope-stepscope)
+- ### [Chunk Process](#-chunk-process)
 
 
 - ### [참조](#-참조)
@@ -1130,6 +1131,50 @@ Proxy 객체의 실제 대상이 되는 Bean을 등록하고, 해제하는 역�
 `스프링 초기와 완료, Job실행` ▶ `Job 에서 Proxy 호출` ▶ `proxy에서 실제 Step Bean 참조` ▶ `Step Bean 이 있다면 꺼내주고 없다면 beanFactory 에서 생성(@Value 바인딩도 이때)`    
 ▶`JobScope 클래스에서 실제 Bean을 JobContext에 등록, 관리`
 
+# 📌 Chunk Process
+
+## 🧐 Chunk?
+![img_19.png](img_19.png)
+
+Chunk 란 여러개의 아이템을 묶은 덩어리 블록으로, 아이템을 입력받아 덩어리로 만든 후 Chunk 단위로 트랜잭션을 처리한다.   
+일반적으로 대용향 데이터를 한번에 처리하는 것이 아닌 chunk 단위로 쪼개어 반복 입출력 할 때 사용된다.
+
+![img_20.png](img_20.png)
+
+- `Chunk<I>` 는 `ItemReader` 로부터 읽은 아이템을 `Chunk Size` 만큼 반복해서 저장한다.
+- `Chunk<O>` 는 `ItemReader`로 부터 전달받은 Chunk<I>를 참조하여 `ItemProcessor`에서 가공된 아이템들을 `ItemWriter` 에게 전달한다.
+- ItemReader 와 Processor 는 아이템을 개별적으로 처리하지만 ItemWriter는 일괄적으로 처리한다.(List를 받아)
+
+```java
+@Bean
+public Step chunkStep() {
+    return stepBuilderFactory.get("chunkStep")
+        .<String, String>chunk(5)
+        .reader(new ListItemReader<>(Arrays.asList("item1", "item2", "item3", "item4", "item5")))
+        .processor(new ItemProcessor<String, String>() {
+            @Override
+            public String process(String item) throws Exception {
+                // Do Something
+                return ... 
+            }
+        })
+        .writer(new ItemWriter<String>() {
+            @Override
+            public void write(List<? extends String> items) throws Exception {
+                // Do Something (출력, DB 저장, 파일 쓰기 등..)
+            }
+        })
+        .build();
+}
+```
+
+
+- ### 속성
+  - List Items
+  - List<SkipWrapper> skips: 오류 발생으로 스킵된 아이템
+  - List<Exception> errors
+  - iterator()
+    > Inner Class인 ChunkIterator가 반환된다.
 
 
 ### 🔑 참조
