@@ -1327,8 +1327,10 @@ read(), process(), write() 가 한 chunk에 대해 모두 실행되면 Reaader, 
 restartable이 true로 바뀌기 떄문에 item 10 까지 정상적으로 실행된다.
 
 
+## 🧐 Chunk Process 아키텍처
+<img alt="img_23.png" height="500" src="img_23.png" width="1000"/>    
 
-
+설명은 위에서 계속 했으니 생략한다.
 
   
 
