@@ -2,7 +2,6 @@ package com.study.springbatch;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -10,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class JobRepositoryListener implements JobExecutionListener {
+public class JobExecutionListener implements org.springframework.batch.core.JobExecutionListener {
 
     private final JobRepository jobRepository;
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
-
+        jobExecution.getExecutionContext().put("name", "jobExecutionName");
     }
 
     @Override

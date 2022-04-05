@@ -34,6 +34,8 @@
   - #### [FlowJob 아키텍처](#-flowjob-아키텍처)
   - #### [SimpleFlow](#-simpleflow)
   - #### [FlowStep](#-flowstep)
+- ### [@JobScope, @StepScope](#-jobscope-stepscope)
+
 
 - ### [참조](#-참조)
 <br>
@@ -1077,6 +1079,56 @@ public Step flowStep() {
 }
 ```
 
+# 📌 @JobScope, @StepScope
+@JobScope 와 @StepScope는 빈의 생성과 실행에 관여하며, 빈의 생성 시점을 조작한다.(구동시점 -> 빈의 실행 시점)       
+두 Scope 애노테이션은 다음과 같이 정의되어 있다. `@Scope(value="job | step", proxyMode = ScopedProxyMode.TARGET_CLASS`     
+정의에서 볼 수 있듯 해당 애노테이션을 사용하면 구동시점에는 프록시 객체로 생성되고, 실행 시점에 실제 빈을 호출하여 메서드를 실행한다.
+
+- #### @Values 를 주입해서 빈의 실행 시점에 특정 값을 참조하는게 가능해진다.(Lazy Binding, 필드 또는 파라미터로 주입받는다)
+  - `@Values("#{jobParameters[paramName]}")`, `@Values("#{jobExecutionContext[paramName]}")`, `@Values("#{stepExecutionContext[paramName]}")`
+- #### 스프링의 Bean 은 기본적으로 Singleton 이기 때문에 스레드 세이프 하지 않은데, 해당 애노테이션들을 사용하면 각 스레드마다 스코프 빈이 할당되기 때문에 스레드 세이프하게 실행이 가능해진다.
+
+
+- ### @JobScope
+  - Step의 선언문에 정의
+  - jobParameter, jobExecutionContext 값을 바인딩 할 수 있다.
+  ```java
+  @JobScope
+  @Bean
+  public Step myStep1(@Value("#{jobParameters['message']}") String message) {
+      System.out.println("Parameter[message]: " + message);
+      return stepBuilderFactory.get("myStep1")
+          .tasklet(tasklet(null, null))
+          .build();
+  }
+  ```
+  런타임 시점에 값이 바인딩 되기 때문에 null을 넘겨주어 컴파일 에러를 방지해준다.
+- ### @StepScope
+  - Tasklet, Item Reader, Writer, Processor 선언문에 정의한다.
+  - jobParameter, jobExecutionContext, stepExecutionContext 값을 바인딩 할 수 있다.
+  ```java
+  @Bean
+  @StepScope
+  public Tasklet tasklet(@Value("#{jobExecutionContext['name']}") String jobName,
+      @Value("#{stepExecutionContext['name']}") String stepName) {
+      return ((contribution, chunkContext) -> {
+          System.out.println("tasklet has execute");
+          System.out.println("jobName: " + jobName + ", " + "stepName: " + stepName);
+          return RepeatStatus.FINISHED;
+      });
+  }
+  ```
+  job, stepExecutionContext의 값은 각 ExecutionListener에서 넣어줄 수 있다.
+
+## 🧐 Scope 아키텍처
+Proxy 객체의 실제 대상이 되는 Bean을 등록하고, 해제하는 역할을 하는 `JobScope`, `StepScope` 클래스가 존재한다.    
+해당 클래스들은  실제 빈을 저장하고 있는 `JobContext`와 `StepContext`를 가지고 있다. (마치 Spring의 ApplicationContext와 같이)
+
+![img_18.png](img_18.png)
+
+`어플리케이션 구동` ▶ `ApplicationContext에서 빈을 생성` ▶ `@JobScope, StepScope가 있는가?` ▶ `있으면 proxy, 없으면 Singleton Bean 생성`    
+`스프링 초기와 완료, Job실행` ▶ `Job 에서 Proxy 호출` ▶ `proxy에서 실제 Step Bean 참조` ▶ `Step Bean 이 있다면 꺼내주고 없다면 beanFactory 에서 생성(@Value 바인딩도 이때)`    
+▶`JobScope 클래스에서 실제 Bean을 JobContext에 등록, 관리`
 
 
 

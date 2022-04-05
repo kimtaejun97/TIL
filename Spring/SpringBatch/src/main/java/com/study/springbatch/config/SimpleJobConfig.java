@@ -132,7 +132,6 @@ public class SimpleJobConfig {
         return jobBuilderFactory.get("childJob")
             .start(myStep3())
             .build();
-
     }
 
     @Bean
