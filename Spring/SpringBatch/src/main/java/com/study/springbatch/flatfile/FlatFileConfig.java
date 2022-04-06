@@ -1,12 +1,9 @@
-package com.study.springbatch.config;
+package com.study.springbatch.flatfile;
 
 import com.study.springbatch.CustomItemProcessor;
-import com.study.springbatch.CustomItemReader;
 import com.study.springbatch.CustomItemWriter;
 import com.study.springbatch.Member;
 import com.study.springbatch.MyTasklet;
-import java.util.ArrayList;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -16,12 +13,19 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.Range;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+
 
 @RequiredArgsConstructor
-//@Configuration
-public class ChunkConfig {
+@Configuration
+public class FlatFileConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -31,7 +35,7 @@ public class ChunkConfig {
         return jobBuilderFactory.get("simpleJob")
             .start(chunkStep1())
             .next(myStep2())
-//            .incrementer(new RunIdIncrementer())
+            .incrementer(new RunIdIncrementer())
             .build();
     }
 
@@ -45,6 +49,34 @@ public class ChunkConfig {
             .build();
     }
 
+//    @Bean
+//    public ItemReader<? extends Member> itemReader() {
+//        FlatFileItemReader<Member> itemReader = new FlatFileItemReader<>();
+//
+//        DefaultLineMapper<Member> lineMapper = new DefaultLineMapper<>();
+//        lineMapper.setLineTokenizer(new DelimitedLineTokenizer()); // 기본 구분자 ,
+//        lineMapper.setFieldSetMapper(new MemberFieldSetMapper());
+//
+//        itemReader.setLineMapper(lineMapper);
+//        itemReader.setResource(new ClassPathResource("/member.csv"));
+//        itemReader.setLinesToSkip(1);
+//
+//        return  itemReader;
+//    }
+
+    @Bean
+    public ItemReader itemReader() {
+        return new FlatFileItemReaderBuilder<Member>()
+            .name("flatFile")
+            .resource(new ClassPathResource("/member.csv"))
+            .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
+            .targetType(Member.class)
+            .delimited().delimiter(",")
+            .names("name", "id")
+            .linesToSkip(1)
+            .build();
+    }
+
     @Bean
     public Step myStep2() {
         return stepBuilderFactory.get("myStep2")
@@ -52,20 +84,6 @@ public class ChunkConfig {
             .build();
     }
 
-    @Bean
-    public ItemReader<Member> itemReader() {
-        return new CustomItemReader(Arrays.asList(
-            new Member("1", "user1"),
-            new Member("2", "user2"),
-            new Member("3", "user3"),
-            new Member("4", "user4"),
-            new Member("5", "user5"),
-            new Member("6", "user6"),
-            new Member("7", "user7"),
-            new Member("8", "user8"),
-            new Member("9", "user9"),
-            new Member("10", "user10")));
-    }
 
     @Bean
     public ItemProcessor<? super Member, Member> itemProcessor() {
@@ -76,4 +94,5 @@ public class ChunkConfig {
     public ItemWriter<? super Member> itemWriter() {
         return new CustomItemWriter();
     }
+
 }

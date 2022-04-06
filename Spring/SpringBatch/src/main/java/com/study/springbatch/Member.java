@@ -12,4 +12,6 @@ public class Member {
         this.id = id;
         this.name = name;
     }
+
+    public Member() {}
 }

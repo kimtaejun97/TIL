@@ -1332,7 +1332,148 @@ restartable이 true로 바뀌기 떄문에 item 10 까지 정상적으로 실행
 
 설명은 위에서 계속 했으니 생략한다.
 
+
+# 📌 ItemReader 구현체
+
+## 🧐 FlatFileItemReader
+표와 같은 2차원 데이터로 표현된 유형의 파일을 처리한다. 일반적으로 고정위치로 정의된 데이터나, 특수 문자에 의헤 구별된 데이터의 행을 읽는다.    
+Resource(읽어야할 데이터)와 LineMapper(Line String to Object) 가 필요하다.
+
+
+- ### 👆 속성
+  - #### String encoding
+  - #### int linesToSkip
+    - 파일 상단부터 무시할 라인 수 (헤더 등을 스킵할때 사용)
+    - LineCallbackHandler 를 호출하여 건너뛴다.
+  - #### String[] comments
+    - 해당 문자가 있는 라인은 무시한다.
+  - #### Resource resource
+    - FileSystemResource, ClassPathResource ...
+  - #### LineMapper\<T> lineMapper
+    - Line을 읽어 객체로 변환한다.
+    - `LineTokenizer`
+      - 라인을 FieldSet 으로 변환한다. 파일 형식에 맞춰 FieldSet 으로 변환하는 작업을 추상화해야한다.
+      - 구분자를 이용하는 DelimitedLineTokenizer, 고정길이 방식의 FixedLengthTokenizer 가 있다.
+    - `FieldSet`
+      - 라인을 구분자로 구분해서  토큰 배열을 생성한다.
+    - `FieldSetMapper`
+      - FieldSet을 객체에 매핑하여 반환한다.(객체의 필드명과 매핑, BeanWrapperFieldSetMapper를 사용한다.)
+
+- ### 👆 API
+  - .name(String name)
+    - ExecutionContext 내에서 구분하기 위한 key로 저장된다.
+  - .resource(Resource)
+  - .delimited().delimiter()
+  - .fixedLength()
+    - 길이를 기준으로 파일을 읽음
+  - .addColumns(Range)
+    - 고정 길이의 범위
+  - .names(String[] fieldNames)
+    - 매핑될 객체의 필드명
+  - .targetType(Class)
+  - .addComment(String comment)
+    - 무시할 라인의 기호 설정.
+  - .stric(false)
+    - 라인을 읽을 때 파싱 예외가 발생하지 않도록 검증 생략 설정. 기본은 true
+  - .encoding(String encoding)
+  - .lineToSkip(num)
+  - .saveState(false)
+    - 상태 정보를 저장할 것인지, 기본은 true
+  - .setLineMapper(LineMapper)
+  - .setFieldSetMapper(FieldSetMapper)
+  - .setLineTokenizer(LineTokenizer)
   
+```java
+@Bean
+public ItemReader<? extends Member> itemReader() {
+    FlatFileItemReader<Member> itemReader = new FlatFileItemReader<>();
+
+    DefaultLineMapper<Member> lineMapper = new DefaultLineMapper<>();
+    lineMapper.setLineTokenizer(new DelimitedLineTokenizer()); // 기본 구분자 ','
+    lineMapper.setFieldSetMapper(new MemberFieldSetMapper());
+
+    itemReader.setLineMapper(lineMapper);
+    itemReader.setResource(new ClassPathResource("/member.csv"));
+    itemReader.setLinesToSkip(1);
+
+    return itemReader;
+}
+```
+
+- LineMapper
+```java
+@Setter
+public class DefaultLineMapper<T> implements LineMapper<T> {
+
+    private LineTokenizer lineTokenizer;
+    private FieldSetMapper<T> fieldSetMapper;
+
+    @Override
+    public T mapLine(String line, int lineNumber) throws Exception {
+        return fieldSetMapper.mapFieldSet(lineTokenizer.tokenize(line));
+    }
+}
+```
+
+- FieldSetMapper
+```java
+public class MemberFieldSetMapper implements FieldSetMapper<Member> {
+
+    @Override
+    public Member mapFieldSet(FieldSet fieldSet) throws BindException {
+        if(fieldSet == null){
+            return null;
+        }
+
+        Member member = new Member();
+        member.setName(fieldSet.readString(0));
+        member.setId(fieldSet.readString(1));
+
+        return member;
+    }
+}
+```
+`파일에서 한 줄을 읽어옴` ▶ `LineTokenizer 에서 파싱해 토큰 배열 생성(DefaultFieldSet)` ▶ `FieldSetMapper 에서 fieldSet을 토대로 객체 생성, 반환`   
+▶ `파일의 끝까지 반복`
+
+names를 넣어주지 않았기 떄문에 인덱스로 값을 가져왔다. LineTokenizer의 setNames()를 설정해주면 필드명으로 가져올 수 있다.
+
+하기와 같이 Builder를 사용하여 더 깔끔하게 구성할 수 있다.
+```java
+@Bean
+public ItemReader itemReader() {
+    return new FlatFileItemReaderBuilder<Member>()
+    .name("flatFile")
+    .resource(new ClassPathResource("/member.csv"))
+    .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
+    .targetType(Member.class)
+    .delimited().delimiter(",")
+    .names("name", "id")
+    .linesToSkip(1)
+    .build();
+    }
+```
+코드를 보면 LineMapper를 설정하는 부분이 빠졌다는 것을 알 수 있는데, 사실 따로 생성해서 넣어주지 않아도, 스프링에서 제공하는 DefaultLineMapper가 존재하고,이를 사용한다.   
+마찬가지로 FieldSetMapper 또한 스프링에서 제공하는 BeanWrapperFieldSetMapper를 사용하고, 타겟 클래스를 지정해 주면 필드명에 맞게 매핑해준다.
+
+- ### 고정 길이로 구분
+  ```java
+  .fixedLength() // fixedLengthBuilder 반환
+  .names("name", "id")
+  .addColumns(new Range(1-5))
+  .addCloumns(new Range(6-10))
+  ```
+  문자열이 아님에 주의하자.
+
+### 👆 Exception Handling
+  - `IncorrectTokenCountException`
+    - 넣어준 토큰 필드의 이름(names)의 수보다 읽어들인 토큰의 수가 다를 때 발생한다.
+  - `IncorrectLineLengthException`
+    - 지정해준 컬럼들의 길이보다 라인 전체 길이가 일치하지 않을 때 발생한다.
+  
+  기본적으로는 `stric` 옵션이 `true` 이기 때문에 토큰화를 수행할 때 이를 검증하게 되고, 예외를 발생시킨다. 하지만 해당 옵션을 `false`로 주게 된다면    
+  라인 길이나 컬럼명을 검증하지 않게되기 때문에 예외를 발생시키지 않고, 범위나 이름에 맞지 않는 컬럼은 빈 토큰을 가지게 된다.
+
 
 ### 🔑 참조
 
