@@ -1586,6 +1586,44 @@ Map 에 처음으로 들어가는 요소는 RootElement에 해당하는 것으�
 그 다음의 요소들은 각각 객체의 필드와 매핑된다.
 
 
+## 🧐 JsonItemReader
+![img_25.png](img_25.png)
+
+Json 데이터의 파싱, 바인딩을 JsonObjectReader 구현체에게 위임하여 처리한다.
+
+### JsonObjectReader 구현체
+- GsonJsonObjectReader
+- JacksonJsonObjectReader
+  - itemType: Json 데이터를 매핑할 객체의 타입
+  - JsonParser
+  - ObjectMapper
+  - InputStream : Json 파일로부터 데이터를 읽어오는 입력 스트림.
+
+```java
+@Bean
+public ItemReader<? extends Member> itemReader() {
+    return new JsonItemReaderBuilder<Member>()
+        .name("JsonReader")
+        .resource(new ClassPathResource("/member.json"))
+        .jsonObjectReader(new JacksonJsonObjectReader<>(Member.class))
+        .build();
+}
+```
+
+```json
+[
+  {
+    "name": "user1",
+    "id": "1"
+  },
+  {
+    "name": "user2",
+    "id": "2"
+  },
+  ...
+]
+```
+
 
 ### 🔑 참조
 

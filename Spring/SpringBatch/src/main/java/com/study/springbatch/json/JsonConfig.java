@@ -1,9 +1,8 @@
-package com.study.springbatch.stax;
+package com.study.springbatch.json;
 
 import com.study.springbatch.CustomItemProcessor;
 import com.study.springbatch.CustomItemWriter;
 import com.study.springbatch.Member;
-import com.thoughtworks.xstream.XStream;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,8 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,9 +24,8 @@ import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
 @RequiredArgsConstructor
-//@Configuration
-public class XMLConfig {
-
+@Configuration
+public class JsonConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
@@ -49,25 +49,11 @@ public class XMLConfig {
 
     @Bean
     public ItemReader<? extends Member> itemReader() {
-        return new StaxEventItemReaderBuilder<Member>()
-            .name("staXml")
-            .resource(new ClassPathResource("/member.xml"))
-            .addFragmentRootElements("member")
-            .unmarshaller(itemUnmarshaller())
+        return new JsonItemReaderBuilder<Member>()
+            .name("JsonReader")
+            .resource(new ClassPathResource("/member.json"))
+            .jsonObjectReader(new JacksonJsonObjectReader<>(Member.class))
             .build();
-    }
-
-    @Bean
-    public Unmarshaller itemUnmarshaller() {
-        Map<String, Class<?>> aliases = new HashMap<>();
-        aliases.put("member", Member.class);
-        aliases.put("name", String.class);
-        aliases.put("id", String.class);
-
-        XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();
-        xStreamMarshaller.setAliases(aliases);
-
-        return xStreamMarshaller;
     }
 
     @Bean
@@ -79,5 +65,4 @@ public class XMLConfig {
     public ItemWriter<? super Member> itemWriter() {
         return new CustomItemWriter();
     }
-
 }
