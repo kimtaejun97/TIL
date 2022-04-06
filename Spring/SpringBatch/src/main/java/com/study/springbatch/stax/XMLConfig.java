@@ -1,9 +1,11 @@
-package com.study.springbatch.flatfile;
+package com.study.springbatch.stax;
 
 import com.study.springbatch.CustomItemProcessor;
 import com.study.springbatch.CustomItemWriter;
 import com.study.springbatch.Member;
-import com.study.springbatch.MyTasklet;
+import com.thoughtworks.xstream.XStream;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -13,19 +15,16 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.Range;
+import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-
+import org.springframework.oxm.Unmarshaller;
+import org.springframework.oxm.xstream.XStreamMarshaller;
 
 @RequiredArgsConstructor
-//@Configuration
-public class FlatFileConfig {
+@Configuration
+public class XMLConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -34,7 +33,6 @@ public class FlatFileConfig {
     public Job simpleJob() {
         return jobBuilderFactory.get("simpleJob")
             .start(chunkStep1())
-            .next(myStep2())
             .incrementer(new RunIdIncrementer())
             .build();
     }
@@ -49,41 +47,28 @@ public class FlatFileConfig {
             .build();
     }
 
-//    @Bean
-//    public ItemReader<? extends Member> itemReader() {
-//        FlatFileItemReader<Member> itemReader = new FlatFileItemReader<>();
-//
-//        DefaultLineMapper<Member> lineMapper = new DefaultLineMapper<>();
-//        lineMapper.setLineTokenizer(new DelimitedLineTokenizer()); // 기본 구분자 ,
-//        lineMapper.setFieldSetMapper(new MemberFieldSetMapper());
-//
-//        itemReader.setLineMapper(lineMapper);
-//        itemReader.setResource(new ClassPathResource("/member.csv"));
-//        itemReader.setLinesToSkip(1);
-//
-//        return  itemReader;
-//    }
-
     @Bean
-    public ItemReader itemReader() {
-        return new FlatFileItemReaderBuilder<Member>()
-            .name("flatFile")
-            .resource(new ClassPathResource("/member.csv"))
-            .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
-            .targetType(Member.class)
-            .delimited().delimiter(",")
-            .names("name", "id")
-            .linesToSkip(1)
+    public ItemReader<? extends Member> itemReader() {
+        return new StaxEventItemReaderBuilder<Member>()
+            .name("staXml")
+            .resource(new ClassPathResource("/member.xml"))
+            .addFragmentRootElements("member")
+            .unmarshaller(itemUnmarshaller())
             .build();
     }
 
     @Bean
-    public Step myStep2() {
-        return stepBuilderFactory.get("myStep2")
-            .tasklet(new MyTasklet("myStep2"))
-            .build();
-    }
+    public Unmarshaller itemUnmarshaller() {
+        Map<String, Class<?>> aliases = new HashMap<>();
+        aliases.put("member", Member.class);
+        aliases.put("name", String.class);
+        aliases.put("id", String.class);
 
+        XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();
+        xStreamMarshaller.setAliases(aliases);
+
+        return xStreamMarshaller;
+    }
 
     @Bean
     public ItemProcessor<? super Member, Member> itemProcessor() {

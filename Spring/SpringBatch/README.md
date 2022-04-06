@@ -36,6 +36,15 @@
   - #### [FlowStep](#-flowstep)
 - ### [@JobScope, @StepScope](#-jobscope-stepscope)
 - ### [Chunk Process](#-chunk-process)
+- ### [ItemReader 구현체](#-itemreader-구현체)
+  - #### [FlatFileItemReader](#-flatfileitemreader)
+  - #### [XML-StaxEventItemReader](#-xml-staxeventitemreader)
+  - #### [JsonItemReader](#-jsonitemreader)
+  - #### [JdbcCursorItemReader](#-jdbccursoritemreader)
+  - #### [JpaCursorItemReader](#-jpacursoritemreader)
+  - #### [JdbcPagingItemReader](#-jdbcpagingitemreader)
+  - #### [JpaPagingItemReader](#-jpapagingitemreader)
+  - #### [ItemReaderAdapter](#-itemreaderadapter)
 
 
 - ### [참조](#-참조)
@@ -1473,6 +1482,109 @@ public ItemReader itemReader() {
   
   기본적으로는 `stric` 옵션이 `true` 이기 때문에 토큰화를 수행할 때 이를 검증하게 되고, 예외를 발생시킨다. 하지만 해당 옵션을 `false`로 주게 된다면    
   라인 길이나 컬럼명을 검증하지 않게되기 때문에 예외를 발생시키지 않고, 범위나 이름에 맞지 않는 컬럼은 빈 토큰을 가지게 된다.
+
+
+## 🧐 XML-StaxEventItemReader
+
+### StAX ?
+Streaming API for XML, DOM 과 SAX 의 장, 단점을 보완한 API 모델로 PUSH, PULL 방식을 모두 제공한다.      
+XNL 파일의 항목을 직접 이동하면서 Stax 파서기를 통해 구문을 분석한다.
+
+- Iterator API 방식
+  - XMLEventReader의 nextEvent()를 호출해 이벤트 객체를 가져온다.
+- Cursor API 방식
+  - JDBC Resultset 처럼 동작, XMLStreamReader는 XML 문서의 다음 요소로 커서를 이동한다.
+  - 커서에서 메서드를 호출하여 현재 이벤트의 정보를 얻는다.
+  
+
+스프링 배치에서는 XML 바인딩을 Spring OXM에게 위임하고, 바인딩 기술을 제공하는 구현체를 선택해서 처리하도록 한다.     
+`Marshaller`(객체 -> XML), `UnMarchaller`(XML -> 객체)를 지원하는 오픈소스로는 JaxB2, Castor, XmlBeans, Xstream ... 이 있다. 
+
+스프링 배치는 StAX 방식으로 문서를 처리하는 StaxEventItemReader를 제공한다.
+
+![img_24.png](img_24.png)
+XML 문서를 조각(fragment) 단위로 분석하여 처리한다.(root element 를 하나의 조각으로)     
+조각을 읽을 때는 DOM의 Pull 방식을 사용하고, 이를 객체로 바인딩 할때는 SAX의 Push 방식을 사용한다.    
+fragment 단위로 읽어들인 후 SpringOXM 에게 객체 매핑을 위임한다.
+
+루트 엘리먼트를 객체로, 내부의 자식 엘리먼트들을 매핑될 객체의 필드로 매핑한다.
+
+- ### 👆 속성
+  - FragmentEventReader
+    - XML 조각을 독립형 XML 문서로 처리하는 이벤트 판독기
+  - XMLEventReader
+    - XML 이벤트 구문 분석을 위한 최상위 인터페이스
+  - Unmarshaller
+    - XML to Object
+  - Resource
+  - List<QName> fragmentRootElementNames
+    - 조각 단위의 루트 엘리먼트명을 담은 리스트.
+
+
+- ### 👆 API
+  StaxEventItemRedaderBuilder\<T> 를 사용한다. 
+  - .name(String)
+  - .resource(Resource)
+  - .addFragmentRootElements(String ...)
+    - root Elemnet를 지정한다.
+  - .unmarshaller(Unmarshaller)
+    - 타겟 객체 설정.
+  - .saveState(false)
+    - 상태 정보 저장의 여부, 기본값은 true 이다.
+  
+
+
+### 의존성 추가
+```groovy
+implementation 'com.thoughtworks.xstream:xstream:1.4.19'
+implementation 'org.springframework:spring-oxm:5.3.16'
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<members>
+  <member id="1">
+    <id>1</id>
+    <name>user1</name>
+  </member>
+  <member>
+    <id>2</id>
+    <name>user2</name>
+  </member>
+  
+   ...
+  
+</members>
+
+```
+
+```java
+@Bean
+public ItemReader<? extends Member> itemReader() {
+    return new StaxEventItemReaderBuilder<Member>()
+        .name("staXml")
+        .resource(new ClassPathResource("/member.xml"))
+        .addFragmentRootElements("member")
+        .unmarshaller(itemUnmarshaller())
+        .build();
+}
+
+@Bean
+public Unmarshaller itemUnmarshaller() {
+    Map<String, Class<?>> aliases = new HashMap<>();
+    aliases.put("member", Member.class);
+    aliases.put("id", String.class);
+    aliases.put("name", String.class);
+
+    XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();
+    xStreamMarshaller.setAliases(aliases);
+
+    return xStreamMarshaller;
+}
+```
+Map 에 처음으로 들어가는 요소는 RootElement에 해당하는 것으로 객체와 매핑되고
+그 다음의 요소들은 각각 객체의 필드와 매핑된다.
+
 
 
 ### 🔑 참조
