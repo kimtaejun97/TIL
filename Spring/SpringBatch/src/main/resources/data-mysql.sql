@@ -1,0 +1,21 @@
+
+INSERT INTO member (id, name) VALUES ('1', 'user1');
+INSERT INTO member (id, name) VALUES ('2', 'user2');
+INSERT INTO member (id, name) VALUES ('3', 'user3');
+INSERT INTO member (id, name) VALUES ('4', 'user4');
+INSERT INTO member (id, name) VALUES ('5', 'user5');
+INSERT INTO member (id, name) VALUES ('6', 'user6');
+INSERT INTO member (id, name) VALUES ('7', 'user7');
+INSERT INTO member (id, name) VALUES ('8', 'user8');
+INSERT INTO member (id, name) VALUES ('9', 'user9');
+INSERT INTO member (id, name) VALUES ('10', 'user10');
+INSERT INTO member (id, name) VALUES ('11', 'user11');
+INSERT INTO member (id, name) VALUES ('12', 'user12');
+INSERT INTO member (id, name) VALUES ('13', 'user13');
+INSERT INTO member (id, name) VALUES ('14', 'user14');
+INSERT INTO member (id, name) VALUES ('15', 'user15');
+INSERT INTO member (id, name) VALUES ('16', 'user16');
+INSERT INTO member (id, name) VALUES ('17', 'user17');
+INSERT INTO member (id, name) VALUES ('18', 'user18');
+INSERT INTO member (id, name) VALUES ('19', 'user19');
+INSERT INTO member (id, name) VALUES ('20', 'user20');

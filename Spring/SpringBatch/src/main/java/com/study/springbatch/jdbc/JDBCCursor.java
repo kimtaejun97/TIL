@@ -1,8 +1,9 @@
-package com.study.springbatch.json;
+package com.study.springbatch.jdbc;
 
 import com.study.springbatch.CustomItemProcessor;
 import com.study.springbatch.CustomItemWriter;
 import com.study.springbatch.Member;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -12,17 +13,23 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+
 @RequiredArgsConstructor
-//@Configuration
-public class JsonConfig {
+@Configuration
+public class JDBCCursor {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+    private final DataSource dataSource;
+    private int chunkSize = 5;
 
     @Bean
     public Job simpleJob() {
@@ -43,11 +50,14 @@ public class JsonConfig {
     }
 
     @Bean
-    public ItemReader<? extends Member> itemReader() {
-        return new JsonItemReaderBuilder<Member>()
-            .name("JsonReader")
-            .resource(new ClassPathResource("/member.json"))
-            .jsonObjectReader(new JacksonJsonObjectReader<>(Member.class))
+    public ItemReader<Member> itemReader() {
+        return new JdbcCursorItemReaderBuilder<Member>()
+            .name("jdbcCursorItemReader")
+            .fetchSize(chunkSize)
+            .sql("select id, name from member where name like ? order by id")
+            .queryArguments("user%")
+            .beanRowMapper(Member.class)
+            .dataSource(dataSource)
             .build();
     }
 

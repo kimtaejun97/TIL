@@ -1624,6 +1624,68 @@ public ItemReader<? extends Member> itemReader() {
 ]
 ```
 
+## 🧐 DB-ItemReader
+
+- ### Cursor Based 처리
+  JDBC ResultSet의 메커니즘을 사용한다. 현재 행에 커서를 유지하며 데이터를 호출하면 다음 행으로 커서를 이동하여 데이터를 반환하는 Streaming 방식의 I/O 이다.    
+  DB Connection이 연결되면 배치가 완료될 때 까지 데이터를 읽어오기 때문에 소켓 타임아웃을 이에 맞게 설정하야 한다.
+  - 모든 결과를 메모리에 할당하기 때문에 메모리 사용량이 많다.
+  - Connection 연결 유지 시간과 메모리 공간이 충분하다면 대용량 데이터의 처리에 적합하다.(fatchSize로 한번에 가져오는 양 설정 가능)
+  
+- ### Paging Based 처리
+  페이징 단위로 데이터를 조회, PageSize 만큼 한번에 메모리에 올려두고, 한 개씩 읽는다.    
+  Cursor와 달리 한 페이지를 읽을 때 마다 Connection을 재연결 한다.
+  - 페이징 단위의 결과만 메모리에 할당하기 때문에 메모리 사용량이 더 적을 수 있다.
+  - 커네견 연결 유지시간이 적고, 메모리 공간을 효율적으로 사용해야 하는 경우에 적합하다.
+  
+
+### 👆 JdbcCursorItemReader
+
+<img alt="img_26.png" height="400" src="img_26.png" width="900"/>
+
+커서 기반의 JDBC 구현체로 ResultSet과 함께 사용되며, Datasource에서 Connection을 얻어와 SQL을 실행한다.    
+Thread-safe 하지 않기 때문에 멀티 스레드 환경에서 동기화 처리가 필요하다.
+
+Step에서 read() 가 호출 되면, JdbcCursorItemReader 에서 fetchSize(chunkSize) 만큼 읽어온 후 돌려준다.
+
+- ### API
+  JdbcCursorItemReaderBuilde<T>() 를 사용한다.
+  - .name(name)
+  - .fetchSize(size)
+  - .dataSource(DataSource)
+  - .rowMapper(RowMapper)
+    - 반환되는 데이터를 객체에 매핑하기 위한 설정.
+  - .beanRowMapper()
+    - RowMapper 대신 클래스 타입으로 설정한다.
+  - .sql(sql)
+  - .queryArguments(Object ...)
+    - 쿼리 파라미터 설정
+  - .maxItemCount(int)
+  - .currentItemCount(int)
+      - 조회 item의 시작 지점.
+  - maxRows(int)
+    - ResultSet 오브젝트가 포함 할 수 있는 최대 행의 수.
+  
+  ```java
+  @Bean
+  public ItemReader<Member> itemReader() {
+      return new JdbcCursorItemReaderBuilder<Member>()
+          .name("jdbcCursorItemReader")
+          .fetchSize(chunkSize)
+          .sql("select id, name from member where name like ? order by id")
+          .queryArguments("user%")
+          .beanRowMapper(Member.class)
+          .dataSource(dataSource)
+          .build();
+  }
+  ```
+    
+
+
+
+
+
+
 
 ### 🔑 참조
 
