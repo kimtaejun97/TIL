@@ -1786,6 +1786,41 @@ Cursor와 달리 한 페이지를 읽을 때 마다 Connection을 재연결 한�
   }
   ```
 
+## 🧐 ItemReaderAdapter
+배치 Job 안에서 이미 있는 기존의 DAO나 다른 서비스를 ItemReader 안에서 사용하고자 할때 실행을 위임하는 역할을 한다.    
+(MemberService 의 joinMember() 메서드의 호출과 같이), Java의 리플렉션 기술을 사용한다.
+
+```java
+@Bean
+public ItemReader<Member> itemReader() {
+    ItemReaderAdapter<Member> reader = new ItemReaderAdapter<>();
+    reader.setTargetObject(MemberService());
+    reader.setTargetMethod("readMember");
+
+    return reader;
+}
+```
+
+```java
+public class MemberService {
+
+    private long id= 0;
+
+    public Member readMember() {
+        if(id < 10) {
+            return new Member(String.valueOf(++id), "user");
+        }
+        return null;
+    }
+}
+```
+기존의 MemberService의 readMember() 메서드를 호출하여 데이터를 한건씩 읽어올 수 있다.    
+10 번만 읽기 위해 `id < 10` 조건을 추가하였다. 읽을 데이터를 가져온 후 해당 리스트를 remove() 하며 데이터를 읽을 수 있다.
+
+
+
+
+
 
 ### 🔑 참조
 
