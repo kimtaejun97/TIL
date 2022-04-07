@@ -1626,97 +1626,165 @@ public ItemReader<? extends Member> itemReader() {
 
 ## 🧐 DB-ItemReader
 
-- ### Cursor Based 처리
-  JDBC ResultSet의 메커니즘을 사용한다. 현재 행에 커서를 유지하며 데이터를 호출하면 다음 행으로 커서를 이동하여 데이터를 반환하는 Streaming 방식의 I/O 이다.    
-  DB Connection이 연결되면 배치가 완료될 때 까지 데이터를 읽어오기 때문에 소켓 타임아웃을 이에 맞게 설정하야 한다.
-  - 모든 결과를 메모리에 할당하기 때문에 메모리 사용량이 많다.
-  - Connection 연결 유지 시간과 메모리 공간이 충분하다면 대용량 데이터의 처리에 적합하다.(fatchSize로 한번에 가져오는 양 설정 가능)
+### Cursor Based 처리
+JDBC ResultSet의 메커니즘을 사용한다. 현재 행에 커서를 유지하며 데이터를 호출하면 다음 행으로 커서를 이동하여 데이터를 반환하는 Streaming 방식의 I/O 이다.    
+DB Connection이 연결되면 배치가 완료될 때 까지 데이터를 읽어오기 때문에 소켓 타임아웃을 이에 맞게 설정하야 한다.
+- 모든 결과를 메모리에 할당하기 때문에 메모리 사용량이 많다.
+- Connection 연결 유지 시간과 메모리 공간이 충분하다면 대용량 데이터의 처리에 적합하다.(fatchSize로 한번에 가져오는 양 설정 가능)
   
-- ### Paging Based 처리
-  페이징 단위로 데이터를 조회, PageSize 만큼 한번에 메모리에 올려두고, 한 개씩 읽는다.    
-  Cursor와 달리 한 페이지를 읽을 때 마다 Connection을 재연결 한다.
-  - 페이징 단위의 결과만 메모리에 할당하기 때문에 메모리 사용량이 더 적을 수 있다.
-  - 커네견 연결 유지시간이 적고, 메모리 공간을 효율적으로 사용해야 하는 경우에 적합하다.
+### Paging Based 처리
+페이징 단위로 데이터를 조회, PageSize 만큼 한번에 메모리에 올려두고, 한 개씩 읽는다.    
+Cursor와 달리 한 페이지를 읽을 때 마다 Connection을 재연결 한다.
+- 페이징 단위의 결과만 메모리에 할당하기 때문에 메모리 사용량이 더 적을 수 있다.
+- 커네견 연결 유지시간이 적고, 메모리 공간을 효율적으로 사용해야 하는 경우에 적합하다.
   
 
-### 👆 JdbcCursorItemReader
+- ### 👆 JdbcCursorItemReader
 
-<img alt="img_26.png" height="400" src="img_26.png" width="900"/>
-
-커서 기반의 JDBC 구현체로 ResultSet과 함께 사용되며, Datasource에서 Connection을 얻어와 SQL을 실행한다.    
-Thread-safe 하지 않기 때문에 멀티 스레드 환경에서 동기화 처리가 필요하다.
-
-Step에서 read() 가 호출 되면, JdbcCursorItemReader 에서 fetchSize(chunkSize) 만큼 읽어온 후 돌려준다.
-
-- ### API
-  JdbcCursorItemReaderBuilde<T>() 를 사용한다.
-  - .name(name)
-  - .fetchSize(size)
-  - .dataSource(DataSource)
-  - .rowMapper(RowMapper)
-    - 반환되는 데이터를 객체에 매핑하기 위한 설정.
-  - .beanRowMapper()
-    - RowMapper 대신 클래스 타입으로 설정한다.
-  - .sql(sql)
-  - .queryArguments(Object ...)
-    - 쿼리 파라미터 설정
-  - .maxItemCount(int)
-  - .currentItemCount(int)
-      - 조회 item의 시작 지점.
-  - maxRows(int)
-    - ResultSet 오브젝트가 포함 할 수 있는 최대 행의 수.
+  <img alt="img_26.png" height="400" src="img_26.png" width="900"/>
   
+  커서 기반의 JDBC 구현체로 ResultSet과 함께 사용되며, Datasource에서 Connection을 얻어와 SQL을 실행한다.    
+  Thread-safe 하지 않기 때문에 멀티 스레드 환경에서 동기화 처리가 필요하다.
+  
+  Step에서 read() 가 호출 되면, JdbcCursorItemReader 에서 fetchSize(chunkSize) 만큼 읽어온 후 돌려준다.
+  
+  - ### API
+    JdbcCursorItemReaderBuilde<T>() 를 사용한다.
+    - .name(name)
+    - .fetchSize(size)
+    - .dataSource(DataSource)
+    - .rowMapper(RowMapper)
+      - 반환되는 데이터를 객체에 매핑하기 위한 설정.
+    - .beanRowMapper()
+      - RowMapper 대신 클래스 타입으로 설정한다.
+    - .sql(sql)
+    - .queryArguments(Object ...)
+      - 쿼리 파라미터 설정
+    - .maxItemCount(int)
+    - .currentItemCount(int)
+        - 조회 item의 시작 지점.
+    - maxRows(int)
+      - ResultSet 오브젝트가 포함 할 수 있는 최대 행의 수.
+    
+    ```java
+    @Bean
+    public ItemReader<Member> itemReader() {
+        return new JdbcCursorItemReaderBuilder<Member>()
+            .name("jdbcCursorItemReader")
+            .fetchSize(chunkSize)
+            .sql("select id, name from member where name like ? order by id")
+            .queryArguments("user%")
+            .beanRowMapper(Member.class)
+            .dataSource(dataSource)
+            .build();
+    }
+    ```
+
+
+- ### 👆 JpaCursorItemReader
+  <img alt="img_27.png" height="400" src="img_27.png" width="900"/>
+  
+  SpringBatch 4.3 부터 지원한다. `EntityManagerFactory` 객체를 필요로하며 쿼리는 `JPQL`로 작성한다.   
+  ItemStream에서 Query를 통해 생성된 결과를 ResultStream 으로 가져온다. 그 후 JpaCursorItemReader 에서 Iterator로 ResultStream에서 결과를 뽑아낸다.
+  
+  - ### API
+    JpaCursorItemReaderBuilder<T>() 를 사용하며 기본적인 API는 JDBC 방식과 비슷하다.
+    - .queryString(String JPQL)
+    - .EntityManagerFactory(EMF)
+    - .parameterValue(Map<String, Object>)     
+    ...
+  
+    ```java
+    @Bean
+    public ItemReader<Member> itemReader() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "user%");
+    
+        return new JpaCursorItemReaderBuilder<Member>()
+            .name("jpaCursorItemReader")
+            .entityManagerFactory(entityManagerFactory)
+            .queryString("select m from Member m where name like :name")
+            .parameterValues(params)
+            .build();
+    }
+    ```
+  
+
+- ### 👆 JdbcPagingItemReader
+  페이징 기반의 구현체로 시작 row의 번호(offset)와 반환할 row의 수(limit)를 지정하여 실행한다.    
+  페이징 단위로 데이터를 조회할 때마다 새로운 쿼리가 실행되고, 커넥션을 맺는다. Thread-safe 하다.
+  
+  작동 프로세스는 Cursor 와 유사하지만 다른 점이라면 데이터를 가져올 때 페이지 단위로 가져오기 때문에 Mapper에 의해 객체의 List가 생성된다.
+  
+  #### PagingQueryProvider
+  - 쿼리문을 ItemReader에게 제공하는 클래스, 데이터베이스 마다 다른 종류를 사용한다.    
+  
+  - ### API
+    JdbcPagingItemReaderBuilder<T>() 를 사용한다.
+    - name(String)
+    - pageSize(int)
+    - dataSource(DataSource)
+    - queryProvider(PagingQueryProvider)
+    - rowMapper(Class<T>)
+    - parameterValues(Map<String, Object>)
+  
+  - ### PagingQueryProvider의 값 설정
+    - selectClause(String), fromClause(String), whereClause(String), groupClause(String)
+      - select, from, where, group 절.
+    - sortKeys(Map<String, Order>)
+      - 정렬을 위한 키 설정. 필수로 지정해 주어야 한다.
+    ...
+    
+    ```java
+    @Bean
+    public ItemReader<Member> itemReader() throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "user%");
+  
+        return new JdbcPagingItemReaderBuilder<Member>()
+            .name("jdbcPagingItemReader")
+            .pageSize(5)
+            .dataSource(dataSource)
+            .rowMapper(new BeanPropertyRowMapper<>(Member.class))
+            .queryProvider(createQueryProvider())
+            .parameterValues(params)
+            .build();
+    }
+  
+    @Bean
+    public PagingQueryProvider createQueryProvider() throws Exception {
+  
+        Map<String, Order> sortKeys = new HashMap<>();
+        sortKeys.put("id", Order.ASCENDING);
+  
+        SqlPagingQueryProviderFactoryBean providerFactoryBean = new SqlPagingQueryProviderFactoryBean();
+        providerFactoryBean.setDataSource(dataSource);
+        providerFactoryBean.setSelectClause("id, name");
+        providerFactoryBean.setFromClause("member");
+        providerFactoryBean.setWhereClause("name like :name");
+        providerFactoryBean.setSortKeys(sortKeys);
+  
+        return providerFactoryBean.getObject();
+    }
+    ```
+  
+- ### 👆 JpaPagingItemReader
+  페이징 기반의 JPA 구현체로 JpaCursor 방식과 API는 pageSize 설정을 제외하고는 동일하다.
   ```java
   @Bean
   public ItemReader<Member> itemReader() {
-      return new JdbcCursorItemReaderBuilder<Member>()
-          .name("jdbcCursorItemReader")
-          .fetchSize(chunkSize)
-          .sql("select id, name from member where name like ? order by id")
-          .queryArguments("user%")
-          .beanRowMapper(Member.class)
-          .dataSource(dataSource)
-          .build();
-  }
-  ```
-
-
-### 👆 JpaCursorItemReader
-
-<img alt="img_27.png" height="400" src="img_27.png" width="900"/>
-
-SpringBatch 4.3 부터 지원한다. `EntityManagerFactory` 객체를 필요로하며 쿼리는 `JPQL`로 작성한다.   
-ItemStream에서 Query를 통해 생성된 결과를 ResultStream 으로 가져온다. 그 후 JpaCursorItemReader 에서 Iterator로 ResultStream에서 결과를 뽑아낸다.
-
-
-
-- ### API
-  JpaCursorItemReaderBuilder<T>() 를 사용하며 기본적인 API는 JDBC 방식과 비슷하다.
-  - .queryString(String JPQL)
-  - .EntityManagerFactory(EMF)
-  - .parameterValue(Map<String, Object>)     
-  ...
-
-  ```java
-  @Bean
-  public ItemReader<Member> itemReader() {
-      Map<String, Object> params = new HashMap<>();
-      params.put("name", "user%");
+  Map<String, Object> params = new HashMap<>();
+  params.put("name", "user%");
   
-      return new JpaCursorItemReaderBuilder<Member>()
-          .name("jpaCursorItemReader")
-          .entityManagerFactory(entityManagerFactory)
-          .queryString("select m from Member m where name like :name")
-          .parameterValues(params)
-          .build();
+  return new JpaPagingItemReaderBuilder<Member>()
+      .name("jpaCursorItemReader")
+      .pageSize(5)
+      .entityManagerFactory(entityManagerFactory)
+      .queryString("select m from Member m where name like :name")
+      .parameterValues(params)
+      .build();
   }
   ```
-
-
-
-
-
-
 
 
 ### 🔑 참조

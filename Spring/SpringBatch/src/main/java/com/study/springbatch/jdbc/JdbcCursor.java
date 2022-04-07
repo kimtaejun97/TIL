@@ -37,7 +37,7 @@ public class JdbcCursor {
     @Bean
     public Step chunkStep1() {
         return stepBuilderFactory.get("chunkStep1")
-            .<Member, Member>chunk(2)
+            .<Member, Member>chunk(chunkSize)
             .reader(itemReader())
             .processor(itemProcessor())
             .writer(itemWriter())
