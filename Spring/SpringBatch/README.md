@@ -1679,7 +1679,39 @@ Step에서 read() 가 호출 되면, JdbcCursorItemReader 에서 fetchSize(chunk
           .build();
   }
   ```
-    
+
+
+### 👆 JpaCursorItemReader
+
+<img alt="img_27.png" height="400" src="img_27.png" width="900"/>
+
+SpringBatch 4.3 부터 지원한다. `EntityManagerFactory` 객체를 필요로하며 쿼리는 `JPQL`로 작성한다.   
+ItemStream에서 Query를 통해 생성된 결과를 ResultStream 으로 가져온다. 그 후 JpaCursorItemReader 에서 Iterator로 ResultStream에서 결과를 뽑아낸다.
+
+
+
+- ### API
+  JpaCursorItemReaderBuilder<T>() 를 사용하며 기본적인 API는 JDBC 방식과 비슷하다.
+  - .queryString(String JPQL)
+  - .EntityManagerFactory(EMF)
+  - .parameterValue(Map<String, Object>)     
+  ...
+
+  ```java
+  @Bean
+  public ItemReader<Member> itemReader() {
+      Map<String, Object> params = new HashMap<>();
+      params.put("name", "user%");
+  
+      return new JpaCursorItemReaderBuilder<Member>()
+          .name("jpaCursorItemReader")
+          .entityManagerFactory(entityManagerFactory)
+          .queryString("select m from Member m where name like :name")
+          .parameterValues(params)
+          .build();
+  }
+  ```
+
 
 
 
