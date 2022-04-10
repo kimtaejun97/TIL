@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @RequiredArgsConstructor
-@Configuration
+//@Configuration
 public class ReaderAdapterTest {
 
     private final JobBuilderFactory jobBuilderFactory;

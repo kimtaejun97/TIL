@@ -45,7 +45,13 @@
   - #### [JdbcPagingItemReader](#-jdbcpagingitemreader)
   - #### [JpaPagingItemReader](#-jpapagingitemreader)
   - #### [ItemReaderAdapter](#-itemreaderadapter)
-
+- ### [ItemWriter 구현체
+  - #### [FlatFileItemWriter](#-flatfileitemwriter)
+  - #### [XML-StaxEventItemWriter](#-xml-staxeventitemwriter)
+  - #### [JsonFileItemWriter](#-jsonfileitemwriter)
+  - #### [JdbcBatchItemWriter](#-jdbcbatchitemwriter)
+  - #### [JpaItemWriter](#-jpaitemwriter)
+  - #### [ItemWriterAdapter](#-itemwriteradapter)
 
 - ### [참조](#-참조)
 <br>
@@ -548,6 +554,7 @@ setTaskExecutor는 JobLauncher의 메서드가 아닌 SimpleJobLauncher의 메�
 JobLauncher 인터페이스로 주입 받더라도 프록시 객체이기 떄문에 SimpleJobLauncher 로의 강제 형변환 또한 불가능하다.    
 때문에 BasicBatchConfigurer에서 프록시가 아닌 실제 객체를 가져와 타입 캐스팅을 해준다.
 
+<br>
 
 # 📌 배치 설정
 
@@ -566,7 +573,9 @@ JobLauncher 인터페이스로 주입 받더라도 프록시 객체이기 떄문
     - `--job.name=name1, name2`
     - properties를 설정해두고 옵션을 주지 않으면 아무 Job도 실행되지 않는다.
 <br><br>
-      
+
+<br>
+
 # 📌 Job의 실행
 
 ## 🧐 JobBuilderFactory
@@ -652,6 +661,7 @@ CRUD를 통해 메타정보들을 기록하게 된다.
 7. JobExecution에 최종 상태 업데이트.(Status, ExitStatus)
 8. JobLauncher에 반환.
 
+<br>
 
 # 📌 Step의 실행
 
@@ -811,7 +821,8 @@ Task 기반과 Chunk 기반이 있으며, RepeatTEmplate를 사용하여 Tasklet
       ![img_9.png](img_9.png)
       
       부모 Job(7), jobStep의 Job(8)
-  
+
+<br>
 
 # 📌 Flow
 
@@ -1089,6 +1100,8 @@ public Step flowStep() {
 }
 ```
 
+<br>
+
 # 📌 @JobScope, @StepScope
 @JobScope 와 @StepScope는 빈의 생성과 실행에 관여하며, 빈의 생성 시점을 조작한다.(구동시점 -> 빈의 실행 시점)       
 두 Scope 애노테이션은 다음과 같이 정의되어 있다. `@Scope(value="job | step", proxyMode = ScopedProxyMode.TARGET_CLASS`     
@@ -1139,6 +1152,8 @@ Proxy 객체의 실제 대상이 되는 Bean을 등록하고, 해제하는 역�
 `어플리케이션 구동` ▶ `ApplicationContext에서 빈을 생성` ▶ `@JobScope, StepScope가 있는가?` ▶ `있으면 proxy, 없으면 Singleton Bean 생성`    
 `스프링 초기와 완료, Job실행` ▶ `Job 에서 Proxy 호출` ▶ `proxy에서 실제 Step Bean 참조` ▶ `Step Bean 이 있다면 꺼내주고 없다면 beanFactory 에서 생성(@Value 바인딩도 이때)`    
 ▶`JobScope 클래스에서 실제 Bean을 JobContext에 등록, 관리`
+
+<br>
 
 # 📌 Chunk Process
 
@@ -1341,6 +1356,7 @@ restartable이 true로 바뀌기 떄문에 item 10 까지 정상적으로 실행
 
 설명은 위에서 계속 했으니 생략한다.
 
+<br>
 
 # 📌 ItemReader 구현체
 
@@ -1817,6 +1833,70 @@ public class MemberService {
 기존의 MemberService의 readMember() 메서드를 호출하여 데이터를 한건씩 읽어올 수 있다.    
 10 번만 읽기 위해 `id < 10` 조건을 추가하였다. 읽을 데이터를 가져온 후 해당 리스트를 remove() 하며 데이터를 읽을 수 있다.
 
+<br>
+
+# 📌 ItemWriter
+
+## 🧐 FlatFileItemWriter
+고정 위치 또는 특수 문자에 의해 구별된 데이터의 행을 기록한다.    
+작성해야할 Resource와 Object를 String으로 변환해주는 LineAggregator가 필요하다.
+
+### 속성
+- encoding
+- append
+  - 파일이 이미 존재하는 경우 데이터를 추가할 것인지 여부 (기본값 false, 덮어씌움)
+- Resource
+- LineAggregator
+  - Item 을 받아 String 으로 변환한다.
+    - **구현체**
+    - PassThroughLineAggregator: 단순 문자열로 반환
+    - DelimitedLineAggregator: 구분자를 추가하여 문자열을 생성.
+      - 기본값은 `,` 이며, `delimited().delimiter(String)` 으로 구분자를 지정할 수 있다.
+    - FormatterLineAggregator: 고정길이로 구분하여 문자열 생성
+      - `formatted().format("%-3s|%-2s")` 와 같이 형식을 지정한다.
+  -  내부적으로 `FieldExtractor` 를 사용한다.
+     - 객체의 필드를 추출해서 배열로 만들어 반환한다.
+     - BeanWrapperFieldExtractor: 객체의 필드를 배열로 반환.
+     - PassThroughFieldExtractor: 전달받은 Collection을 배열로 반환.
+ 
+- FlatFileHeaderCallback, FlatFileFooterCallback
+  - 헤더, 푸터를 파일에 쓰기위한 인터페이스.
+  
+![img_28.png](img_28.png)
+
+FieldExtractor 에서 필드를 추출해 배열을 생성해 넘겨주면 LineAggregator 에서 구분자를 추가하여 문자열을 생성한다.
+
+
+### DelimitedLineAggregator
+```java
+@Bean
+public ItemWriter<? super Member> itemWriter() {
+    return new FlatFileItemWriterBuilder<>()
+        .name("flatFileWriter")
+        .resource(new FileSystemResource("/Users/a1101720/IdeaProjects/TIL/Spring/SpringBatch/src/main/resources/memberOut.csv"))
+        .append(true)
+        .delimited()
+        .delimiter("|")
+        .names(new String[] {"name", "id"})
+        .build();
+}
+```
+
+### FormatterLineAggregator
+```java
+@Bean
+public ItemWriter<? super Member> itemWriter() {
+    return new FlatFileItemWriterBuilder<>()
+        .name("flatFileWriter")
+        .resource(new FileSystemResource("/Users/a1101720/IdeaProjects/TIL/Spring/SpringBatch/src/main/resources/memberOut.csv"))
+        .append(true)
+        .formatted()
+        .format("%-5s|%-2s")
+        .names(new String[] {"name", "id"})
+        .build();
+}
+```
+ 
 
 
 

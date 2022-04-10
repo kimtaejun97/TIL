@@ -1,9 +1,7 @@
 package com.study.springbatch.flatfile;
 
 import com.study.springbatch.CustomItemProcessor;
-import com.study.springbatch.CustomItemWriter;
 import com.study.springbatch.Member;
-import com.study.springbatch.MyTasklet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -13,18 +11,17 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.Range;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 
 @RequiredArgsConstructor
-//@Configuration
+@Configuration
 public class FlatFileConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
@@ -34,7 +31,6 @@ public class FlatFileConfig {
     public Job simpleJob() {
         return jobBuilderFactory.get("simpleJob")
             .start(chunkStep1())
-            .next(myStep2())
             .incrementer(new RunIdIncrementer())
             .build();
     }
@@ -78,21 +74,32 @@ public class FlatFileConfig {
     }
 
     @Bean
-    public Step myStep2() {
-        return stepBuilderFactory.get("myStep2")
-            .tasklet(new MyTasklet("myStep2"))
-            .build();
-    }
-
-
-    @Bean
     public ItemProcessor<? super Member, Member> itemProcessor() {
         return new CustomItemProcessor();
     }
 
+//    @Bean
+//    public ItemWriter<? super Member> itemWriter() {
+//        return new FlatFileItemWriterBuilder<>()
+//            .name("flatFileWriter")
+//            .resource(new FileSystemResource("/Users/a1101720/IdeaProjects/TIL/Spring/SpringBatch/src/main/resources/memberOut.csv"))
+//            .append(true)
+//            .delimited()
+//            .delimiter("|")
+//            .names(new String[] {"name", "id"})
+//            .build();
+//    }
+
     @Bean
     public ItemWriter<? super Member> itemWriter() {
-        return new CustomItemWriter();
+        return new FlatFileItemWriterBuilder<>()
+            .name("flatFileWriter")
+            .resource(new FileSystemResource("/Users/a1101720/IdeaProjects/TIL/Spring/SpringBatch/src/main/resources/memberOut.csv"))
+            .append(true)
+            .formatted()
+            .format("%-5s|%-2s")
+            .names(new String[] {"name", "id"})
+            .build();
     }
 
 }
