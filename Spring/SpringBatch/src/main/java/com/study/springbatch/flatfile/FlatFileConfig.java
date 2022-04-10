@@ -21,7 +21,7 @@ import org.springframework.core.io.FileSystemResource;
 
 
 @RequiredArgsConstructor
-@Configuration
+//@Configuration
 public class FlatFileConfig {
 
     private final JobBuilderFactory jobBuilderFactory;

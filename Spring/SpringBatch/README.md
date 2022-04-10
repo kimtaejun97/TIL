@@ -1896,6 +1896,40 @@ public ItemWriter<? super Member> itemWriter() {
         .build();
 }
 ```
+
+## 🧐 XML-StaxEventItemWriter
+ 읽을 때와 동일하게 Resource, marshaller, rootTagName(조각단위의 루트가 될 이름) 이 필요하다.
+
+Marshaller에 의해 객체가 XML 원소로 변환된다.
+
+```java
+@Bean
+public ItemWriter<? super Member> itemWriter() {
+    return new StaxEventItemWriterBuilder<>()
+        .name("staxItemWriter")
+        .resource(new FileSystemResource("/Users/a1101720/IdeaProjects/TIL/Spring/SpringBatch/src/main/resources/memberout.xml"))
+        .rootTagName("member")
+        .marshaller(itemMarshaller())
+        .overwriteOutput(true) // 덮어 씌우기.
+        .build();
+}
+
+@Bean
+public Marshaller itemMarshaller() {
+    Map<String, Class<?>> aliases = new HashMap<>();
+    aliases.put("member", Member.class);
+    aliases.put("name", String.class);
+    aliases.put("id", String.class);
+    
+    XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();
+    xStreamMarshaller.setAliases(aliases);
+    
+    return xStreamMarshaller;
+}
+```
+Marshaller 의 설정은 이전에 Reader에서와 동일하다.
+
+
  
 
 

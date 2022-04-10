@@ -16,14 +16,17 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
+import org.springframework.batch.item.xml.builder.StaxEventItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.oxm.Marshaller;
 import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
 @RequiredArgsConstructor
-//@Configuration
+@Configuration
 public class XMLConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
@@ -77,7 +80,25 @@ public class XMLConfig {
 
     @Bean
     public ItemWriter<? super Member> itemWriter() {
-        return new CustomItemWriter();
+        return new StaxEventItemWriterBuilder<>()
+            .name("staxItemWriter")
+            .resource(new FileSystemResource("/Users/a1101720/IdeaProjects/TIL/Spring/SpringBatch/src/main/resources/memberout.xml"))
+            .rootTagName("member")
+            .marshaller(itemMarshaller())
+            .overwriteOutput(true)
+            .build();
     }
 
+    @Bean
+    public Marshaller itemMarshaller() {
+        Map<String, Class<?>> aliases = new HashMap<>();
+        aliases.put("member", Member.class);
+        aliases.put("name", String.class);
+        aliases.put("id", String.class);
+
+        XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();
+        xStreamMarshaller.setAliases(aliases);
+
+        return xStreamMarshaller;
+    }
 }
