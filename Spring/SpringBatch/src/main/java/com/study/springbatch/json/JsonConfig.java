@@ -12,13 +12,17 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.builder.JsonFileItemWriterBuilder;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 @RequiredArgsConstructor
-//@Configuration
+@Configuration
 public class JsonConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
@@ -58,6 +62,11 @@ public class JsonConfig {
 
     @Bean
     public ItemWriter<? super Member> itemWriter() {
-        return new CustomItemWriter();
+        return new JsonFileItemWriterBuilder<>()
+            .name("jsonFileItemWriter")
+            .resource(new FileSystemResource("/Users/a1101720/IdeaProjects/TIL/Spring/SpringBatch/src/main/resources/memberout.json"))
+            .jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>())
+            .append(true)
+            .build();
     }
 }

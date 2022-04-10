@@ -26,7 +26,7 @@ import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
 @RequiredArgsConstructor
-@Configuration
+//@Configuration
 public class XMLConfig {
 
     private final JobBuilderFactory jobBuilderFactory;

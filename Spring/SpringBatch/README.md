@@ -1930,7 +1930,23 @@ public Marshaller itemMarshaller() {
 Marshaller 의 설정은 이전에 Reader에서와 동일하다.
 
 
- 
+## 🧐 JsonFileItemWriter
+jsonObjectMarshaller 에 의해 객체가 Json 형식으로 변환된다. jsonObjectMarshaller 는 내부적으로 ObjectMapper를 가지고 데이터를 매핑한다.
+
+```java
+@Bean
+public ItemWriter<? super Member> itemWriter() {
+    return new JsonFileItemWriterBuilder<>()
+        .name("jsonFileItemWriter")
+        .resource(new FileSystemResource("/Users/a1101720/IdeaProjects/TIL/Spring/SpringBatch/src/main/resources/memberout.json"))
+        .jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>())
+        .append(true)
+        .build();
+}
+```
+
+
+
 
 
 
