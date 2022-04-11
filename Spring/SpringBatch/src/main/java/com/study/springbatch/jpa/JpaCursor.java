@@ -1,7 +1,5 @@
 package com.study.springbatch.jpa;
 
-import com.study.springbatch.CustomItemProcessor;
-import com.study.springbatch.CustomItemWriter;
 import com.study.springbatch.Member;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +14,10 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.JpaTransactionManager;
 
 @RequiredArgsConstructor
 //@Configuration
@@ -38,7 +38,7 @@ public class JpaCursor {
     @Bean
     public Step chunkStep1() {
         return stepBuilderFactory.get("chunkStep1")
-            .<Member, Member>chunk(2)
+            .<Member, Member2>chunk(2)
             .reader(itemReader())
             .processor(itemProcessor())
             .writer(itemWriter())
@@ -59,13 +59,16 @@ public class JpaCursor {
     }
 
     @Bean
-    public ItemProcessor<? super Member, Member> itemProcessor() {
-        return new CustomItemProcessor();
+    public ItemProcessor<? super Member, Member2> itemProcessor() {
+        return new MamberToMember2Processor();
     }
 
     @Bean
-    public ItemWriter<? super Member> itemWriter() {
-        return new CustomItemWriter();
+    public ItemWriter<? super Member2> itemWriter() {
+        return new JpaItemWriterBuilder<Member2>()
+            .usePersist(true) // default
+            .entityManagerFactory(entityManagerFactory)
+            .build();
     }
 
 }

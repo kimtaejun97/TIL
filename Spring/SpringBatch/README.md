@@ -1977,7 +1977,23 @@ public ItemWriter<? super Member> itemWriter() {
 }
 ```
 
+## 🧐 JpaItemWriter
+JPA 엔티티 기반으로 데이터를 처리한다. 엔티티를 chunk 크기만큼 insert, merge 한 다음 flush 한다.
 
+### API
+- .userPersist(false)
+  - 엔티티를 persiste 할 것인지 여부. false 이면 merge 처리 한다.
+- EntityManageFactory()
+
+```java
+@Bean
+public ItemWriter<? super Member2> itemWriter() {
+    return new JpaItemWriterBuilder<>()
+        .usePersist(true) // default
+        .entityManagerFactory(entityManagerFactory)
+        .build();
+}
+```
 
 ### 🔑 참조
 
