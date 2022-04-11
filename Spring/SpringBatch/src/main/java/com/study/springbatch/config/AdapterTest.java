@@ -3,8 +3,6 @@ package com.study.springbatch.config;
 import com.study.springbatch.CustomItemProcessor;
 import com.study.springbatch.CustomItemWriter;
 import com.study.springbatch.Member;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -15,14 +13,14 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.adapter.ItemReaderAdapter;
-import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.batch.item.adapter.ItemWriterAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
 @RequiredArgsConstructor
-//@Configuration
-public class ReaderAdapterTest {
+@Configuration
+public class AdapterTest {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -66,6 +64,10 @@ public class ReaderAdapterTest {
 
     @Bean
     public ItemWriter<? super Member> itemWriter() {
+        ItemWriterAdapter<Member> writerAdapter = new ItemWriterAdapter<>();
+        writerAdapter.setTargetObject(MemberService());
+        writerAdapter.setTargetMethod("writeMember");
+
         return new CustomItemWriter();
     }
 

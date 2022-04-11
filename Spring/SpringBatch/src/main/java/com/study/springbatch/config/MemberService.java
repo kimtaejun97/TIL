@@ -12,4 +12,8 @@ public class MemberService {
         }
         return null;
     }
+
+    public void writeMember(Member member) {
+        System.out.println(member);
+    }
 }

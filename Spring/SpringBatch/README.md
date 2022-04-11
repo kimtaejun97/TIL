@@ -1995,6 +1995,31 @@ public ItemWriter<? super Member2> itemWriter() {
 }
 ```
 
+## 🧐 ItemWriterAdapter
+배치 Job 안에서 이미 있는 서비스를 ItemWriter 안세서 사용할 때 이를 위임한다.
+
+```java
+@Bean
+public ItemWriter<? super Member> itemWriter() {
+    ItemWriterAdapter<Member> writerAdapter = new ItemWriterAdapter<>();
+    writerAdapter.setTargetObject(MemberService());
+    writerAdapter.setTargetMethod("writeMember");
+
+    return new CustomItemWriter();
+}
+```
+타겟 클래스와 메서드를 지정해준다. 리플렉션을 이용해 실핸된다.
+
+```java
+public class MemberService {
+
+    public void writeMember(Member member) {
+        System.out.println(member);
+    }
+}
+```
+기존의 ItemWriter 의 구현체와 달라 아이템을 하나씩 넘겨받아 처리한다.
+
 ### 🔑 참조
 
 > - https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%B0%B0%EC%B9%98
