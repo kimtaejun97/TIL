@@ -1,7 +1,6 @@
 package com.study.springbatch.jdbc;
 
 import com.study.springbatch.CustomItemProcessor;
-import com.study.springbatch.CustomItemWriter;
 import com.study.springbatch.Member;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +12,14 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 
 @RequiredArgsConstructor
-//@Configuration
+@Configuration
 public class JdbcCursor {
 
     private final JobBuilderFactory jobBuilderFactory;
@@ -63,6 +64,12 @@ public class JdbcCursor {
 
     @Bean
     public ItemWriter<? super Member> itemWriter() {
-        return new CustomItemWriter();
+        return new JdbcBatchItemWriterBuilder<>()
+            .dataSource(dataSource)
+            .sql("insert into member2(name, id) values(:name, :id)")
+            .assertUpdates(true)
+            .beanMapped()
+//            .columnMapped()
+            .build();
     }
 }

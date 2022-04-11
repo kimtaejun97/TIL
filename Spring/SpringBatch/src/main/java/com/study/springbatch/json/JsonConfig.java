@@ -22,7 +22,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 @RequiredArgsConstructor
-@Configuration
+//@Configuration
 public class JsonConfig {
 
     private final JobBuilderFactory jobBuilderFactory;

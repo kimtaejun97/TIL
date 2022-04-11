@@ -1945,10 +1945,37 @@ public ItemWriter<? super Member> itemWriter() {
 }
 ```
 
+## 🧐 JdbcBatchItemWriter
+JDBC의 Batch 기능을 사용하여 bulk Insert, update, delete 방식으로 처리하기 때문에 성능적 이점을 가진다.
+
+### API
+- .dataSource(dataSource)
+- .sql("insert into ")
+- .assertUpdates(true)
+  - 트랜잭션 이후 적어도 하나의 행이 변경되지 않을 경우 예외 발생.  
+- .beanMapped()
+  - Pojo 기반으로 Insert SQL의 Values 를 매핑
+  - BeanPropertyItemSqlParameterSourceProvider 가 사용된다.
+- .columnMapped()
+  - Key, Value 기반으로 Insert SQL의 values를 매핑
+  - ColumnMapItemPreparedStatementSetter 가 사용된다.
 
 
+<img alt="img_29.png" height="400" src="img_29.png" width="900"/>
 
+쓸 대상의 타입이 Pojo 타입의 객체라면 beanMapped()를, Map 과 같이 key, value의 쌍이라면 columnMapped()를 사용한다.
 
+```java
+@Bean
+public ItemWriter<? super Member> itemWriter() {
+    return new JdbcBatchItemWriterBuilder<>()
+        .dataSource(dataSource)
+        .sql("insert into member2(name, id) values(:name, :id)")
+        .assertUpdates(true)
+        .beanMapped()
+        .build();
+}
+```
 
 
 
