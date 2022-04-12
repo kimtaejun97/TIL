@@ -45,13 +45,16 @@
   - #### [JdbcPagingItemReader](#-jdbcpagingitemreader)
   - #### [JpaPagingItemReader](#-jpapagingitemreader)
   - #### [ItemReaderAdapter](#-itemreaderadapter)
-- ### [ItemWriter 구현체
+- ### [ItemWriter 구현체](#-itemwriter-구현체)
   - #### [FlatFileItemWriter](#-flatfileitemwriter)
   - #### [XML-StaxEventItemWriter](#-xml-staxeventitemwriter)
   - #### [JsonFileItemWriter](#-jsonfileitemwriter)
   - #### [JdbcBatchItemWriter](#-jdbcbatchitemwriter)
   - #### [JpaItemWriter](#-jpaitemwriter)
   - #### [ItemWriterAdapter](#-itemwriteradapter)
+- ### [ItemProcessor 구현체](#-itemprocessor-구현체)
+  - #### [CompositeItemProcessor](#-compositeitemprocessor)
+  - #### [ClassifierCompsiteProcessor](#-classifiercompositeitemprocessor)
 
 - ### [참조](#-참조)
 <br>
@@ -153,7 +156,7 @@ Accenture에서 소유하고 있던 배치 처리 아키텍처 프레임웤르�
       - long_val
       - double_val
       - identifying: 식별 여부 (boolean)
-  - BATCH_JOB_EXECUTION_CONTEXT
+  - BATCH_JOB_EXECUTION_C유ONTEXT
     > Job의 실행동안 여러가지 상태정보, 공유 데이터를 JSON 형식으로 직렬화하여 저장한다. Step간의 공유가 가능하다.
       - short_context: job의 실행 상태정보, 공유데이터 등의 정보를 **문자열**로 저장
       - serialized_context: 직렬화 된 전체 컨텍스트
@@ -2019,6 +2022,29 @@ public class MemberService {
 }
 ```
 기존의 ItemWriter 의 구현체와 달라 아이템을 하나씩 넘겨받아 처리한다.
+
+# 📌 ItemProcessor 구현체
+
+## 🧐 CompositeItemProcessor
+<img alt="img_30.png" src="img_30.png" width="900"/>
+
+ItemProcessor 들을 연결해서 위임하면 각 ItemProcessor를 실행시킨다.   
+이전 ItemProcessor 반환 값은 다음 ItemProcessor 값으로 연결된다.
+
+```java
+@Bean
+public ItemProcessor<? super Member, Member> itemProcessor() {
+    List itemProcessors = new ArrayList<>();
+    itemProcessors.add(new CustomItemProcessor());
+    itemProcessors.add(new CustomItemProcessor2());
+
+    return new CompositeItemProcessorBuilder<>()
+        .delegates(itemProcessors)
+        .build();
+}
+```
+List 로 전달할 수도 있고, 하나씩 체이닝으로 전달할 수 도 있다.
+
 
 ### 🔑 참조
 

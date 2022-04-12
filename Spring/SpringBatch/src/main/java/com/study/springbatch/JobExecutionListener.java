@@ -21,6 +21,7 @@ public class JobExecutionListener implements org.springframework.batch.core.JobE
     @Override
     public void afterJob(JobExecution jobExecution) {
         String jobName = jobExecution.getJobInstance().getJobName();
+        jobExecution.getJobParameters().getString("run.id");
 
         JobParameters jobParameters = new JobParametersBuilder()
             .addString("name", "user1")

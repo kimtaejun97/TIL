@@ -1,7 +1,10 @@
 package com.study.springbatch.jdbc;
 
 import com.study.springbatch.CustomItemProcessor;
+import com.study.springbatch.CustomItemProcessor2;
 import com.study.springbatch.Member;
+import java.util.ArrayList;
+import java.util.List;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -14,12 +17,13 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.support.builder.CompositeItemProcessorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
 @RequiredArgsConstructor
-//@Configuration
+@Configuration
 public class JdbcCursor {
 
     private final JobBuilderFactory jobBuilderFactory;
@@ -59,7 +63,13 @@ public class JdbcCursor {
 
     @Bean
     public ItemProcessor<? super Member, Member> itemProcessor() {
-        return new CustomItemProcessor();
+        List itemProcessors = new ArrayList<>();
+        itemProcessors.add(new CustomItemProcessor());
+        itemProcessors.add(new CustomItemProcessor2());
+
+        return new CompositeItemProcessorBuilder<>()
+            .delegates(itemProcessors)
+            .build();
     }
 
     @Bean

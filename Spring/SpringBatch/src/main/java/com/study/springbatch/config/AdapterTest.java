@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @RequiredArgsConstructor
-@Configuration
+//@Configuration
 public class AdapterTest {
 
     private final JobBuilderFactory jobBuilderFactory;
