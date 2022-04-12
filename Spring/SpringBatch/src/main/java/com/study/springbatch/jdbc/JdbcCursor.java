@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @RequiredArgsConstructor
-@Configuration
+//@Configuration
 public class JdbcCursor {
 
     private final JobBuilderFactory jobBuilderFactory;

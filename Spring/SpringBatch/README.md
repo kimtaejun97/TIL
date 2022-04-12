@@ -2045,6 +2045,33 @@ public ItemProcessor<? super Member, Member> itemProcessor() {
 ```
 List 로 전달할 수도 있고, 하나씩 체이닝으로 전달할 수 도 있다.
 
+## 🧐 ClassifierCompositeItemProcessor
+
+Classifier로 라우팅 패턴을 구현해서 분류 조건에 따라 여러개의 ItemProcessor 중 하나를 호출한다.
+
+
+```java
+@Bean
+public ItemProcessor<? super ProcessorInfo, ProcessorInfo> itemProcessor() {
+    ClassifierCompositeItemProcessor processor = new ClassifierCompositeItemProcessor();
+    ProcessorClassifier<ItemProcessor, ItemProcessor<?, ? extends ProcessorInfo>> processorClassifier = new ProcessorClassifier();
+
+    Map<Integer, ItemProcessor<ProcessorInfo, ProcessorInfo>> processorMap = new HashMap<>();
+    processorMap.put(1, new ClassifiableItemProcessor());
+    processorMap.put(2, new ClassifiableItemProcessor2());
+    processorMap.put(3, new ClassifiableItemProcessor3());
+
+    processorClassifier.setProcessorMap(processorMap);
+    processor.setClassifier(processorClassifier);
+
+    return processor;
+}
+```
+예제이기 때문에 구현된 코드에 집중하지 않아도 된다.   
+`ClassifierCompositeItemProcessor` 를 생성하고, 커스텀하게 정의 한 Classifier를 설정해 준 뒤 반환한다 정도로 보면 되겠다.   
+Classifier 에서는 Classify() 메서드에서 실행할 프로세스를 결정한다.
+
+
 
 ### 🔑 참조
 
