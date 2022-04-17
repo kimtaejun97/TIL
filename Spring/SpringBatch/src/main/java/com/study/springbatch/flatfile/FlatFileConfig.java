@@ -2,6 +2,8 @@ package com.study.springbatch.flatfile;
 
 import com.study.springbatch.CustomItemProcessor;
 import com.study.springbatch.Member;
+import com.study.springbatch.datalog.TrOrdDataLog;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -14,6 +16,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -26,6 +30,9 @@ public class FlatFileConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+    @Autowired
+    @Qualifier("dataLogDatasource")
+    private DataSource dataLogDatasource;
 
     @Bean
     public Job simpleJob() {
@@ -38,7 +45,7 @@ public class FlatFileConfig {
     @Bean
     public Step chunkStep1() {
         return stepBuilderFactory.get("chunkStep1")
-            .<Member, Member>chunk(2)
+            .<Member, Member>chunk(100)
             .reader(itemReader())
             .processor(itemProcessor())
             .writer(itemWriter())

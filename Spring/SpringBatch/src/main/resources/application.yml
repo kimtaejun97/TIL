@@ -30,12 +30,16 @@ spring:
   config:
     activate:
       on-profile: dev
-  datasource:
+  datasource-meta:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      jdbc-url: jdbc:mysql://localhost:3306/springbatch?useUnicode=true&characterEncoding=utf8
-      username: root
-      password: 123123
+    jdbc-url: jdbc:mysql://localhost:3306/springbatch?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: 123123
+  datasource-datalog:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: jdbc:mysql://localhost:3307/datalog
+    username: root
+    password: 123123
   batch:
     jdbc:
       initialize-schema: always

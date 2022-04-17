@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 ;
 
 @RequiredArgsConstructor
-@Configuration
+//@Configuration
 public class ClassifierConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
