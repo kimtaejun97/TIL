@@ -11,6 +11,7 @@
 - #### [Item17. 변경 가능성을 최소화 하라.](#-item17-변경-가능성을-최소화하라)
 - #### [Item18. 상속보다는 컴포지션을 사용하라.](#-item18-상속보다는-컴포지션을-사용하라)
 - #### [Item28. 배열보다는 리스트를 사용하라.](#-item28-배열보다는-리스트를-사용하라)
+- #### [Item32. 제네릭과 가변인수를 함께 쓸 때는 신중하라](#-item32-제네릭과-가변인수를-함께-쓸-때는-신중하라)
 - #### [Item44. 표준 함수형 인터페이스를 사용하라.](#-item44-표준-함수형-인터페이스를-사용하라)
 - #### [Item50. 적시에 방어적 복사본을 만들라.](#-item50-적시에-방어적-복사본을-만들라)
 - #### [Item51. 메서드 시그니처를 신중히 설계하라.](#-item51-메서드-시그니처를-신중히-설계하라)
@@ -1086,6 +1087,68 @@ public class Chooser<T> {
 (warning: [unchecked] unchecked cast ...)    
 경고의 원인을 제거하기 위해서는 T[]를 List<T>로 변경하면 된다. 성능에서는 조금 더 느릴 수 있지만 런타임에서 ClassCastException이 발생하는 것을
 방지 할 수 있으므로 충분한 이점을 가진다고 볼 수 있다.
+
+
+## 📌 Item32. 제네릭과 가변인수를 함께 쓸 때는 신중하라
+가변인수는 메서드의 인수의 개수를 클라이언트가 조절할 수 있게 해준다. 하지만 인수들을 담기 위해 배열이 만들어지고, 이 때문에 허점이 생기게 된다.    
+varargs 매개변수에 제네릭이나, 매개 변수화 타입(List<String>과 같은)이 포함되면 컴파일 에러가 발생하게 되는데, 이를 파악하기는 쉽지 않다.
+
+먼저 배열에 조작을 가하는 경우이다.
+```java
+void method(List<String>... stringLists) {
+    Object[] objects = stringLists
+    List<Integer> intList = List.of(10);
+    objects[0] = intList;
+    String s = stringLists[0].get(0) // ClassCastException 발생.
+}
+```
+컴파일러가 자동으로 형변환을 시도하기 때문에 예외가 발생하게 된다.    
+이처럼 타입 안전성을 보장할 수 없음에도 가변인수에서 제네릭을 받을 수 있게 허용한 이유는 실무에서 유용하게 쓸 수 있기 때문이다.   
+`Arrays.asList(T... a), Collections.addAll()` 등의 메서드들이 자바 라이브러리의 메서드들이 이에 해당한다.
+
+제네릭 가변인수는 타입 안전성을 보장하지 않기 때문에 클라이언트 측에서는 이러한 경고를 볼 수 있는데, 이를 숨길 수 있도록 Java7 에서부터는 `@SafeVarargs`라는    
+애노테이션을 지원한다. 하지만 해당 애노테이션은 메서드가 안전하다는 것이 확실할 때만 선언해야한다.
+
+메서드가 안전한지 어떻게 확인해볼 수 있을까?    
+`가변인수를 담은 배열이 만들어지고, 해당 배열에 아무것도 저장하지 않고, 배열의 참조가 밖으로 노출되지 않는다면 안전하다고 할 수 있다.`    
+즉 매개변수의 원래의 목적대로 인수들을 전달하는 역할만 한다는 이야기이다.
+
+예를 이전에 들었던 예시에 더해 다음과 같은 상황 또한 안전하지 않다.
+```java
+static <T> T[] convertToArray(T a, T b) {
+    return toArray(a, b);
+    }
+
+static <T> T[] toArray(T... args) {
+    return args;
+}
+```
+다음과 같은 상황에서 컴파일러는 toArray의 매개변수들을 담을 배열을 Object[]로 생성한다. 모든 타입의 객체를 받을 수 있는 가장 최소한의 타입이 Object 이기 때문이다.    
+때문에, 이를 사용할때 String 이 반환될 것으로 기대하고 `String[] strs = convertToArray("aaa", "bbb")`와 같이 사용한다면 ClassCastException 이 발생한다.
+
+위의 예시는 파라미터 배열을 조작하지 않았지만, 해당 배열의 참조가 노출되어 다른 메서드가 이를 접근하도록 허용하여 발생한 문제점이다.    
+이러한 배열의 참조에서 @SafeVarargs로 안전성이 보장된 메서드나, 배열에 조작을 가하지 않는 일반 메서드에 넘기는 것은 안전하다.(varargs를 받지 않는)
+
+메서드의 안전성을 보장하는 방법 이외의 방법이 한가지 더 있다.   
+Varargs를 List로 대체하는 방법이다.
+
+```java
+static <T> List<T> flatten(List<List<? extends T>> lists) {
+    List<T> result = new ArrayList<>();
+    
+    for(List<? extends T> list : lists){
+        result.addAll(list);
+    }
+    return result;
+}
+```
+매개변수화 타입도 받을 수 있도록 `List<List<>>` 로 인수를 받는다.
+코드는 조금 지저분해지지만 `@SafeVarargs` 없이도 타입 안전한 메서드가 된다. 이전에 보았던 toArray() 메서드 또한 List 에서 제공하는 정적 팩토리 메서드인
+`List.of()`를 사용하면 타입 언전하게 만들 수 있다.(@SafeVarargs 메서드이다)
+
+
+
+
 
 
 ## 📌 Item44. 표준 함수형 인터페이스를 사용하라
