@@ -220,6 +220,62 @@ curl -XPUT "http://localhost:9200/users" -d'
 
 
 
+### 🧐 Elasticsearch TestContainer
+
+- 의존성 추가.
+```groovy
+testImplementation 'org.testcontainers:elasticsearch:1.16.3'
+testImplementation 'org.testcontainers:junit-jupiter:1.16.3'
+```
+docker는 기본적으로 설치되어있어야 한다.
+
+- Config
+```java
+@EnableElasticsearchRepositories
+@TestConfiguration
+public class TestConfig {
+
+    public ElasticsearchContainer elasticsearchContainer() {
+        ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer(
+            "docker.elastic.co/elasticsearch/elasticsearch:7.10.0");
+        elasticsearchContainer.start();
+
+        return elasticsearchContainer;
+    }
+
+    @Bean
+    public RestHighLevelClient elasticsearchClient() {
+        ClientConfiguration clientConfiguration = ClientConfiguration.builder()
+            .connectedTo(elasticsearchContainer().getHttpHostAddress())
+            .build();
+
+        return RestClients.create(clientConfiguration).rest();
+    }
+}
+```
+config 파일을 작성한다. 사용할 엘라스틱서치의 버전을 명시.
+
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {TestConfig.class})
+class ElasticsearchTest {
+    ...
+}
+```
+RANDOM_PORT 로 포트를 설정하여 띄워주고, 이전에 만들어준 Config 파일을 읽도록 설정한다.
+
+#### 기존의 Elasticsearch Config 와 충돌
+```yml
+spring:
+  profiles:
+    active: test
+```
+기존의 Elasticsearch Config 의 실행을 profile이 Test가 아닐때만 실행하도록 한다던지 하고, Test를 진행할 때에는 Test profile로 실행하도록 설정한다.
+- 도커 컨테이너가 띄워지고, 테스트가 종료되면 내려간다.
+
+![img.png](img.png)
+
+
 <br><br>
 ### 🔑 참조
 > - https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
