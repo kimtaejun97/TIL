@@ -301,7 +301,7 @@ Job Configuration에 의해 생성되는 객체 단위로, 배치 계층 구조�
   handleStep 에서도 마찬가지로 AbstractStep 의 execute 를 호출하고, 구현체의 doExecute가 호출된다.   
 
 ## 🧐 JobInstance
-![img_3.png](img_3.png)
+![img_3.png](img/img/img_3.png)
 
 Job이 실행될 때 생성되는 논리적 실행 단위 객체로 고유하게 식별 가능한 작업 실행을 나타낸다.   
 메타데이터를 데이터베이스(BATCH_JOB_INSTANCE)에 저장하기 위해 생성되는 인스턴스이다.
@@ -355,7 +355,7 @@ JobExecution의 실행 결과가 `COMPLETED` 이면 인스턴스의 실행이 �
 `FAILED`라면, 실행이 완료되지 않은 것이므로 재실행이 가능하다.(JobParameter가 같더라도) 즉, 실행 경과가 `COMPLETED`가 될 때까지 실행이 가능하다.    
 (한 Instance 내에서 여러번의 시도가 발생할 수 있음, JobInstance와 N:1)
 
-![img_2.png](img_2.png)
+![img_2.png](img/img/img_2.png)
 
 동일한 Job Instance에 대해 성곻할 때까지 Execution이 생성됨을 확인할 수 있다.
   
@@ -411,7 +411,7 @@ Step을 실행시키는 execute(StepExecution)가 있고, StepExecution에는 �
     ```
 
 ## 🧐 StepExecution
-![img_1.png](img_1.png)
+![img_1.png](img/img/img_1.png)
 - Step에 대한 한번의 시도를 의미하는 객체로 실행중 발생한 정보들을 저장하고 있는 객체. (시작,종료 시간, 상태, commit count, rollback count ...)    
 - Job이 재시작 되더라도 이미 성공적으로 완료된 Step은 skip 하고, 실패했던 Step만 실행된다.(allowStartIfComplete 로 설정 가능.)   
 - 모든 StepExecution이 성공해야 JobExecution도 성공으로 끝난다.
@@ -585,7 +585,7 @@ JobLauncher 인터페이스로 주입 받더라도 프록시 객체이기 떄문
 Job을 쉽게 생성하고 설정할 수 있도록 util 성격의 빌더 클래스인 `JobBuilderFactory`를 제공한다.    
 JobBuilderFactory 에서는 JobBuilder(SimpleJobBuilder, FlowBuilder)를 생성하여 Job의 생성을 위임한다.    
 
-![img_5.png](img_5.png)
+![img_5.png](img/img/img_5.png)
 - #### SimpleJob의 생성    
   JobBuilderFactory를 통해서 JobBuilder를 생성하고 `start(step)` 메서드를 호출하면 SimpleJobBuilder가 생성되고 최종적으로 `SimpleJob`이 생성된다.    
 
@@ -654,7 +654,7 @@ CRUD를 통해 메타정보들을 기록하게 된다.
   ```
 
 ## 🧐 SimpleJob 아키텍처
-![img.png](img.png)
+![img.png](img/img/img.png)
 1. JobLauncher 에서 Job, JobParameter를 가지고 JobInstance를 생성
 2. JobExecution을 생성하고, ExecutionContext 할당.
 3. JobExecutionListener.beforeJob()
@@ -767,7 +767,7 @@ Task 기반과 Chunk 기반이 있으며, RepeatTEmplate를 사용하여 Tasklet
   
 
 ## 🧐 TaskletStep 아키텍쳐
-![img_8.png](img_8.png)
+![img_8.png](img/img/img_8.png)
 
 1. ExecutionContext를 가지는 StepExecution이 생성된다.
 2. TaskletStep에서 StepExecution을 받아 Step을 실행시킨다.
@@ -821,7 +821,7 @@ Task 기반과 Chunk 기반이 있으며, RepeatTEmplate를 사용하여 Tasklet
           return extractor;
       }
       ```
-      ![img_9.png](img_9.png)
+      ![img_9.png](img/img/img_9.png)
       
       부모 Job(7), jobStep의 Job(8)
 
@@ -880,14 +880,14 @@ public Job flowJob() {
 ```
 FlowJob을 다음과 같이 구성하면 myStep1이 성공하면 myStep3로, 실패하면 myStep2를 실행한다는 흐름이 만들어진다.    
 
-![img_10.png](img_10.png)   
+![img_10.png](img/img/img_10.png)   
 DB에 저장된 메타 데이터를 확인하면 myStep 1과 3이 실행된 것을 확인 할 수 있다.
 
 이번에는 myStep1 에서 예외를 발생시켜 일부러 실패한 후 메타데이터 값을 살펴보겠다.     
-![img_11.png](img_11.png)        
+![img_11.png](img/img/img_11.png)        
 on의 `FAILED` 패턴과 매칭되어 myStep2가 실행된 것을 확인할 수 있다.   
 한 가지 더 특이 사항이 있다면, FlowJob에서는 Step의 실패가 Job의 실패로 연결되지 않는다는 것이다. 위의 상황에서 JobExecution을 확인해 보았다.     
-![img_12.png](img_12.png)    
+![img_12.png](img/img/img_12.png)    
 분명 myStep1을 실패시켰지만 Job은 성공적으로 끝난 것을 확인할 수 있다.
 모든 상황에서 이런 것은 아니고, 실패했을 경우 어떤 것을 하는지 정의가 되어있을 때만 해당한다.    
 실제로 COMPLETED의 조건만을 주고 Step을 실패시켰을 때에는 Job 또한 실패했다.
@@ -964,11 +964,11 @@ public class PasscheckingListener implements StepExecutionListener {
     }
 }
 ```
-![img_14.png](img_14.png)
+![img_14.png](img/img/img_14.png)
 
 myStep2의 EXIT_CODE가 PASS로 변경되었다.
 
-![img_13.png](img_13.png)
+![img_13.png](img/img/img_13.png)
 
 myStep1이 COMPLETED로 끝나 myStep2가 실행되고 마찬가지로 COMPLETED로 끝나기 때문에 afterStep() 에서 ExitStatus가 `PASS` 로 변경된다.   
 `on("PASS")` 패턴에 매칭되어 `.stop()`이 호출되고, Job은 STOPPED 상태로 마치게 된다.
@@ -1017,7 +1017,7 @@ public class CustomDecider implements JobExecutionDecider {
 
 
 ## 🧐 FlowJob 아키텍처
-![img_15.png](img_15.png)
+![img_15.png](img/img/img_15.png)
 
 대부분은 SimpleJob과 동일하다.   
 다른 점은 SimpleFlow 에서 State라는 속성을 가진다는 것과, 작업이 종료되었을 때 StepExecution의 상태를 반영하는 것이 아니라 `FlowExecutionStatus`   
@@ -1069,12 +1069,12 @@ public Job flowJob() {
   
 
 ## 🧐 SimpleFlow 아키텍처
-![img_16.png](img_16.png)
+![img_16.png](img/img/img_16.png)
 
 start(), next(), from() 전달되는 객체에 따라 State 객체를 생성하여 전달된 객체를 저장한다.     
 이렇게 생성된 State는 SimpleFlow 에서 StateTransition 객체로 관리되며, 해당 객체를 토대로 SimpleFlow의 다른 속성들의 값을 설정하게 된다.
 
-![img_17.png](img_17.png)
+![img_17.png](img/img/img_17.png)
 
 SimpleFlow가 `State` 를 실행시칸다.(StateTransition 을 참고하여 currentState를 실행한다. Map에 저장된 모든 State를 순회하며 실행.)    
 `State` 에서는 Step, Flow, JobExecutionDecider 요소들을 저장하며,Flow를 구성하면 자동으로 State가 생성되며 Transition과 연동된다.   
@@ -1150,7 +1150,7 @@ public Step flowStep() {
 Proxy 객체의 실제 대상이 되는 Bean을 등록하고, 해제하는 역할을 하는 `JobScope`, `StepScope` 클래스가 존재한다.    
 해당 클래스들은  실제 빈을 저장하고 있는 `JobContext`와 `StepContext`를 가지고 있다. (마치 Spring의 ApplicationContext와 같이)
 
-![img_18.png](img_18.png)
+![img_18.png](img/img/img_18.png)
 
 `어플리케이션 구동` ▶ `ApplicationContext에서 빈을 생성` ▶ `@JobScope, StepScope가 있는가?` ▶ `있으면 proxy, 없으면 Singleton Bean 생성`    
 `스프링 초기와 완료, Job실행` ▶ `Job 에서 Proxy 호출` ▶ `proxy에서 실제 Step Bean 참조` ▶ `Step Bean 이 있다면 꺼내주고 없다면 beanFactory 에서 생성(@Value 바인딩도 이때)`    
@@ -1161,12 +1161,12 @@ Proxy 객체의 실제 대상이 되는 Bean을 등록하고, 해제하는 역�
 # 📌 Chunk Process
 
 ## 🧐 Chunk?
-![img_19.png](img_19.png)
+![img_19.png](img/img/img_19.png)
 
 Chunk 란 여러개의 아이템을 묶은 덩어리 블록으로, 아이템을 입력받아 덩어리로 만든 후 Chunk 단위로 트랜잭션을 처리한다.   
 일반적으로 대용향 데이터를 한번에 처리하는 것이 아닌 chunk 단위로 쪼개어 반복 입출력 할 때 사용된다.
 
-![img_20.png](img_20.png)
+![img_20.png](img/img/img_20.png)
 
 - `Chunk<I>` 는 `ItemReader` 로부터 읽은 아이템을 `Chunk Size` 만큼 반복해서 저장한다.
 - `Chunk<O>` 는 `ItemReader`로 부터 전달받은 `Chunk<I>`를 참조하여 `ItemProcessor`에서 가공된 아이템들을 `ItemWriter` 에게 전달한다.
@@ -1339,13 +1339,13 @@ public class CustomItemReader implements ItemStreamReader<Member> {
 Chunk Size를 2로 주고, 리소스로 10개의 아이템을 주었다.    
 8번째 아이템을 읽은 후에 예외가 발생하도록 설정해 보았다. 아래 이미지는 테스트의 결과이다.
 
-![img_21.png](img_21.png)
+![img_21.png](img/img/img_21.png)
 
 최초에 Reader와 Writer의 Stream이 Open 되고, Update 가 한번 호출 된다.    
 그 뒤에 아이템을 청크 사이즈만큼 읽고, Processor가 동작한 후 Write가 이루어 진다.(USER1, USER2 와 같이 출력하도록 함)     
 read(), process(), write() 가 한 chunk에 대해 모두 실행되면 Reaader, Writer의 Stream에서 Update()가 호출되어 상태를 저장한다.
 
-![img_22.png](img_22.png)
+![img_22.png](img/img/img_22.png)
 
 8번째 아이템에서 예외가 발생하면 Close()를 호출하여 리소스를 해제하고 종료한다.    
 물론 예외가 발생하지 않아도 Close()를 호출하여 리소스를 해제한다.
@@ -1355,7 +1355,7 @@ restartable이 true로 바뀌기 떄문에 item 10 까지 정상적으로 실행
 
 
 ## 🧐 Chunk Process 아키텍처
-<img alt="img_23.png" height="500" src="img_23.png" width="1000"/>    
+<img alt="img_23.png" height="500" src="img/img/img_23.png" width="1000"/>    
 
 설명은 위에서 계속 했으니 생략한다.
 
@@ -1521,7 +1521,7 @@ XNL 파일의 항목을 직접 이동하면서 Stax 파서기를 통해 구문�
 
 스프링 배치는 StAX 방식으로 문서를 처리하는 StaxEventItemReader를 제공한다.
 
-![img_24.png](img_24.png)
+![img_24.png](img/img/img_24.png)
 XML 문서를 조각(fragment) 단위로 분석하여 처리한다.(root element 를 하나의 조각으로)     
 조각을 읽을 때는 DOM의 Pull 방식을 사용하고, 이를 객체로 바인딩 할때는 SAX의 Push 방식을 사용한다.    
 fragment 단위로 읽어들인 후 SpringOXM 에게 객체 매핑을 위임한다.
@@ -1606,7 +1606,7 @@ Map 에 처음으로 들어가는 요소는 RootElement에 해당하는 것으�
 
 
 ## 🧐 JsonItemReader
-![img_25.png](img_25.png)
+![img_25.png](img/img/img_25.png)
 
 Json 데이터의 파싱, 바인딩을 JsonObjectReader 구현체에게 위임하여 처리한다.
 
@@ -1660,7 +1660,7 @@ Cursor와 달리 한 페이지를 읽을 때 마다 Connection을 재연결 한�
 
 - ### 👆 JdbcCursorItemReader
 
-  <img alt="img_26.png" height="400" src="img_26.png" width="900"/>
+  <img alt="img_26.png" height="400" src="img/img/img_26.png" width="900"/>
   
   커서 기반의 JDBC 구현체로 ResultSet과 함께 사용되며, Datasource에서 Connection을 얻어와 SQL을 실행한다.    
   Thread-safe 하지 않기 때문에 멀티 스레드 환경에서 동기화 처리가 필요하다.
@@ -1701,7 +1701,7 @@ Cursor와 달리 한 페이지를 읽을 때 마다 Connection을 재연결 한�
 
 
 - ### 👆 JpaCursorItemReader
-  <img alt="img_27.png" height="400" src="img_27.png" width="900"/>
+  <img alt="img_27.png" height="400" src="img/img/img_27.png" width="900"/>
   
   SpringBatch 4.3 부터 지원한다. `EntityManagerFactory` 객체를 필요로하며 쿼리는 `JPQL`로 작성한다.   
   ItemStream에서 Query를 통해 생성된 결과를 ResultStream 으로 가져온다. 그 후 JpaCursorItemReader 에서 Iterator로 ResultStream에서 결과를 뽑아낸다.
@@ -1865,7 +1865,7 @@ public class MemberService {
 - FlatFileHeaderCallback, FlatFileFooterCallback
   - 헤더, 푸터를 파일에 쓰기위한 인터페이스.
   
-![img_28.png](img_28.png)
+![img_28.png](img/img/img_28.png)
 
 FieldExtractor 에서 필드를 추출해 배열을 생성해 넘겨주면 LineAggregator 에서 구분자를 추가하여 문자열을 생성한다.
 
@@ -1964,7 +1964,7 @@ JDBC의 Batch 기능을 사용하여 bulk Insert, update, delete 방식으로 �
   - ColumnMapItemPreparedStatementSetter 가 사용된다.
 
 
-<img alt="img_29.png" height="400" src="img_29.png" width="900"/>
+<img alt="img_29.png" height="400" src="img/img/img_29.png" width="900"/>
 
 쓸 대상의 타입이 Pojo 타입의 객체라면 beanMapped()를, Map 과 같이 key, value의 쌍이라면 columnMapped()를 사용한다.
 
@@ -2026,7 +2026,7 @@ public class MemberService {
 # 📌 ItemProcessor 구현체
 
 ## 🧐 CompositeItemProcessor
-<img alt="img_30.png" src="img_30.png" width="900"/>
+<img alt="img_30.png" src="img/img/img_30.png" width="900"/>
 
 ItemProcessor 들을 연결해서 위임하면 각 ItemProcessor를 실행시킨다.   
 이전 ItemProcessor 반환 값은 다음 ItemProcessor 값으로 연결된다.
