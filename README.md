@@ -79,4 +79,5 @@
 - ### [Git](Git)
 - ### [GraphQL](ETC/graphQL.md)
 - ### [Elasticsearch](ETC/Elasticsearch.md)
+- ### [Redis](ETC/Redis.md)
 
