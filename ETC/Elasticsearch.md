@@ -273,7 +273,7 @@ spring:
 기존의 Elasticsearch Config 의 실행을 profile이 Test가 아닐때만 실행하도록 한다던지 하고, Test를 진행할 때에는 Test profile로 실행하도록 설정한다.
 - 도커 컨테이너가 띄워지고, 테스트가 종료되면 내려간다.
 
-![img.png](img.png)
+![img.png](img/img_2.png)
 
 
 <br><br>
